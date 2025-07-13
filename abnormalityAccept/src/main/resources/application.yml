@@ -3,3 +3,6 @@ spring:
   name: abnormalityAccept
   profiles:
     active: dev
+
+abc:
+  dce: sdas11

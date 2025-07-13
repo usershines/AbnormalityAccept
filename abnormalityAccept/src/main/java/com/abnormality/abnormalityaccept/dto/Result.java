@@ -17,6 +17,9 @@ public class Result<T> {
     public static <T> Result<T> ok(T data){
         return new Result<>("200", "操作成功", data);
     }
+
+    public static <T> Result<T> ok(String message, T data) {return new Result<>("200", message, data);
+    }
     public static <T> Result<T> error(String code,String msg){
         return new Result<>(code, msg, null);
     }

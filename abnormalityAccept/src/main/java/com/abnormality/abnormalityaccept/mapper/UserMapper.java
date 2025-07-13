@@ -1,6 +1,9 @@
 package com.abnormality.abnormalityaccept.mapper;
 
+import com.abnormality.abnormalityaccept.entity.User;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author shanh
@@ -10,4 +13,28 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface UserMapper {
+    /**
+     *查询所有用户
+     */
+    List<User> findAllUser();
+
+    /**
+     *根据id查询用户
+     */
+    User findUserById(Integer id);
+
+    /**
+     * 新增数据
+     */
+    int adduser(User user);
+
+    /**
+     * 删除数据
+     */
+    int deleteUserById(Integer id);
+
+    /**
+     * 修改数据
+     */
+    int updateUser(User user);
 }

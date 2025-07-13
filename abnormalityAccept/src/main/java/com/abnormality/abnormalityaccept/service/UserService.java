@@ -36,4 +36,12 @@ public interface UserService {
      */
     boolean updateUser(User user);
 
+    String login(String username, String password);
+
+    String register(String username, String password, String email);
+
+    boolean logout(String token);
+
+    boolean verify(String token);
+
 }

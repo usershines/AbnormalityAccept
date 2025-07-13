@@ -1,7 +1,7 @@
 package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.User;
-import com.abnormality.abnormalityaccept.service.UserService
+import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,8 +39,9 @@ public class UserController {
     @GetMapping("/{id}")
     public Result<User>  findUserById(@PathVariable Integer id) {
         User user = userService.findUserById(id);
-        if(user == null)
+        if(user == null) {
             return Result.error("500","用户不存在");
+        }
         return Result.ok("查询成功", user);
     }
 

@@ -18,6 +18,7 @@ public class LogAspect {
 
     @Autowired
     private ApplicationContext applicationContext;
+
     @Pointcut("execution(* com.abnormality.abnormalityaccept.controller.*.*(..))")
     public void log(){
 

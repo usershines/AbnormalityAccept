@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Data
 public class Quest {
-    private Integer id;
+    private Long id;
     private String questName;
     private String questDescription;
     private Integer state;

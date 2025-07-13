@@ -7,7 +7,7 @@ spring:
       host: localhost
       port: 6379
   datasource:
-    url: jdbc:mysql://localhost:3306/abnormality?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC
     username: abnormality
     password: abnormality
     driver-class-name: com.mysql.cj.jdbc.Driver

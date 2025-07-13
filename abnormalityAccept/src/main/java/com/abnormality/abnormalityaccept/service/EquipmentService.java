@@ -6,5 +6,5 @@ package com.abnormality.abnormalityaccept.service;
  * {@code @description:}
  * @since 2025-07-13
  */
-public interface userService {
+public interface EquipmentService {
 }

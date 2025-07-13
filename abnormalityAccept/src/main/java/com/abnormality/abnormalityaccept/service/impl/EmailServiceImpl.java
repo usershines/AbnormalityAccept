@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
+import com.abnormality.abnormalityaccept.service.EmailService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,5 +10,5 @@ import org.springframework.stereotype.Service;
  * @since 2025-07-13
  */
 @Service
-public class EmailServiceImpl {
+public class EmailServiceImpl implements EmailService {
 }

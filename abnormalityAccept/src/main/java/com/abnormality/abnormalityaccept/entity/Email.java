@@ -1,7 +1,5 @@
 package com.abnormality.abnormalityaccept.entity;
 
-import lombok.Data;
-
 /**
  * @author shanh
  * @version 1.0
@@ -9,9 +7,10 @@ import lombok.Data;
  * @since 2025-07-13
  */
 @Data
-public class Quest {
-    private Integer id;
-    private String questName;
-    private String questDescription;
+public class Email {
     private Integer state;
+    private Integer senderId;
+    private Integer receiverId;
+    private String theme;
+    private String content;
 }

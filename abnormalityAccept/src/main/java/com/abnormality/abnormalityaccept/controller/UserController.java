@@ -1,5 +1,7 @@
 package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.dto.request.AuthRequest;
+import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageInfo;
@@ -79,6 +81,18 @@ public class UserController {
         else {
             return Result.error("500","更新失败");
         }
+    }
+
+    //TODO:Email字段设计
+    @Operation(summary = "用户登录")
+    @PostMapping("/login")
+    public Result<AuthResponse> login(@RequestBody AuthRequest req) {
+        return Result.ok(userService.login(req.getName(), req.getPassword()));
+    }
+    @Operation(summary = "用户注册")
+    @PostMapping("/register")
+    public Result<AuthResponse> register(@RequestBody AuthRequest req) {
+        return Result.ok(userService.register(req.getName(), req.getPassword(), req.getEmail()));
     }
 
 }

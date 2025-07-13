@@ -10,6 +10,7 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
 import cn.hutool.jwt.JWTValidator;
+import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.service.UserService;
@@ -78,12 +79,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(String username, String password) {
-        return "";
+    public AuthResponse login(String username, String password) {
+
     }
 
     @Override
-    public String register(String username, String password, String email) {
+    public AuthResponse register(String username, String password, String email) {
         return "";
     }
 

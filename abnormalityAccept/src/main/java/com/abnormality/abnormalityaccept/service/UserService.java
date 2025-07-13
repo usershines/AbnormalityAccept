@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service;
 
+import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -36,9 +37,9 @@ public interface UserService {
      */
     boolean updateUser(User user);
 
-    String login(String username, String password);
+    AuthResponse login(String username, String password);
 
-    String register(String username, String password, String email);
+    AuthResponse register(String username, String password, String email);
 
     boolean logout(String token);
 

@@ -1,5 +1,7 @@
 package com.abnormality.abnormalityaccept.mapper;
 
+import com.abnormality.abnormalityaccept.entity.Quest;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -9,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2025-07-13
  */
 @Mapper
-public interface QuestMapper {
+public interface QuestMapper extends BaseMapper<Quest> {
 }

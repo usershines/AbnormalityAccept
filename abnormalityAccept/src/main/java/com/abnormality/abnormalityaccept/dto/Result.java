@@ -15,15 +15,21 @@ public class Result<T> {
     }
 
     public static <T> Result<T> ok(T data){
-        return new Result<T>("200","操作成功",data);
+        return new Result<>("200", "操作成功", data);
     }
     public static <T> Result<T> error(String code,String msg){
-        return new Result<T>(code,msg,null);
+        return new Result<>(code, msg, null);
     }
     public static <T> Result<T> error(String msg){
-        return new Result<T>("500",msg,null);
+        return new Result<>("500", msg, null);
     }
     public static <T> Result<T> error(){
-        return new Result<T>("500","操作失败",null);
+        return new Result<>("500", "操作失败", null);
+    }
+    public static <T> Result<T> error(T data){
+        return new Result<>("500", "操作失败", data);
+    }
+    public static <T> Result<T> error(String code,String msg,T data){
+        return new Result<>(code, msg, data);
     }
 }

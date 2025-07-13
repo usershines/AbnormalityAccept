@@ -10,5 +10,12 @@ import lombok.Data;
  */
 @Data
 public class Abnormality {
+    private Long id;
+    private String name;
+    private Integer level;
+    private String description;
+    private String manageMethod;
+    private String notes;
+    private Long facilityId;
 
 }

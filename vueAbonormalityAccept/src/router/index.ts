@@ -1,14 +1,47 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/index.vue'
+import EmailView from '../views/email/index.vue'
+import Home from '../views/home/index.vue'
+import WorkPlace from '../views/workPlace/index.vue'
+import User from '../views/workPlace/user/index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: 'main',
       component: HomeView,
+      children:[
+        {
+          path: 'email',
+          name: 'email',
+          component: EmailView,
+        },
+        {
+          path: 'workPlace',
+          name: 'workPlace',
+          component: WorkPlace,
+          children:[
+            {
+              path: 'user',
+              component: User,
+            }
+          ]
+        },
+        {
+          path: 'start',
+          name: 'start',
+          component: Home,
+        },
+        {
+          path: '',
+          name: '',
+          component: Home,
+        },
+      ]
     },
+
     /*{
       path: '/about',
       name: 'about',

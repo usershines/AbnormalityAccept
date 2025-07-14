@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <RouterView />
+  <RouterView :key="$route.fullPath" />
 </template>
 
 <style scoped></style>

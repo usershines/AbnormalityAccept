@@ -1,6 +1,8 @@
 package com.abnormality.abnormalityaccept.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author shanh
@@ -9,8 +11,11 @@ import lombok.Data;
  * @since 2025-07-13
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Abnormality {
     private Long id;
+    private String AbnormalityCode;
     private String name;
     private Integer level;
     private String description;

@@ -1,4 +1,9 @@
 package com.abnormality.abnormalityaccept.entity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
 
 /**
  * @author shanh
@@ -7,7 +12,10 @@ package com.abnormality.abnormalityaccept.entity;
  * @since 2025-07-13
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Email {
+    private Long id;
     private Integer state;
     private Integer senderId;
     private Integer receiverId;

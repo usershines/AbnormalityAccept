@@ -9,13 +9,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User {
 
-    private Integer id;
+    private Long id;
+    //编号
+    private String userNumber;
     private String username;
     private String password;
     private String email;
-    private Integer inviterId;
-    private Integer leaderId;
-    private Integer facilityId;
+    private Long inviterId;
+    private Long leaderId;
+    private Long facilityId;
     private String introduction ;
     private Integer level;
 

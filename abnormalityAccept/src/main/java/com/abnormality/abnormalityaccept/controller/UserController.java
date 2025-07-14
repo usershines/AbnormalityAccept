@@ -1,7 +1,7 @@
 package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.User;
-import com.abnormality.abnormalityaccept.service.UserService
+import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

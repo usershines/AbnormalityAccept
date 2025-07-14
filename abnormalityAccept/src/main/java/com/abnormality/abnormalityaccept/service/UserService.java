@@ -39,7 +39,7 @@ public interface UserService {
 
     AuthResponse login(String username, String password);
 
-    AuthResponse register(String username, String password, String email);
+    AuthResponse register(String username, String password);
 
     boolean logout(String token);
 

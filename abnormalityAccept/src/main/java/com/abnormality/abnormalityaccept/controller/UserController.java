@@ -92,7 +92,7 @@ public class UserController {
     @Operation(summary = "用户注册")
     @PostMapping("/register")
     public Result<AuthResponse> register(@RequestBody AuthRequest req) {
-        return Result.ok(userService.register(req.getName(), req.getPassword(), req.getEmail()));
+        return Result.ok(userService.register(req.getName(), req.getPassword()));
     }
 
 }

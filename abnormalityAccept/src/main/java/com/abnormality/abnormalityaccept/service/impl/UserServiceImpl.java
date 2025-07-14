@@ -82,7 +82,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean addUser(User user){
         //自增UserNumber
-        user.setUserNumber(getNewUserNumber());
         int i=userMapper.insert(user);
 //        int i = userMapper.adduser(user);
         return i > 0;

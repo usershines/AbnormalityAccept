@@ -12,13 +12,13 @@
         <result property="email" column="email"/>
         <result property="inviterId" column="inviter_id"/>
         <result property="leaderId" column="leader_id"/>
-        <result property="facilityId" column="dacility_id"/>
+        <result property="facilityId" column="facility_id"/>
         <result property="introduction" column="introduction"/>
 
     </resultMap>
 
     <sql id="Base_User">
-        id,username,level,password,email,inviter_id,leader_id,dacility_id,introduction
+        id,username,level,password,email,inviter_id,leader_id,facility_id,introduction
     </sql>
 
     <select id="findAllUser" resultMap="Base_User_List">
@@ -35,7 +35,7 @@
     </select>
 
     <insert id="adduser">
-        insert into user(username,level,password,email,inviter_id,leader_id,dacility_id,introduction)
+        insert into user(username,level,password,email,inviter_id,leader_id,facility_id,introduction)
         values(#{username},#{level},#{password},#{email},#{inviterId},#{leaderId},#{facilityId},#{introduction})
     </insert>
 

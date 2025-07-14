@@ -27,10 +27,10 @@ public interface AbnormalityService {
     // 查询异想体（多条件）
     PageInfo<Abnormality> findAbnormalityByConditions(Abnormality abnormality,Integer pageNum, Integer pageSize);
 
-    // 获取异想体详情
-    Abnormality getAbnormalityDetails(Long id);
-
-
-    // 转移异想体到新设施
-    void transferAbnormality(Long abnormalityId, Long newFacilityId);
+//    // 获取异想体详情
+//    Abnormality getAbnormalityDetails(Long id);
+//
+//
+//    // 转移异想体到新设施
+//    void transferAbnormality(Long abnormalityId, Long newFacilityId);
 }

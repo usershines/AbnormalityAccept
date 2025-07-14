@@ -89,10 +89,5 @@ public class UserController {
     public Result<AuthResponse> login(@RequestBody AuthRequest req) {
         return Result.ok(userService.login(req.getName(), req.getPassword()));
     }
-    @Operation(summary = "用户注册")
-    @PostMapping("/register")
-    public Result<AuthResponse> register(@RequestBody AuthRequest req) {
-        return Result.ok(userService.register(req.getName(), req.getPassword()));
-    }
 
 }

@@ -1,1 +1,5 @@
-./.idea /
+/.idea/
+/.idea/.cache/.Apifox_Helper/.toolWindow.db
+/.idea/inspectionProfiles/Project_Default.xml
+/target/
+/abnormalityAccept.iml

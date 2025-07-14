@@ -81,7 +81,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean addUser(User user){
-        int i = userMapper.adduser(user);
+        //自增UserNumber
+        user.setUserNumber(getNewUserNumber());
+        int i=userMapper.insert(user);
+//        int i = userMapper.adduser(user);
         return i > 0;
     }
 
@@ -123,7 +126,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         user.setPassword(encryptPassword(password));
         user.setEmail(email);
-        userMapper.insert(user);
+        addUser(user);
         authResponse.setName(user.getUsername());
         String token=generateJwt(user);
         redisService.setEx(getTokenKey(token),token,12*60*60);
@@ -210,5 +213,9 @@ public class UserServiceImpl implements UserService {
         JWT jwt = JWT.of(token);
         String username= jwt.getPayload("username").toString();
         return username;
+    }
+
+    private String getNewUserNumber(){
+        return String.valueOf(userMapper.selectCount(null)+1);
     }
 }

@@ -6,3 +6,6 @@ spring:
 
 abc:
   dce: sdas112251510510502
+
+jwt:
+  keybase: abnormality

@@ -4,6 +4,7 @@ import com.abnormality.abnormalityaccept.entity.Abnormality;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -21,11 +22,16 @@ public interface AbnormalityMapper extends BaseMapper<Abnormality> {
 
     Abnormality findAbnormalityById(Long id);
 
-    int addAbnormality(Abnormality abnormality);
+    boolean addAbnormality(Abnormality abnormality);
 
-    int updateAbnormality(Abnormality abnormality, User user);
+    boolean updateAbnormality(Abnormality abnormality);
 
-
+    List<Abnormality> findAbnormalityByConditions(
+            @Param("id") Long id,
+            @Param("name") String name,
+            @Param("level") Integer level,
+            @Param("facilityId") Long facilityId
+    );
 
 
 

@@ -3,6 +3,7 @@ package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -38,4 +39,13 @@ public interface UserMapper extends BaseMapper<User> {
      * 修改数据
      */
     int updateUser(User user);
+
+    // 多条件查询用户
+    List<User> findUserByConditions(
+            @Param("id") Long id,
+            @Param("username") String username,
+            @Param("email") String email,
+            @Param("level") Integer level,
+            @Param("facilityId") Long facilityId
+    );
 }

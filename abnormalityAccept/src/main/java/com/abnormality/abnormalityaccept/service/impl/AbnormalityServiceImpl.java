@@ -6,6 +6,7 @@ import com.abnormality.abnormalityaccept.mapper.AbnormalityMapper;
 import com.abnormality.abnormalityaccept.service.AbnormalityService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  * @since 2025-07-13
  */
 @Service
+@RequiredArgsConstructor
 public class AbnormalityServiceImpl implements AbnormalityService {
 
     private AbnormalityMapper abnormalityMapper;
@@ -35,12 +37,22 @@ public class AbnormalityServiceImpl implements AbnormalityService {
 
     //根据用户等级获取相应的添加权限
     @Override
-    public Abnormality addAbnormality(Abnormality abnormality, User creator) {
-
+    public boolean addAbnormality(Abnormality abnormality) {
+        return abnormalityMapper.addAbnormality(abnormality);
     }
+
 
     //根据用户等级获取相应的修改权限
     @Override
-    public Abnormality updateAbnormality(Long id, Abnormality updatedData, User updater) {
+    public boolean updateAbnormality( Abnormality updatedData) {
+        return  abnormalityMapper.updateAbnormality(updatedData);
+    }
+
+    @Override
+    public PageInfo<Abnormality> findAbnormalityByConditions(Abnormality abnormality,Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum,pageSize);
+        List<Abnormality> abnormalityList = abnormalityMapper.findAbnormalityByConditions(abnormality.getId(),abnormality.getName(),abnormality.getLevel(),abnormality.getFacilityId());
+        return PageInfo.of(abnormalityList);
+    }
 
 }

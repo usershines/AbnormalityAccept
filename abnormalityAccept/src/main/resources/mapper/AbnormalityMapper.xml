@@ -48,4 +48,14 @@
         where id = #{id}
     </update>
 
+    <select id="findAbnormalityByConditions" resultType="com.abnormality.abnormalityaccept.entity.Abnormality">
+    SELECT * FROM abnormality
+    <where>
+        <if test="id != null">AND id = #{id}</if>
+        <if test="name != null and name != ''">AND name LIKE CONCAT('%', #{name}, '%')</if>
+        <if test="level != null">AND level = #{level}</if>
+        <if test="facilityId != null">AND facility_id = #{facilityId}</if>
+    </where>
+    </select>
+
 </mapper>

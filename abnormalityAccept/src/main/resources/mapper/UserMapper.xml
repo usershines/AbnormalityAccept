@@ -64,4 +64,15 @@
         </set>
     </update>
 
+    <select id="findUserByConditions" resultType="com.abnormality.abnormalityaccept.entity.User">
+        SELECT * FROM user
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="username != null and username != ''">AND username LIKE CONCAT('%', #{username}, '%')</if>
+            <if test="email != null and email != ''">AND email = #{email}</if>
+            <if test="level != null">AND level = #{level}</if>
+            <if test="facilityId != null">AND facility_id = #{facilityId}</if>
+        </where>
+    </select>
+
 </mapper>

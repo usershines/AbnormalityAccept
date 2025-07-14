@@ -111,7 +111,6 @@ public class UserServiceImpl implements UserService {
         return authResponse;
 
     }
-
     @Override
     public AuthResponse register(String username, String password, String email) {
         AuthResponse authResponse = new AuthResponse();

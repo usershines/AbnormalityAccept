@@ -1,0 +1,8 @@
+spring:
+  application:
+  name: abnormalityAccept
+  profiles:
+    active: dev
+
+abc:
+  dce: sdas112251510510502

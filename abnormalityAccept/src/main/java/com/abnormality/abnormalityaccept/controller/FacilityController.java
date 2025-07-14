@@ -20,7 +20,8 @@ import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/Equipment")
+@RequestMapping("/Facility")
+@Tag(name = "设施管理")
 public class FacilityController {
     private final FacilityService facilityService;
 

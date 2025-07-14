@@ -20,7 +20,8 @@ import com.abnormality.abnormalityaccept.mapper.NoticeMapper;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/Equipment")
+@RequestMapping("/Notice")
+@Tag(name = "公告管理")
 public class NoticeController {
     private final NoticeService noticeService;
 

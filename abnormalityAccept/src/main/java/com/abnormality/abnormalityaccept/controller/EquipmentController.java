@@ -21,13 +21,14 @@ import com.abnormality.abnormalityaccept.mapper.EquipmentMapper;
 @CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping("/Equipment")
+@Tag(name = "装备管理")
 public class EquipmentController {
     private final EquipmentService equipmentService;
 
     @Operation(summary = "分页查询所有装备")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    @GetMapping("/findAll")
+    @GetMapping("/findAllEquipment")
     public Result<PageInfo<Equipment>> findAllEquipment(
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize) {
@@ -37,8 +38,8 @@ public class EquipmentController {
 
     @Operation(summary = "根据ID查询装备")
     @Parameter(name = "id", description = "装备ID", required = true, example = "1")
-    @GetMapping("/findById")
-    public Result<Equipment> findEquipmentById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public Result<Equipment> findEquipmentById(@PathVariable Long id) {
         Equipment equipment = equipmentService.findEquipmentById(id);
         if (equipment == null) {
             return Result.error(500, "装备不存在");
@@ -47,7 +48,7 @@ public class EquipmentController {
     }
 
     @Operation(summary = "添加装备")
-    @PostMapping("/new")
+    @PostMapping("/add")
     public Result<String> addEquipment(@RequestBody Equipment equipment) {
         if (equipmentService.addEquipment(equipment)) {
             return Result.ok("添加成功");

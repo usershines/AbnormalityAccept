@@ -30,7 +30,8 @@ public interface UserService {
     /**
      * 新增数据
      */
-    boolean addUser(User user);
+    // 修改后的addUser方法
+    boolean addUser(User newUser, Long inviterId);
 
     /**
      * 修改数据
@@ -39,7 +40,6 @@ public interface UserService {
 
     AuthResponse login(String username, String password);
 
-    AuthResponse register(String username, String password,String email);
 
     boolean logout(String token);
 

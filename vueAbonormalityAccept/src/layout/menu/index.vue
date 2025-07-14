@@ -37,7 +37,7 @@
           <el-icon><User /></el-icon>
           <span>用户管理</span>
         </template>
-        <el-menu-item index="user-list">
+        <el-menu-item index="workPlace/user">
           <el-icon><List /></el-icon>
           <span>用户列表</span>
         </el-menu-item>

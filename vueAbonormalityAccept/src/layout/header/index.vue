@@ -42,18 +42,6 @@ const goToHome = () =>{
   console.log("返回主页")
   router.push({name: 'start'})
 }
-const goToWorkPlace = () =>{
-  console.log("打开工作区")
-  router.push({name: 'workPlace'}).then(()=>{
-  }).catch((error)=>{
-    console.log('error:',error)
-  })
-}
-const goToEmail = () =>{
-  console.log("打开邮箱")
-  router.push({name: 'email'})
-}
-
 // 时钟
 const currentHour = ref()
 const currentMinutes = ref()

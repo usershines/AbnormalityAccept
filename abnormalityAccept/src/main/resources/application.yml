@@ -4,11 +4,14 @@ spring:
   profiles:
     active: dev
 
-abc:
-  dce: sdas112251510510502
 
-sds:
-  fdfdfd:sssssssssssssssssssssssss
 
 jwt:
   keybase: abnormality
+
+
+config:
+  jwt:
+    secret: abnormality
+    expire: 30
+    header: Abnormality-Token

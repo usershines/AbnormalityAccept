@@ -25,10 +25,13 @@ public interface UserMapper extends BaseMapper<User> {
      */
     User findUserById(Long id);
 
+    /** 根据用户名查询用户 */
+    User findUserByUsername(String username);
+
     /**
      * 新增数据
      */
-    int adduser(User user);
+    int addUser(User user);
 
     /**
      * 删除数据
@@ -41,11 +44,7 @@ public interface UserMapper extends BaseMapper<User> {
     int updateUser(User user);
 
     // 多条件查询用户
-    List<User> findUserByConditions(
-            @Param("id") Long id,
-            @Param("username") String username,
-            @Param("email") String email,
-            @Param("level") Integer level,
-            @Param("facilityId") Long facilityId
-    );
+    List<User> findUserByConditions(User user);
+
+
 }

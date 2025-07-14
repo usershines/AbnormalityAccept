@@ -19,7 +19,10 @@ public enum Code {
 
     //新增枚举值
     BAD_REQUEST(400, "请求参数错误"),
-    SERVICE_UNAVAILABLE(503, "服务不可用");
+    SERVICE_UNAVAILABLE(503, "服务不可用"),
+    FORBIDDEN(501,"权限错误"),
+    UNAUTHORIZED(888,"密码错误" );
+
     private final int code;
     private final String msg;
 

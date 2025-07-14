@@ -42,7 +42,7 @@ public class UserController {
     public Result<User>  findUserById(@PathVariable Integer id) {
         User user = userService.findUserById(id);
         if(user == null) {
-            return Result.error("500","用户不存在");
+            return Result.error(500,"用户不存在");
         }
         return Result.ok("查询成功", user);
     }
@@ -58,7 +58,7 @@ public class UserController {
             return Result.ok("删除成功");
         }
         else {
-            return Result.error("500","删除失败");
+            return Result.error(500,"删除失败");
         }
     }
 
@@ -69,7 +69,7 @@ public class UserController {
             return Result.ok("添加成功");
         }
         else {
-            return Result.error("500","添加失败");
+            return Result.error(500,"添加失败");
         }
     }
     @Operation(summary = "更新用户")
@@ -79,7 +79,7 @@ public class UserController {
             return Result.ok("更新成功");
         }
         else {
-            return Result.error("500","更新失败");
+            return Result.error(500,"更新失败");
         }
     }
 

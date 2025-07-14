@@ -1,7 +1,14 @@
 package com.abnormality.abnormalityaccept.service.impl;
+import com.abnormality.abnormalityaccept.entity.Facility;
+import com.abnormality.abnormalityaccept.service.FacilityService;
+import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
+import java.util.List;
 /**
  * @author shanh
  * @version 1.0
@@ -9,5 +16,50 @@ import org.springframework.stereotype.Service;
  * @since 2025-07-13
  */
 @Service
-public class FacilityServiceImpl {
+@RequiredArgsConstructor
+public class FacilityServiceImpl implements FacilityService {
+    private final FacilityMapper facilityMapper;
+
+    /**
+     * 分页查询所有设施
+     */
+    @Override
+    public PageInfo<Facility> findAllFacility(Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Facility> facilityList = facilityMapper.findAllFacility();
+        return PageInfo.of(facilityList);
+    }
+
+    /**
+     * 根据ID查询设施
+     */
+    @Override
+    public Facility findFacilityById(Long id) {
+        return facilityMapper.findFacilityById(id);
+    }
+
+    /**
+     * 添加设施
+     */
+    @Override
+    public boolean addFacility(Facility facility) {
+        return facilityMapper.addFacility(facility) > 0;
+    }
+
+    /**
+     * 更新设施信息
+     */
+    @Override
+    public boolean updateFacility(Facility facility) {
+        return facilityMapper.updateFacility(facility) > 0;
+    }
+
+    /**
+     * 根据ID删除设施
+     */
+    @Override
+    public boolean deleteFacilityById(Long id) {
+        return facilityMapper.deleteFacilityById(id);
+    }
+
 }

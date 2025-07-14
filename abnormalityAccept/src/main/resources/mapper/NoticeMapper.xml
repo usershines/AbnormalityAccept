@@ -4,4 +4,66 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.abnormality.abnormalityaccept.mapper.NoticeMapper">
+
+    <resultMap id="Base_Notice_List" type="com.abnormality.abnormalityaccept.entity.Notice">
+        <id property="id" column="id"/>
+        <result property="content" column="content"/>
+        <result property="time" column="time"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="Base_Notice">
+        id, content, time ,state
+    </sql>
+
+    <select id="findAllNotice" resultMap="Base_Notice_List">
+        SELECT
+        <include refid="Base_Notice"/>
+        FROM mails
+    </select>
+
+    <select id="findNoticeById" resultMap="Base_Notice_List">
+        SELECT
+        <include refid="Base_Notice"/>
+        FROM mails
+        WHERE id = #{id}
+    </select>
+
+    <insert id="addNotice">
+        INSERT INTO mails(status, sender_id, recipient_id, subject, content, is_urgent)
+        VALUES(#{status}, #{senderId}, #{recipientId}, #{subject}, #{content}, #{isUrgent})
+    </insert>
+
+    <update id="updateNotice">
+        UPDATE mails
+        SET status = #{status},
+            sender_id = #{senderId},
+            recipient_id = #{recipientId},
+            subject = #{subject},
+            content = #{content},
+            is_urgent = #{isUrgent}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteNoticeById">
+        DELETE FROM mails
+        WHERE id = #{id}
+    </delete>
+
+    <select id="findNoticeByCondition" resultMap="Base_Notice_List">
+        SELECT
+        <include refid="Base_Notice"/>
+        FROM mails
+        <where>
+            <if test="subject != null and subject != ''">
+                AND subject LIKE CONCAT('%', #{subject}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="isUrgent != null">
+                AND is_urgent = #{isUrgent}
+            </if>
+        </where>
+    </select>
 </mapper>

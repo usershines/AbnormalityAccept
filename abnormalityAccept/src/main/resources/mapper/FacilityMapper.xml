@@ -4,4 +4,58 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.abnormality.abnormalityaccept.mapper.FacilityMapper">
+    <resultMap id="Base_Facility_List" type="com.abnormality.abnormalityaccept.entity.Facility">
+        <id property="id" column="id"/>
+        <result property="facilityName" column="facility_name"/>
+        <result property="facilityAddress" column="facility_address"/>
+    </resultMap>
+
+    <sql id="Base_Facility">
+        id, facility_name, facility_address
+    </sql>
+
+    <select id="findAllFacility" resultMap="Base_Facility_List">
+        SELECT
+        <include refid="Base_Facility"/>
+        FROM facilities
+    </select>
+
+    <select id="findFacilityById" resultMap="Base_Facility_List">
+        SELECT
+        <include refid="Base_Facility"/>
+        FROM facilities
+        WHERE id = #{id}
+    </select>
+
+    <insert id="addFacility">
+        INSERT INTO facilities(id, name, coordinates, security_level)
+        VALUES(#{id}, #{name}, ST_GeomFromText(#{coordinates}), #{securityLevel})
+    </insert>
+
+    <update id="updateFacility">
+        UPDATE facilities
+        SET name = #{name},
+            coordinates = ST_GeomFromText(#{coordinates}),
+            security_level = #{securityLevel}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteFacilityById">
+        DELETE FROM facilities
+        WHERE id = #{id}
+    </delete>
+
+    <select id="findFacilityByCondition" resultMap="Base_Facility_List">
+        SELECT
+        <include refid="Base_Facility"/>
+        FROM facilities
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="securityLevel != null and securityLevel != ''">
+                AND security_level = #{securityLevel}
+            </if>
+        </where>
+    </select>
 </mapper>

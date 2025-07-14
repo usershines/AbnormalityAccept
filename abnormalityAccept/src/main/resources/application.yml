@@ -7,10 +7,8 @@ spring:
 abc:
   dce: sdas112251510510502
 
-#注意：yml格式的配置文件的子节点字段冒号后面必须有空格，否则会报错
 sds:
-  #正确
-  eg2: sssssssssssssssssssssssss
+  fdfdfd:sssssssssssssssssssssssss
 
 jwt:
   keybase: abnormality

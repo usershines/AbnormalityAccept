@@ -1,46 +1,94 @@
-
 <template>
-  <el-header>
     <div  style="background-color:#3490de;border-radius: 10px;
-      position: fixed; top:0; left: 0;width: 100%;height: 110px;
+      position: fixed; top:0; left: 2.5%;width: 95%;height: 110px;
       z-index: 99;display: flex;">
-      <div style="width: 160px; padding: 10px;cursor: pointer" @click=clickLogo >
+      <div style="width: 160px; padding: 10px;cursor: pointer" @click=goToHome >
         <el-image :src=logo fit="contain" />
+      </div>
+      <div style="display: flex">
+        <el-text style="font-size: 80px;color: #fafafa;margin: auto 5px 5px 5px"><strong>{{currentHour}}:{{currentMinutes}}</strong></el-text>
+        <el-text style="font-size: 30px;margin: auto 10px 5px 0px;color: #fafafa">:{{currentSeconds}}</el-text>
       </div>
       <div style="margin: auto 10px -10px;">
         <h3>感谢您为人类做出的贡献</h3>
       </div>
-      <div style="width: auto; margin: 10px 10px 10px auto" >
-        <el-badge :value="12" class="item" style="margin: 10px 10px 50px;">
-          <el-button size="large" @click="clickWork">工作区</el-button>
-        </el-badge>
-        <el-badge :value="12" class="item" style="margin: 10px 10px 50px;">
-          <el-button size="large" @click="clickEmail">邮箱</el-button>
-        </el-badge>
+      <div style="width: auto; margin: 10px 10px 10px auto;padding: 10px 10px 50px;display: flex" >
+        <el-menu
+            :default-active="defaultActive"
+            style="position: relative;bottom: -30px;margin-right: 30px;border-radius: 10px 10px 0 0 "
+            mode="horizontal"
+            router
+        >
+          <el-menu-item index="start" >首页</el-menu-item>
+          <el-menu-item index="workPlace">工作区</el-menu-item>
+          <el-menu-item index="email">邮箱</el-menu-item>
+          <el-menu-item index="4">Orders</el-menu-item>
+        </el-menu>
         <el-avatar  :size="80" :src="userAvatar" />
       </div>
     </div>
-  </el-header>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount, } from 'vue'
+import router from "@/router";
+
+const defaultActive = ref('start')
+
 
 const logo = 'src/assets/pic/logo.png'
 const userAvatar = ref("https://ts3.tc.mm.bing.net/th/id/OIP-C.UpIFaAcZ-SrEPtvYmhWOMwHaHa?w=249&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.5&pid=3.1&rm=2")
-const clickLogo = () =>{
+const goToHome = () =>{
   console.log("返回主页")
+  router.push({name: 'start'})
 }
-const clickWork = () =>{
+const goToWorkPlace = () =>{
   console.log("打开工作区")
+  router.push({name: 'workPlace'}).then(()=>{
+  }).catch((error)=>{
+    console.log('error:',error)
+  })
 }
-const clickEmail = () =>{
+const goToEmail = () =>{
   console.log("打开邮箱")
+  router.push({name: 'email'})
 }
+
+// 时钟
+const currentHour = ref()
+const currentMinutes = ref()
+const currentSeconds = ref('')
+let interval: number | undefined
+const updateTime = () => {
+  const now = new Date()
+  currentHour.value = now.getHours().toString().padStart(2,'0')
+  currentMinutes.value = now.getMinutes().toString().padStart(2,'0')
+  currentSeconds.value = now.getSeconds().toString().padStart(2,'0')
+}
+// 生命周期钩子：创建时开始更新时间
+onMounted(() => {
+  updateTime() // 初始化时间
+  interval = setInterval(updateTime, 1000) // 每秒更新一次
+})
+// 生命周期钩子：卸载前清除定时器
+onBeforeUnmount(() => {
+  if (interval !== undefined) {
+    clearInterval(interval)
+  }
+})
+
 
 </script>
 
 
 <style scoped>
+.item{
+  margin: 30px 10px 10px;
+}
 
+.el-button{
+  width: 70px;
+  height: 40px;
+  font-size: 20px;
+}
 </style>

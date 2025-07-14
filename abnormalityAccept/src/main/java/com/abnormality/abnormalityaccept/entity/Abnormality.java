@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Abnormality {
     private Long id;
-    private String abnormalityCode;
     private String name;
     private Integer level;
     private String description;

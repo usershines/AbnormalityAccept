@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Quest {
     private Long id;
-    private String questCode;
     private String questName;
     private String questDescription;
     private Integer state;

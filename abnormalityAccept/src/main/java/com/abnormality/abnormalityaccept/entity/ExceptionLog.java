@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -36,6 +37,8 @@ public class ExceptionLog {
      * HTTP方法，表示发生异常时的请求方法（如GET、POST等）。
      */
     private String method;
+
+    private String machineId;
 
     /**
      * 用户代理，表示客户端浏览器或设备的User-Agent信息。
@@ -79,6 +82,13 @@ public class ExceptionLog {
         ExceptionLog log = new ExceptionLog();
         log.setMessage(e.getMessage());
         log.setExceptionInfo(Arrays.toString(e.getStackTrace()));
+        String machineId="";
+        try{
+            machineId= InetAddress.getLocalHost().getHostAddress();
+        }catch (Exception ex){
+            machineId="unknown";
+        }
+        log.setMachineId(machineId);
         return log;
     }
 }

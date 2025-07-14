@@ -12,13 +12,13 @@
         <result property="email" column="email"/>
         <result property="inviterId" column="inviter_id"/>
         <result property="leaderId" column="leader_id"/>
-        <result property="facilityId" column="dacility_id"/>
+        <result property="facilityId" column="facility_id"/>
         <result property="introduction" column="introduction"/>
 
     </resultMap>
 
     <sql id="Base_User">
-        id,username,level,password,email,inviter_id,leader_id,dacility_id,introduction
+        id,username,level,password,email,inviter_id,leader_id,facility_id,introduction
     </sql>
 
     <select id="findAllUser" resultMap="Base_User_List">
@@ -34,9 +34,27 @@
         where id=#{id}
     </select>
 
-    <insert id="adduser">
-        insert into user(username,level,password,email,inviter_id,leader_id,dacility_id,introduction)
-        values(#{username},#{level},#{password},#{email},#{inviterId},#{leaderId},#{facilityId},#{introduction})
+    <insert id="adduser" parameterType="com.abnormality.abnormalityaccept.entity.User">
+        INSERT INTO user (
+            username,
+            password,
+            email,
+            inviter_id,
+            leader_id,
+            facility_id,
+            introduction,
+            level
+        )
+        VALUES (
+                     #{user.username},
+                     #{user.password},
+                     #{user.email},
+                     #{user.inviterId},
+                     #{user.leaderId},
+                     #{user.facilityId},
+                     #{user.introduction},
+                     #{user.level}
+                 )
     </insert>
 
     <delete id="deleteUserById" parameterType="int">
@@ -63,5 +81,16 @@
             </if>
         </set>
     </update>
+
+    <select id="findUserByConditions" resultType="com.abnormality.abnormalityaccept.entity.User">
+        SELECT * FROM user
+        <where>
+            <if test="id != null">AND id = #{id}</if>
+            <if test="username != null and username != ''">AND username LIKE CONCAT('%', #{username}, '%')</if>
+            <if test="email != null and email != ''">AND email = #{email}</if>
+            <if test="level != null">AND level = #{level}</if>
+            <if test="facilityId != null">AND facility_id = #{facilityId}</if>
+        </where>
+    </select>
 
 </mapper>

@@ -20,17 +20,18 @@ public interface UserService {
     /**
      *根据id查询用户
      */
-    User findUserById(Integer id);
+    User findUserById(Long id);
 
     /**
      * 删除数据
      */
-    boolean deleteUserById(Integer id);
+    boolean deleteUserById(Long id);
 
     /**
      * 新增数据
      */
-    boolean addUser(User user);
+    // 修改后的addUser方法
+    boolean addUser(User newUser, Long inviterId);
 
     /**
      * 修改数据
@@ -39,10 +40,11 @@ public interface UserService {
 
     AuthResponse login(String username, String password);
 
-    AuthResponse register(String username, String password, String email);
 
     boolean logout(String token);
 
     boolean verify(String token);
+
+
 
 }

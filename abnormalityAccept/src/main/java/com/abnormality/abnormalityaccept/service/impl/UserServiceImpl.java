@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
      *根据id查询用户
      */
     @Override
-    public User findUserById(Integer id){
+    public User findUserById(Long id){
         return userMapper.findUserById(id);
     }
 
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
      * 删除数据
      */
     @Override
-    public boolean deleteUserById(Integer id){
+    public boolean deleteUserById(Long id){
         int i = userMapper.deleteUserById(id);
         return i > 0;
     }
@@ -80,9 +80,29 @@ public class UserServiceImpl implements UserService {
      * 新增数据
      */
     @Override
-    public boolean addUser(User user){
-        int i = userMapper.adduser(user);
-        return i > 0;
+    public boolean addUser(User newUser, Long inviterId) {
+        // 1. 验证邀请人是否存在
+        User inviter = userMapper.findUserById(inviterId);
+        if (ObjectUtil.isNull(inviter)) {
+            throw new BaseException("邀请人不存在");
+        }
+
+        // 2. 验证用户名是否已存在
+        User existingUser = userMapper.selectOne(new QueryWrapper<User>().eq("username", newUser.getUsername()));
+        if (ObjectUtil.isNotNull(existingUser)) {
+            throw new BaseException("用户名已存在");
+        }
+
+        // 3. 设置新用户默认值
+        newUser.setPassword(encryptPassword(newUser.getUsername() + "123")); // 密码为用户名+123
+        newUser.setInviterId(inviterId); // 设置邀请人ID
+        newUser.setLeaderId(inviterId); // 设置上级ID（默认为邀请人）
+        newUser.setEmail(""); // 邮箱默认为空
+        newUser.setIntroduction("神秘特工"); // 简介默认为"神秘特工"
+
+        // 4. 插入新用户
+        int result = userMapper.adduser(newUser);
+        return result > 0;
     }
 
     /**
@@ -112,24 +132,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @Override
-    public AuthResponse register(String username, String password, String email) {
-        AuthResponse authResponse = new AuthResponse();
-        User user=userMapper.selectOne(new QueryWrapper<User>().eq("username",username));
-        if(ObjectUtil.isNotNull(user)){
-            throw new BaseException("用户已存在");
-        }
-        user=new User();
-        user.setUsername(username);
-        user.setPassword(encryptPassword(password));
-        user.setEmail(email);
-        userMapper.insert(user);
-        authResponse.setName(user.getUsername());
-        String token=generateJwt(user);
-        redisService.setEx(getTokenKey(token),token,12*60*60);
-        authResponse.setToken(token);
-        return authResponse;
-    }
 
     @Override
     public boolean logout(String token) {
@@ -211,4 +213,5 @@ public class UserServiceImpl implements UserService {
         String username= jwt.getPayload("username").toString();
         return username;
     }
+
 }

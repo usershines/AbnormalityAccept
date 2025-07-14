@@ -4,4 +4,49 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.abnormality.abnormalityaccept.mapper.EquipmentMapper">
+    <resultMap id="Base_Equipment_List" type="com.abnormality.abnormalityaccept.entity.Equipment">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="state" column="state"/>
+        <result property="applicationRequirement" column="application_requirement"/>
+        <result property="masterId" column="master_id"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <sql id="Base_Equipment">
+        id, name, state, application_requirement, master_id, description
+    </sql>
+
+    <select id="findAllEquipment" resultMap="Base_Equipment_List">
+        SELECT
+        <include refid="Base_Equipment"/>
+        FROM equipment
+    </select>
+
+    <select id="findEquipmentById" resultMap="Base_Equipment_List">
+        SELECT
+        <include refid="Base_Equipment"/>
+        FROM equipment
+        WHERE id = #{id}
+    </select>
+
+    <insert id="addEquipment">
+        INSERT INTO equipment(name, state, application_requirement, master_id, description)
+        VALUES(#{name}, #{state}, #{applicationRequirement}, #{masterId}, #{description})
+    </insert>
+
+    <update id="updateEquipment">
+        UPDATE equipment
+        SET name = #{name},
+            state = #{state},
+            application_requirement = #{applicationRequirement},
+            master_id = #{masterId},
+            description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteEquipmentById">
+        DELETE FROM equipment
+        WHERE id = #{id}
+    </delete>
 </mapper>

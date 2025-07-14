@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 public class User {
 
     private Long id;
-    //编号
-    private String userNumber;
     private String username;
     private String password;
     private String email;

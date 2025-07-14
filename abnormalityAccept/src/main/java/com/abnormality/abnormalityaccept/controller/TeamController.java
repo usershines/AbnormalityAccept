@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,5 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
+@Tag(name = "小队管理")
 public class TeamController {
 }

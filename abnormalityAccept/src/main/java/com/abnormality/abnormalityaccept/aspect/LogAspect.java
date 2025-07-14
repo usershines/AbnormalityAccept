@@ -18,6 +18,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -81,6 +82,13 @@ public class LogAspect {
             log.error("请求 URL: {}, 方法: {}, 发生异常: {}", url, methodName, e.getMessage());
             ExceptionLog exceptionLog = new ExceptionLog();
             exceptionLog.setExceptionInfo(Arrays.toString(e.getStackTrace()));
+            String machineId="";
+            try{
+                machineId= InetAddress.getLocalHost().getHostAddress();
+            }catch (Exception ex){
+                machineId="unknown";
+            }
+            exceptionLog.setMachineId(machineId);
             if(e instanceof BaseException){
                 exceptionLog.setMessage(Arrays.toString(((BaseException) e).getMsgList().toArray()));
             }else{

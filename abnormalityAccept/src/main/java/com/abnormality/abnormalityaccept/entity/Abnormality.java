@@ -15,9 +15,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Abnormality {
     private Long id;
-    private String abnormalityCode;
     private String name;
+
+    //0:待评估 ,1,2,3,4,一共4个等级
     private Integer level;
+
     private String description;
     private String manageMethod;
     private String notes;

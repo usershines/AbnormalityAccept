@@ -1,5 +1,7 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
+import com.abnormality.abnormalityaccept.entity.Team;
+import com.abnormality.abnormalityaccept.entity.User;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,4 +12,5 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TeamServiceImpl {
+
 }

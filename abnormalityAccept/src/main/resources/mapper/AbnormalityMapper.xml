@@ -4,4 +4,48 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.abnormality.abnormalityaccept.mapper.AbnormalityMapper">
+
+    <resultMap id="Base_Abnormality_List" type="com.abnormality.abnormalityaccept.entity.Abnormality">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="level" column="level"/>
+        <result property="description" column="description"/>
+        <result property="manageMethod" column="manage_method"/>
+        <result property="notes" column="notes"/>
+        <result property="facilityId" column="facility_id"/>
+    </resultMap>
+
+    <sql id="Base_Abnormality">
+        id,name,level,description,manage_method,notes,facility_id
+    </sql>
+
+    <select id="findAllAbnormality" resultMap="Base_Abnormality_List">
+        select
+        <include refid="Base_Abnormality"/>
+        from abnormality
+    </select>
+
+    <select id="findAbnormalityById" resultMap="Base_Abnormality_List">
+        select
+        <include refid="Base_Abnormality"/>
+        from abnormality
+        where id = #{id}
+    </select>
+
+    <insert id="addAbnormality">
+        insert into abnormality(name,level,description,manage_method,notes,facility_id)
+        values(#{name},#{level},#{description},#{manageMethod},#{notes},#{facilityId})
+    </insert>
+
+    <update id="updateAbnormality">
+        update abnormality
+        set name = #{name},
+        level = #{level},
+        description = #{description},
+        manage_method = #{manageMethod},
+        notes = #{notes},
+        facility_id = #{facilityId}
+        where id = #{id}
+    </update>
+
 </mapper>

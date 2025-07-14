@@ -81,9 +81,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean addUser(User user){
-        //自增UserNumber
-        int i=userMapper.insert(user);
-//        int i = userMapper.adduser(user);
+        int i = userMapper.adduser(user);
         return i > 0;
     }
 
@@ -115,7 +113,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public AuthResponse register(String username, String password) {
+    public AuthResponse register(String username, String password, String email) {
         AuthResponse authResponse = new AuthResponse();
         User user=userMapper.selectOne(new QueryWrapper<User>().eq("username",username));
         if(ObjectUtil.isNotNull(user)){
@@ -124,6 +122,7 @@ public class UserServiceImpl implements UserService {
         user=new User();
         user.setUsername(username);
         user.setPassword(encryptPassword(password));
+        user.setEmail(email);
         addUser(user);
         authResponse.setName(user.getUsername());
         String token=generateJwt(user);
@@ -172,10 +171,11 @@ public class UserServiceImpl implements UserService {
     private boolean validateJwt(String token){
         JWT jwt = JWT.of(token);
         String username= jwt.getPayload("username").toString();
-        String key= SecureUtil.md5(keyBase+username);
+        String role= jwt.getPayload("role").toString();
+        String key= SecureUtil.md5(keyBase+username+role);
         byte[] keytBytes= key.getBytes();
         log.info("验证JWT参数");
-        log.info("key:{},username:{}",key,username);
+        log.info("key:{},username:{},role:{}",key,username,role);
         JWTValidator validator = JWTValidator.of(token);
         try{
             validator.validateDate(DateUtil.date());

@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.mapper;
 
 import com.abnormality.abnormalityaccept.entity.Abnormality;
+import com.abnormality.abnormalityaccept.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -14,13 +15,17 @@ import java.util.List;
  */
 @Mapper
 public interface AbnormalityMapper extends BaseMapper<Abnormality> {
+
+
     List<Abnormality> findAllAbnormality();
 
-    Abnormality findAbnormalityByCode(String code);
+    Abnormality findAbnormalityById(Long id);
 
     int addAbnormality(Abnormality abnormality);
 
-    int setAbnormalityState(Long id);
+    int updateAbnormality(Abnormality abnormality, User user);
+
+
 
 
 

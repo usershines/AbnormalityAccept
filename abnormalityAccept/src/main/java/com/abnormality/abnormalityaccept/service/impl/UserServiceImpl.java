@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
      *根据id查询用户
      */
     @Override
-    public User findUserById(Integer id){
+    public User findUserById(Long id){
         return userMapper.findUserById(id);
     }
 
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
      * 删除数据
      */
     @Override
-    public boolean deleteUserById(Integer id){
+    public boolean deleteUserById(Long id){
         int i = userMapper.deleteUserById(id);
         return i > 0;
     }

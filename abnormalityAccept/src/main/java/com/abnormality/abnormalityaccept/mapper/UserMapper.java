@@ -22,7 +22,7 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      *根据id查询用户
      */
-    User findUserById(Integer id);
+    User findUserById(Long id);
 
     /**
      * 新增数据
@@ -32,7 +32,7 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      * 删除数据
      */
-    int deleteUserById(Integer id);
+    int deleteUserById(Long id);
 
     /**
      * 修改数据

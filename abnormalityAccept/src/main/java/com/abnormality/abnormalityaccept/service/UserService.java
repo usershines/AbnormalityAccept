@@ -20,12 +20,12 @@ public interface UserService {
     /**
      *根据id查询用户
      */
-    User findUserById(Integer id);
+    User findUserById(Long id);
 
     /**
      * 删除数据
      */
-    boolean deleteUserById(Integer id);
+    boolean deleteUserById(Long id);
 
     /**
      * 新增数据

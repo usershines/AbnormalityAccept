@@ -39,7 +39,7 @@ public class UserController {
     @Operation(summary = "根据id查询用户")
     @Parameter(name="id",description = "用户id",required = true,example = "1")
     @GetMapping("/{id}")
-    public Result<User>  findUserById(@PathVariable Integer id) {
+    public Result<User>  findUserById(@PathVariable Long id) {
         User user = userService.findUserById(id);
         if(user == null) {
             return Result.error(500,"用户不存在");
@@ -53,7 +53,7 @@ public class UserController {
     @Operation(summary = "删除用户")
     //@Parameter(name="id",description = "用户id",required = true,example = "1")
     @DeleteMapping("/{id}")
-    public Result<String> deleteUserById(@PathVariable Integer id){
+    public Result<String> deleteUserById(@PathVariable Long id){
         if(userService.deleteUserById(id)){
             return Result.ok("删除成功");
         }

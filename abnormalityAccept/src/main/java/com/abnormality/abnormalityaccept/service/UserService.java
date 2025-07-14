@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service;
 
+import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -35,5 +36,13 @@ public interface UserService {
      * 修改数据
      */
     boolean updateUser(User user);
+
+    AuthResponse login(String username, String password);
+
+    AuthResponse register(String username, String password, String email);
+
+    boolean logout(String token);
+
+    boolean verify(String token);
 
 }

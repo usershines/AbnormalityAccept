@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 
 
 
+import lombok.Data;
+
 /**
  * @author shanh
  * @version 1.0
@@ -17,8 +19,8 @@ import lombok.NoArgsConstructor;
 public class Email {
     private Long id;
     private Integer state;
-    private Integer senderId;
-    private Integer receiverId;
+    private Long senderId;
+    private Long receiverId;
     private String theme;
     private String content;
 }

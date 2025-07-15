@@ -9,7 +9,7 @@ public class JwtPayload {
 
     private String username;
     private int level;
-
+    private int expDays=7;
 
     public Map<String,String> toMap(){
         return Map.of(

@@ -334,7 +334,7 @@ public class UserServiceImpl implements UserService {
         String token = JWT.create()
                 .addPayloads(jwtPayload.toMap())
                 .setKey(keytBytes)
-                .setExpiresAt(DateUtil.date().offset(DateField.DAY_OF_YEAR,7))
+                .setExpiresAt(DateUtil.date().offset(DateField.DAY_OF_YEAR,jwtPayload.getExpDays()))
                 .sign();
         return token;
     }

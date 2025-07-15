@@ -67,6 +67,11 @@ public interface UserService {
 
     boolean logout(String token);
 
+    /**
+     * 验证token,只验证用户名与过期时间，其余字段请自行实现
+     * @param token
+     * @return true-验证成功，false-验证失败
+     */
     boolean verify(String token);
 //
 //

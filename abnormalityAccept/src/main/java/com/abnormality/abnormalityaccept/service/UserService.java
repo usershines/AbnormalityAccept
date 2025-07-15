@@ -41,18 +41,26 @@ public interface UserService {
      */
     boolean updateUser(User user);
 
-    /** 用户登录 */
-    AuthResponse login(String username, String password);
-
-    /** 验证JWT令牌 */
-    boolean verify(String token);
+//    /** 用户登录 */
+//    AuthResponse login(String username, String password);
+//
+//    /** 验证JWT令牌 */
+//    boolean verify(String token);
 
     /** 多条件查询用户（分页） */
     PageInfo<User> findUserByConditions(User user, Integer pageNum, Integer pageSize);
 
-
-    // 添加方法
-    UserDetails loadUserByUsername(String username);
+//
+//    // 添加方法
+//    UserDetails loadUserByUsername(String username);
+//
+//    /** 加密密码 */
+//    String encryptPassword(String password);
+//
+//    /** 验证密码 */
+//    boolean verifyPassword(String rawPassword, String encodedPassword);
+//
+//    boolean updatePassword(Long id, String newPassword);
 
 //    AuthResponse login(String username, String password);
 //

@@ -2,9 +2,10 @@ package com.abnormality.abnormalityaccept.service.impl;
 
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.service.UserService;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.Authentication;
 
 /**
  * @author shanh
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @since 2025-07-14
  */
 @Component("securityService")
-public class SecurityService {
+public class SecurityServiceImpl {
 
     @Autowired
     private UserService userService;

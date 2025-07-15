@@ -31,7 +31,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,21 +60,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private final UserMapper userMapper;
 
+
     /**
-     *查询所有用户
+     * 查询所有用户
      */
     @Override
-    public PageInfo<User> findAllUser(Integer pageNum, Integer pageSize){
-        PageHelper.startPage(pageNum,pageSize);
+    public PageInfo<User> findAllUser(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "10") Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.findAllUser();
         return PageInfo.of(userList);
     }
 
     /**
-     *根据id查询用户
+     * 根据id查询用户
      */
     @Override
-    public User findUserById(Long id){
+    public User findUserById(Long id) {
         return userMapper.findUserById(id);
     }
 
@@ -85,7 +88,7 @@ public class UserServiceImpl implements UserService {
      * 删除数据
      */
     @Override
-    public boolean deleteUserById(Long id){
+    public boolean deleteUserById(Long id) {
         int i = userMapper.deleteUserById(id);
         return i > 0;
     }
@@ -95,45 +98,51 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean addUser(User newUser, Long inviterId) {
-        // 1. 验证邀请人是否存在
-        User inviter = userMapper.findUserById(inviterId);
-        if (ObjectUtil.isNull(inviter)) {
-            throw new ServiceException(Code.NOT_FOUND, "邀请人不存在");
-        }
-
-        // 2. 验证用户名是否已存在
-        User existingUser = userMapper.findUserById(newUser.getId());
-        if (ObjectUtil.isNotNull(existingUser)) {
-            throw new ServiceException(Code.NOT_ACCEPTABLE, "用户名已存在");
-        }
-
-        // 3. 权限检查 - 只有B级以上用户可邀请新用户
-        if (inviter.getLevel() < 2) { // 假设0-4级，2为B级
-            throw new ServiceException(Code.FORBIDDEN, "权限不足，需要B级及以上权限");
-        }
-
-        // 4. 检查用户等级是否合法
-        if (newUser.getLevel() > inviter.getLevel()) {
-            throw new ServiceException(Code.FORBIDDEN, "不能创建高于自己等级的用户");
-        }
-
-        // 5. 设置新用户默认值
-        newUser.setPassword(encryptPassword(newUser.getUsername() + "123"));
-        newUser.setInviterId(inviterId);
-        newUser.setLeaderId(inviterId);
-        newUser.setEmail("");
-        newUser.setIntroduction("神秘特工");
-
-        // 6. 插入新用户
-        int result = userMapper.addUser(newUser);
-        return result > 0;
+        return userMapper.addUser(newUser) > 0;
     }
+
+
+//    @Override
+//    public boolean addUser(User newUser, Long inviterId) {
+//        // 1. 验证邀请人是否存在
+//        User inviter = userMapper.findUserById(inviterId);
+//        if (ObjectUtil.isNull(inviter)) {
+//            throw new ServiceException(Code.NOT_FOUND, "邀请人不存在");
+//        }
+//
+//        // 2. 验证用户名是否已存在
+//        User existingUser = userMapper.findUserById(newUser.getId());
+//        if (ObjectUtil.isNotNull(existingUser)) {
+//            throw new ServiceException(Code.NOT_ACCEPTABLE, "用户名已存在");
+//        }
+//
+//        // 3. 权限检查 - 只有B级以上用户可邀请新用户
+//        if (inviter.getLevel() < 2) { // 假设0-4级，2为B级
+//            throw new ServiceException(Code.FORBIDDEN, "权限不足，需要B级及以上权限");
+//        }
+//
+//        // 4. 检查用户等级是否合法
+//        if (newUser.getLevel() > inviter.getLevel()) {
+//            throw new ServiceException(Code.FORBIDDEN, "不能创建高于自己等级的用户");
+//        }
+//
+//        // 5. 设置新用户默认值
+//        newUser.setPassword(encryptPassword(newUser.getUsername() + "123"));
+//        newUser.setInviterId(inviterId);
+//        newUser.setLeaderId(inviterId);
+//        newUser.setEmail("");
+//        newUser.setIntroduction("神秘特工");
+//
+//        // 6. 插入新用户
+//        int result = userMapper.addUser(newUser);
+//        return result > 0;
+//    }
 
     /**
      * 修改数据
      */
     @Override
-    public boolean updateUser(User user){
+    public boolean updateUser(User user) {
         int i = userMapper.updateUser(user);
         return i > 0;
     }
@@ -145,98 +154,118 @@ public class UserServiceImpl implements UserService {
         return PageInfo.of(userList);
     }
 
+//
+//    @Override
+//    public AuthResponse login(String username, String password) {
+//        // 1. 查询用户
+//        User user = userMapper.findUserByUsername(username);
+//        if (ObjectUtil.isNull(user)) {
+//            throw new ServiceException(Code.NOT_FOUND, "用户不存在");
+//        }
+//
+//        // 2. 验证密码
+//        if (!verifyPassword(password, user.getPassword())) {
+//            throw new ServiceException(Code.UNAUTHORIZED, "密码错误");
+//        }
+//
+//        // 3. 生成JWT令牌
+//        String token = generateJwt(user);
+//
+//        // 4. 创建响应
+//        AuthResponse response = new AuthResponse();
+//        response.setName(user.getUsername());
+//        response.setToken(token);
+//        return response;
+//    }
+//
+//    @Override
+//    public boolean verify(String token) {
+//        try {
+//            // 1. 解析JWT
+//            JWT jwt = JWT.of(token);
+//
+//            // 2. 验证签名
+//            if (!JWTUtil.verify(token, jwtSecret.getBytes())) {
+//                return false;
+//            }
+//
+//            // 3. 验证有效期
+//            JWTValidator.of(token).validateDate(DateUtil.date());
+//
+//            // 4. 验证用户是否存在
+//            String username = jwt.getPayload("username").toString();
+//            User user = userMapper.findUserByUsername(username);
+//            return ObjectUtil.isNotNull(user);
+//
+//        } catch (Exception e) {
+//            log.error("JWT验证失败: {}", e.getMessage());
+//            return false;
+//        }
+//    }
+//
+//
+//    private String generateJwt(User user) {
+//        return JWT.create()
+//                .setPayload("userId", user.getId())
+//                .setPayload("username", user.getUsername())
+//                .setPayload("level", user.getLevel())
+//                .setKey(jwtSecret.getBytes())
+//                .setExpiresAt(DateUtil.date().offset(DateField.HOUR, 12))
+//                .sign();
+//    }
+//
+//    @Override
+//    public String encryptPassword(String password) {
+//        return passwordEncoder.encode(password);
+//    }
+//
+//    @Override
+//    public boolean verifyPassword(String rawPassword, String encodedPassword) {
+//        return passwordEncoder.matches(rawPassword, encodedPassword);
+//    }
+//
+//    @Override
+//    public UserDetails loadUserByUsername(String username) {
+//        User user = findUserByUsername(username);
+//        if (user == null) {
+//            throw new UsernameNotFoundException("用户不存在");
+//        }
+//
+//        // 用户角色根据等级确定
+//        List<GrantedAuthority> authorities = new ArrayList<>();
+//        if (user.getLevel() >= 4) {
+//            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+//        } else if (user.getLevel() >= 2) {
+//            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
+//        } else {
+//            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+//        }
+//
+//        return new org.springframework.security.core.userdetails.User(
+//                user.getUsername(),
+//                user.getPassword(),
+//                authorities
+//        );
+//    }
+//
+//    // 添加专门的密码更新方法
+//    public boolean updatePassword(Long userId, String newPassword) {
+//        User user = userMapper.findUserById(userId);
+//        if (user == null) {
+//            throw new ServiceException(Code.NOT_FOUND, "用户不存在");
+//        }
+//
+//        user.setPassword(encryptPassword(newPassword));
+//        int result = userMapper.updateUser(user);
+//        return result > 0;
+//    }
+//
 
 
-    @Override
-    public AuthResponse login(String username, String password) {
-        // 1. 查询用户
-        User user = userMapper.findUserByUsername(username);
-        if (ObjectUtil.isNull(user)) {
-            throw new ServiceException(Code.NOT_FOUND, "用户不存在");
-        }
-
-        // 2. 验证密码
-        if (!verifyPassword(password, user.getPassword())) {
-            throw new ServiceException(Code.UNAUTHORIZED, "密码错误");
-        }
-
-        // 3. 生成JWT令牌
-        String token = generateJwt(user);
-
-        // 4. 创建响应
-        AuthResponse response = new AuthResponse();
-        response.setName(user.getUsername());
-        response.setToken(token);
-        return response;
-    }
-
-    @Override
-    public boolean verify(String token) {
-        try {
-            // 1. 解析JWT
-            JWT jwt = JWT.of(token);
-
-            // 2. 验证签名
-            if (!JWTUtil.verify(token, jwtSecret.getBytes())) {
-                return false;
-            }
-
-            // 3. 验证有效期
-            JWTValidator.of(token).validateDate(DateUtil.date());
-
-            // 4. 验证用户是否存在
-            String username = jwt.getPayload("username").toString();
-            User user = userMapper.findUserByUsername(username);
-            return ObjectUtil.isNotNull(user);
-
-        } catch (Exception e) {
-            log.error("JWT验证失败: {}", e.getMessage());
-            return false;
-        }
-    }
 
 
-    private String generateJwt(User user) {
-        return JWT.create()
-                .setPayload("userId", user.getId())
-                .setPayload("username", user.getUsername())
-                .setPayload("level", user.getLevel())
-                .setKey(jwtSecret.getBytes())
-                .setExpiresAt(DateUtil.date().offset(DateField.HOUR, 12))
-                .sign();
-    }
+}
 
-    private String encryptPassword(String password) {
-        return SecureUtil.md5(password); // 简单MD5加密
-    }
-
-    private boolean verifyPassword(String password, String storedPassword) {
-        return SecureUtil.md5(password).equals(storedPassword);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) {
-        User user = findUserByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("用户不存在");
-        }
-
-        // 用户角色根据等级确定
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        if (user.getLevel() >= 4) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        } else if (user.getLevel() >= 2) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
-        } else {
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        }
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                authorities
-        );
-    }
 //
 //    @Override
 //    public AuthResponse login(String username, String password) {
@@ -338,4 +367,4 @@ public class UserServiceImpl implements UserService {
 //        return username;
 //    }
 
-}
+

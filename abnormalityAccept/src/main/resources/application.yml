@@ -10,8 +10,8 @@ jwt:
   keybase: abnormality
 
 
-config:
+abnormality:
   jwt:
-    secret: abnormality
-    expire: 30
-    header: Abnormality-Token
+    header: abnormality
+    expire: 604800 # 7天
+    secret: abnormalityabnormalityabnormality

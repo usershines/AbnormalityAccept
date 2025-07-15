@@ -11,6 +11,10 @@ import com.abnormality.abnormalityaccept.entity.Equipment;
 import com.abnormality.abnormalityaccept.service.EquipmentService;
 import com.abnormality.abnormalityaccept.mapper.EquipmentMapper;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author shanh
  * @version 1.0
@@ -73,4 +77,34 @@ public class EquipmentController {
         }
         return Result.error(500, "删除失败");
     }
+
+    // 拓展接口
+
+    @GetMapping("/state/{state}")
+    public Result<List<Equipment>> findByState(@PathVariable String state) {
+        List<Equipment> data = equipmentService.findByState(state);
+        return Result.ok(data);
+    }
+
+
+    @PutMapping("/batch/state")
+    public Result<String> batchUpdateState(
+            @RequestParam List<Long> ids,
+            @RequestParam String state) {
+        boolean success = equipmentService.batchUpdateState(ids, state);
+        return success ? Result.ok("批量更新成功") : Result.error(500, "批量更新失败");
+    }
+
+    @DeleteMapping("/batch")
+    public Result<String> batchDelete(@RequestParam List<Long> ids) {
+        boolean success = equipmentService.batchDelete(ids);
+        return success ? Result.ok("批量删除成功") : Result.error(500, "批量删除失败");
+    }
+
+    @GetMapping("/search/name")
+    public Result<List<Equipment>> searchByName(@RequestParam String name) {
+        List<Equipment> list = equipmentService.findByName(name);
+        return Result.ok(list);
+    }
+
 }

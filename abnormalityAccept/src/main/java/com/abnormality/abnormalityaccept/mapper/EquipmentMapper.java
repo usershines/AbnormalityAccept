@@ -2,7 +2,7 @@
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Equipment;
 import org.apache.ibatis.annotations.Mapper;
-
+import org.apache.ibatis.annotations.Param;
 
 
 import java.util.List;
@@ -35,4 +35,43 @@ public interface EquipmentMapper {
      *删除装备
      */
     boolean deleteEquipmentById(Long id);
+    // ============== 拓展方法 ==============
+
+
+    /**
+     * 根据状态查询装备
+     * @param state 装备状态
+     * @return 装备列表
+     */
+    List<Equipment> findEquipmentByState(String state);
+
+
+    /**
+     * 统计装备数量
+     * @return 装备总数
+     */
+    int countEquipment();
+
+    /**
+     * 批量更新装备状态
+     * @param ids 装备ID列表
+     * @param state 新状态
+     * @return 更新条数
+     */
+    int batchUpdateEquipmentState(@Param("ids") List<Long> ids, @Param("state") String state);
+
+    /**
+     * 批量删除装备
+     * @param ids 装备ID列表
+     * @return 删除条数
+     */
+    int batchDeleteEquipment(List<Long> ids);
+
+    /**
+     * 根据名称模糊查询装备
+     * @param name 装备名称（模糊匹配）
+     * @return 装备列表
+     */
+    List<Equipment> findEquipmentByName(@Param("name") String name);
+//    int countByCondition(Equipment condition);
 }

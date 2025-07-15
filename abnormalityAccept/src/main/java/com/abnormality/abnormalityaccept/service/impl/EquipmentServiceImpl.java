@@ -58,5 +58,44 @@ public class EquipmentServiceImpl implements EquipmentService {
         return equipmentMapper.deleteEquipmentById(id);
     }
 
+    // 拓展方法实现
+
+
+    @Override
+    public List<Equipment> findByState(String state) {
+        return equipmentMapper.findEquipmentByState(state);
+    }
+
+
+    @Override
+    public int count() {
+        return equipmentMapper.countEquipment();
+    }
+
+    @Override
+    public boolean batchUpdateState(List<Long> ids, String state) {
+        return equipmentMapper.batchUpdateEquipmentState(ids, state) > 0;
+    }
+
+    @Override
+    public boolean batchDelete(List<Long> ids) {
+        return equipmentMapper.batchDeleteEquipment(ids) > 0;
+    }
+
+    @Override
+    public List<Equipment> findByName(String name) {
+        return equipmentMapper.findEquipmentByName(name);
+    }
+
+//    @Override
+//    public int countEquipments(Integer type, Integer state) {
+//        Equipment condition = new Equipment();
+//        condition.setType(type);
+//        condition.setState(state);
+//
+////    // 调用 Mapper 统计
+////        return equipmentMapper.countByCondition(condition);
+//    }
+
 
 }

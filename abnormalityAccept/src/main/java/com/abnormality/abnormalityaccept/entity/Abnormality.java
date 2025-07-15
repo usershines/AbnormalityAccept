@@ -25,4 +25,9 @@ public class Abnormality {
     private String notes;
     private Long facilityId;
 
+    /**
+     * 图片名称,获取图片用
+     */
+    private String imgName;
+
 }

@@ -13,6 +13,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.code.kaptcha.Producer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -20,13 +21,12 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
+
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -229,7 +229,7 @@ public class UserController {
 
     //http://localhost:8080/user/findUserById?id=1
     @Operation(summary = "根据id查询用户")
-    @Parameter(name="id",description = "用户id",required = true,example = "1")
+    @Parameter(name="id",description = "用户id",required = true,example = "1" ,in= ParameterIn.PATH )
     @GetMapping("/{id}")
     public Result<User>  findUserById(@PathVariable Long id) {
         User user = userService.findUserById(id);
@@ -426,10 +426,16 @@ public class UserController {
 
 
 
-//    @Operation(summary = "用户登录")
-//    @PostMapping("/login")
-//    public Result<AuthResponse> login(@RequestBody AuthRequest req) {
-//        return Result.ok(userService.login(req.getName(), req.getPassword()));
-//    }
+    @Operation(summary = "用户注册")
+    @PostMapping("/register")
+    public Result<AuthResponse> register(@RequestBody AuthRequest req) {
+        return Result.ok(userService.register(req.getName(), req.getPassword()))
+;    }
+
+    @Operation(summary = "用户登录")
+    @PostMapping("/login")
+    public Result<AuthResponse> login(@RequestBody AuthRequest req) {
+        return Result.ok(userService.login(req.getName(), req.getPassword()));
+    }
 
 }

@@ -84,7 +84,7 @@ public class LogAspect {
             exceptionLog.setExceptionInfo(Arrays.toString(e.getStackTrace()));
             String machineId="";
             try{
-                machineId= InetAddress.getLocalHost().getHostAddress();
+                machineId= InetAddress.getLocalHost().getHostName();
             }catch (Exception ex){
                 machineId="unknown";
             }

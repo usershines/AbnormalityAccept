@@ -3,7 +3,7 @@ package com.abnormality.abnormalityaccept.service;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
-import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 /**
@@ -54,20 +54,20 @@ public interface UserService {
 //    // 添加方法
 //    UserDetails loadUserByUsername(String username);
 //
-//    /** 加密密码 */
-//    String encryptPassword(String password);
+
 //
 //    /** 验证密码 */
-//    boolean verifyPassword(String rawPassword, String encodedPassword);
 //
-//    boolean updatePassword(Long id, String newPassword);
+    boolean updatePassword(Long id, String newPassword);
 
-//    AuthResponse login(String username, String password);
-//
-//
-//    boolean logout(String token);
-//
-//    boolean verify(String token);
+    AuthResponse login(String username, String password);
+
+    AuthResponse register(String username, String password);
+
+
+    boolean logout(String token);
+
+    boolean verify(String token);
 //
 //
 

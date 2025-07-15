@@ -3,8 +3,8 @@ package com.abnormality.abnormalityaccept.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.GrantedAuthority;
+//import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
@@ -21,7 +21,7 @@ public class User  {
     private Long leaderId;
     private Long facilityId;
     private String introduction ;
-    private Integer level;
+    private Integer level=0;
 
 //
 //    private Collection<? extends GrantedAuthority> authorities;

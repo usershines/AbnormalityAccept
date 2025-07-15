@@ -206,11 +206,11 @@
         </dependency>
 
 
-        <!-- springboot security -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
+<!--        &lt;!&ndash; springboot security &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-security</artifactId>-->
+<!--        </dependency>-->
 
         <!-- jwt -->
         <dependency>

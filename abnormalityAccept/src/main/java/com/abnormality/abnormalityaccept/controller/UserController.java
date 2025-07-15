@@ -363,65 +363,65 @@ public class UserController {
 
 
 
-    // DTO类定义
-    @Data
-    public static class LoginRequest {
-        @NotBlank(message = "用户名不能为空")
-        private String username;
-
-        @NotBlank(message = "密码不能为空")
-        private String password;
-    }
-
-    @Data
-    public static class InviteRequest {
-        @NotBlank(message = "用户名不能为空")
-        private String username;
-
-        @NotNull(message = "设施ID不能为空")
-        private Long facilityId;
-
-        @NotNull(message = "用户等级不能为空")
-        @Min(value = 1, message = "等级必须大于0")
-        @Max(value = 5, message = "等级不能超过5")
-        private Integer level;
-    }
-
-
-
-    @Data
-    public static class UpdateUserRequest {
-        @NotBlank(message = "用户名不能为空")
-        private String username;
-
-        @Email(message = "邮箱格式不正确")
-        private String email;
-
-        @NotNull(message = "用户等级不能为空")
-        @Min(value = 1, message = "等级必须大于0")
-        @Max(value = 5, message = "等级不能超过5")
-        private Integer level;
-
-        @NotNull(message = "设施ID不能为空")
-        private Long facilityId;
-
-        private String introduction;
-
-        private String newPassword; // 新密码（可选）
-    }
-
-    @Data
-    public static class UpdatePasswordRequest {
-        @NotBlank(message = "旧密码不能为空")
-        private String oldPassword;
-
-        @NotBlank(message = "新密码不能为空")
-        @Size(min = 6, message = "密码长度至少6位")
-        private String newPassword;
-
-        @NotBlank(message = "确认密码不能为空")
-        private String confirmPassword;
-    }
+//    // DTO类定义
+//    @Data
+//    public static class LoginRequest {
+//        @NotBlank(message = "用户名不能为空")
+//        private String username;
+//
+//        @NotBlank(message = "密码不能为空")
+//        private String password;
+//    }
+//
+//    @Data
+//    public static class InviteRequest {
+//        @NotBlank(message = "用户名不能为空")
+//        private String username;
+//
+//        @NotNull(message = "设施ID不能为空")
+//        private Long facilityId;
+//
+//        @NotNull(message = "用户等级不能为空")
+//        @Min(value = 1, message = "等级必须大于0")
+//        @Max(value = 5, message = "等级不能超过5")
+//        private Integer level;
+//    }
+//
+//
+//
+//    @Data
+//    public static class UpdateUserRequest {
+//        @NotBlank(message = "用户名不能为空")
+//        private String username;
+//
+//        @Email(message = "邮箱格式不正确")
+//        private String email;
+//
+//        @NotNull(message = "用户等级不能为空")
+//        @Min(value = 1, message = "等级必须大于0")
+//        @Max(value = 5, message = "等级不能超过5")
+//        private Integer level;
+//
+//        @NotNull(message = "设施ID不能为空")
+//        private Long facilityId;
+//
+//        private String introduction;
+//
+//        private String newPassword; // 新密码（可选）
+//    }
+//
+//    @Data
+//    public static class UpdatePasswordRequest {
+//        @NotBlank(message = "旧密码不能为空")
+//        private String oldPassword;
+//
+//        @NotBlank(message = "新密码不能为空")
+//        @Size(min = 6, message = "密码长度至少6位")
+//        private String newPassword;
+//
+//        @NotBlank(message = "确认密码不能为空")
+//        private String confirmPassword;
+//    }
 
 
 

@@ -1,6 +1,7 @@
 <template>
   <el-container>
     <Aside/>
+    <el-main><router-view/></el-main>
   </el-container>
 </template>
 

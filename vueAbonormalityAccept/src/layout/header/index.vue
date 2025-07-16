@@ -19,9 +19,9 @@
             mode="horizontal"
             router
         >
-          <el-menu-item index="start" >首页</el-menu-item>
+          <el-menu-item index="start" @click="goToHome" >首页</el-menu-item>
           <el-menu-item index="workPlace">工作区</el-menu-item>
-          <el-menu-item index="email">邮箱</el-menu-item>
+          <el-menu-item index="/email">邮箱</el-menu-item>
           <el-menu-item index="4">Orders</el-menu-item>
         </el-menu>
         <el-avatar  :size="80" :src="userAvatar" />
@@ -30,30 +30,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch} from 'vue'
 import router from "@/router";
+import {useRoute} from "vue-router";
 
-const defaultActive = ref('start')
+// 获取当前路由
+const route = useRoute()
+const defaultActive = ref('')
+console.log(defaultActive.value)
 
+//路由变化时更新
+// 更新 defaultActive 的函数
+const updateDefaultActive = () => {
+  if (route.path.startsWith('/workPlace')) {
+    defaultActive.value = 'workPlace';
+  } else {
+    if (route.path.startsWith('/email')) {
+      defaultActive.value = '/email';
+    }else {
+      defaultActive.value = route.name || '';
+    }
+  }
+};
 
-const logo = 'src/assets/pic/logo.png'
+const logo = '/src/assets/pic/logo.png'
 const userAvatar = ref("https://ts3.tc.mm.bing.net/th/id/OIP-C.UpIFaAcZ-SrEPtvYmhWOMwHaHa?w=249&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.5&pid=3.1&rm=2")
 const goToHome = () =>{
   console.log("返回主页")
   router.push({name: 'start'})
 }
-const goToWorkPlace = () =>{
-  console.log("打开工作区")
-  router.push({name: 'workPlace'}).then(()=>{
-  }).catch((error)=>{
-    console.log('error:',error)
-  })
-}
-const goToEmail = () =>{
-  console.log("打开邮箱")
-  router.push({name: 'email'})
-}
-
 // 时钟
 const currentHour = ref()
 const currentMinutes = ref()
@@ -67,6 +72,15 @@ const updateTime = () => {
 }
 // 生命周期钩子：创建时开始更新时间
 onMounted(() => {
+  // 路由更新
+  updateDefaultActive();
+  watch(
+      () => route.path,
+      () => {
+        updateDefaultActive();
+      }
+  );
+
   updateTime() // 初始化时间
   interval = setInterval(updateTime, 1000) // 每秒更新一次
 })

@@ -1,12 +1,6 @@
 <template>
-  <el-aside width="240px" class="sidebar-container">
+  <el-aside width="240px" class="sidebar-container" style="height: 770px">
     <div class="system-header">
-      <div class="system-logo">
-        <div class="logo-icon">
-          <div class="logo-inner"></div>
-        </div>
-        <h1>异想体管理系统</h1>
-      </div>
       <div class="user-info">
         <el-avatar :size="40" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
         <div class="user-details">
@@ -17,7 +11,7 @@
     </div>
 
     <el-menu
-      default-active="index"
+      :default-active=defaultActive
       class="el-menu-vertical-demo"
       @open="handleOpen"
       @close="handleClose"
@@ -26,78 +20,34 @@
       text-color="#a0a8c3"
       active-text-color="#5d8bf4"
     >
-      <el-menu-item index="index">
+      <el-menu-item index="/workPlace/main">
         <el-icon><HomeFilled /></el-icon>
         <span>主页</span>
       </el-menu-item>
 
       <!-- 用户管理 -->
-      <el-sub-menu index="1">
+      <el-menu-item index="/workPlace/user">
         <template #title>
           <el-icon><User /></el-icon>
           <span>用户管理</span>
         </template>
-        <el-menu-item index="workPlace/user">
-          <el-icon><List /></el-icon>
-          <span>用户列表</span>
-        </el-menu-item>
-        <el-menu-item index="create-user">
-          <el-icon><CirclePlus /></el-icon>
-          <span>新建用户</span>
-        </el-menu-item>
-        <el-menu-item index="user-permissions">
-          <el-icon><Lock /></el-icon>
-          <span>权限管理</span>
-        </el-menu-item>
-      </el-sub-menu>
+      </el-menu-item>
 
       <!-- 异想体管理 -->
-      <el-sub-menu index="2">
+      <el-menu-item index="/workPlace/abnormality">
         <template #title>
           <el-icon><MagicStick /></el-icon>
           <span>异想体管理</span>
         </template>
-        <el-menu-item index="abnormality-list">
-          <el-icon><Search /></el-icon>
-          <span>异想体查询</span>
-        </el-menu-item>
-        <el-menu-item index="create-abnormality">
-          <el-icon><Plus /></el-icon>
-          <span>新建异想体</span>
-        </el-menu-item>
-        <el-menu-item index="modify-abnormality">
-          <el-icon><EditPen /></el-icon>
-          <span>修改收容措施</span>
-        </el-menu-item>
-        <el-menu-item index="neutralize-abnormality">
-          <el-icon><Warning /></el-icon>
-          <span>异想体无效化</span>
-        </el-menu-item>
-      </el-sub-menu>
+      </el-menu-item>
 
       <!-- 机动小队管理 -->
-      <el-sub-menu index="3">
-        <template #title>
-          <el-icon><Position /></el-icon>
-          <span>机动小队</span>
-        </template>
-        <el-menu-item index="team-list">
-          <el-icon><List /></el-icon>
-          <span>小队列表</span>
-        </el-menu-item>
-        <el-menu-item index="create-team">
-          <el-icon><CirclePlus /></el-icon>
-          <span>新建小队</span>
-        </el-menu-item>
-        <el-menu-item index="assign-mission">
-          <el-icon><Aim /></el-icon>
-          <span>任务指派</span>
-        </el-menu-item>
-        <el-menu-item index="team-status">
-          <el-icon><DataLine /></el-icon>
-          <span>状态监控</span>
-        </el-menu-item>
-      </el-sub-menu>
+      <el-menu-item index="/workPlace/team">
+          <template #title>
+            <el-icon><Position /></el-icon>
+            <span>机动小队</span>
+          </template>
+      </el-menu-item>
 
       <!-- 任务管理 -->
       <el-sub-menu index="4">
@@ -116,28 +66,6 @@
         <el-menu-item index="mission-progress">
           <el-icon><TrendCharts /></el-icon>
           <span>任务进度</span>
-        </el-menu-item>
-      </el-sub-menu>
-
-      <!-- 邮件系统 -->
-      <el-sub-menu index="5">
-        <template #title>
-          <el-icon><Message /></el-icon>
-          <span>邮件系统</span>
-          <span class="unread-count">3</span>
-        </template>
-        <el-menu-item index="inbox">
-          <el-icon><MessageBox /></el-icon>
-          <span>收件箱</span>
-          <span class="unread-badge">3</span>
-        </el-menu-item>
-        <el-menu-item index="compose">
-          <el-icon><Edit /></el-icon>
-          <span>写邮件</span>
-        </el-menu-item>
-        <el-menu-item index="sent">
-          <el-icon><Promotion /></el-icon>
-          <span>已发送</span>
         </el-menu-item>
       </el-sub-menu>
 
@@ -197,11 +125,35 @@
 
 <script setup lang="ts">
 import {
-  HomeFilled, User, List, CirclePlus, Lock, MagicStick, Search, Plus,
+  HomeFilled, User, List, CirclePlus, MagicStick, Search, Plus,
   EditPen, Warning, Position, Aim, DataLine, Tickets, TrendCharts,
-  Message, Edit, Promotion, DataAnalysis, Histogram, DocumentChecked,
-  Document, UserFilled, Setting, BellFilled, MessageBox
+  DataAnalysis, Histogram, DocumentChecked, Document, UserFilled, Setting, BellFilled
 } from '@element-plus/icons-vue'
+import {onMounted, ref, watch} from "vue";
+import {useRoute} from "vue-router";
+
+// 获取当前路由
+const route = useRoute()
+const defaultActive = ref('main')
+console.log(defaultActive.value)
+
+//路由变化时更新
+// 更新 defaultActive 的函数
+const updateDefaultActive = () => {
+  defaultActive.value = route.path || 'main'
+  //console.log(defaultActive.value)
+};
+
+onMounted(() => {
+  // 路由更新
+  updateDefaultActive();
+  watch(
+      () => route.path,
+      () => {
+        updateDefaultActive();
+      }
+  );
+})
 
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log('展开菜单:', key, keyPath)
@@ -281,7 +233,7 @@ const handleClose = (key: string, keyPath: string[]) => {
 .user-info {
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 5px;
   background: rgba(20, 25, 60, 0.4);
   border-radius: 8px;
   border: 1px solid rgba(93, 139, 244, 0.3);

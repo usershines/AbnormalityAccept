@@ -7,6 +7,7 @@ import com.abnormality.abnormalityaccept.service.AbnormalityService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AbnormalityServiceImpl implements AbnormalityService {
 
+    @Autowired
     private AbnormalityMapper abnormalityMapper;
     @Override
     public PageInfo<Abnormality> findAllAbnormality(Integer pageNum, Integer pageSize) {

@@ -4,6 +4,8 @@ import EmailView from '../views/email/index.vue'
 import Home from '../views/home/index.vue'
 import WorkPlace from '../views/workPlace/index.vue'
 import User from '../views/workPlace/user/index.vue'
+import WorkPlaceMain from '../views/workPlace/main/index.vue'
+import Team from '../views/workPlace/team/index.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,9 +26,23 @@ const router = createRouter({
           component: WorkPlace,
           children:[
             {
+              path: '',
+              component: WorkPlaceMain,
+            },
+            {
               path: 'user',
+              name: 'user',
               component: User,
+            },
+            {
+              path: 'main',
+              component: WorkPlaceMain,
+            },
+            {
+              path: 'team',
+              component: Team,
             }
+
           ]
         },
         {

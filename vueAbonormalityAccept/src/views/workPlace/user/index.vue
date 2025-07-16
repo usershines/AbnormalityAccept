@@ -1,12 +1,28 @@
 <template>
-  <!-- 搜索表单区域 -->
-  <el-form :model="searchForm" inline style="margin-bottom: 16px;">
-    <el-form-item label="姓名">
-      <el-input v-model="searchForm.name" placeholder="请输入姓名" clearable></el-input>
+  <!-- 搜索表单区域 - 暗色主题 -->
+  <el-form
+    :model="searchForm"
+    inline
+    class="search-form"
+    style="margin-bottom: 16px;"
+  >
+    <el-form-item label="姓名" class="search-item">
+      <el-input
+        v-model="searchForm.name"
+        placeholder="请输入姓名"
+        clearable
+        class="search-input"
+        prefix-icon="el-icon-user"
+      ></el-input>
     </el-form-item>
 
-    <el-form-item label="权限等级">
-      <el-select v-model="searchForm.level" placeholder="请选择权限等级" clearable>
+    <el-form-item label="权限等级" class="search-item">
+      <el-select
+        v-model="searchForm.level"
+        placeholder="请选择权限等级"
+        clearable
+        class="search-select"
+      >
         <el-option label="O5议会" value="O5"></el-option>
         <el-option label="A级" value="A"></el-option>
         <el-option label="B级" value="B"></el-option>
@@ -15,37 +31,141 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item label="所在地">
+    <el-form-item label="所在地" class="search-item">
       <el-input
         v-model="searchForm.location"
         placeholder="请输入所在地"
         clearable
+        class="search-input"
+        prefix-icon="el-icon-location-outline"
       ></el-input>
     </el-form-item>
 
-    <el-form-item label="id">
-      <el-input v-model="searchForm.id" placeholder="请输入id" clearable></el-input>
+    <el-form-item label="ID" class="search-item">
+      <el-input
+        v-model="searchForm.id"
+        placeholder="请输入ID"
+        clearable
+        class="search-input"
+        prefix-icon="el-icon-key"
+      ></el-input>
     </el-form-item>
 
     <el-form-item>
-      <el-button type="primary" @click="handleSearch">搜索</el-button>
-      <el-button @click="handleReset">重置</el-button>
+      <el-button
+        type="primary"
+        @click="handleSearch"
+        class="search-button"
+      >
+        <i class="iconfont icon-search"></i> 搜索
+      </el-button>
+      <el-button
+        @click="handleReset"
+        class="reset-button"
+      >
+        <i class="iconfont icon-reset"></i> 重置
+      </el-button>
+      <!-- 添加新建用户按钮 -->
+      <el-button
+        type="success"
+        @click="handleCreate"
+        class="create-button"
+      >
+        <i class="iconfont icon-add"></i> 新建用户
+      </el-button>
     </el-form-item>
   </el-form>
 
-  <!-- 数据表格区域 -->
-  <el-table :data="tableData" border style="width: 100%">
-    <el-table-column prop="id" label="id"></el-table-column>
-    <el-table-column prop="name" label="名称"></el-table-column>
-    <el-table-column prop="level" label="权限等级"></el-table-column>
-    <el-table-column prop="location" label="所在地"></el-table-column>
-    <el-table-column prop="superior" label="上级"></el-table-column>
-    <el-table-column prop="description" label="简介"></el-table-column>
-    <el-table-column label="操作" width="180">
+  <!-- 数据表格区域 - 收容单元风格 -->
+  <el-table
+    :data="currentTableData"
+    border
+    style="width: 100%"
+    class="containment-table"
+    :header-cell-style="tableHeaderStyle"
+    :row-style="tableRowStyle"
+  >
+    <el-table-column prop="id" label="ID" width="100">
+      <template #header>
+        <span><i class="iconfont icon-id"></i> ID</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="name" label="名称" width="150">
+      <template #header>
+        <span><i class="iconfont icon-user"></i> 名称</span>
+      </template>
       <template #default="scope">
-        <el-button type="text" @click="handleDetail(scope.row)">详情</el-button>
-        <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
-        <el-button type="text" style="color: #F56C6C" @click="handleDelete(scope.row)">删除</el-button>
+        <span class="user-name">{{ scope.row.name }}</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="level" label="权限等级" width="120">
+      <template #header>
+        <span><i class="iconfont icon-security"></i> 权限等级</span>
+      </template>
+      <template #default="scope">
+        <el-tag :type="getLevelTagType(scope.row.level)" class="clearance-tag">
+          {{ scope.row.level }}
+        </el-tag>
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="status" label="状态" width="100">
+      <template #header>
+        <span><i class="iconfont icon-status"></i> 状态</span>
+      </template>
+      <template #default="scope">
+        <el-tag :type="scope.row.status ? 'success' : 'danger'" class="status-tag">
+          {{ scope.row.status ? '启用' : '停用' }}
+        </el-tag>
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="location" label="所在地" width="150">
+      <template #header>
+        <span><i class="iconfont icon-location"></i> 所在地</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="superior" label="上级" width="150">
+      <template #header>
+        <span><i class="iconfont icon-superior"></i> 上级</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column prop="description" label="简介" min-width="200">
+      <template #header>
+        <span><i class="iconfont icon-description"></i> 简介</span>
+      </template>
+    </el-table-column>
+
+    <el-table-column label="操作" width="220" fixed="right">
+      <template #header>
+        <span><i class="iconfont icon-operation"></i> 操作</span>
+      </template>
+      <template #default="scope">
+        <el-button
+          type="text"
+          @click="handleDetail(scope.row)"
+          class="detail-btn"
+        >
+          <i class="iconfont icon-detail"></i> 详情
+        </el-button>
+        <el-button
+          type="text"
+          @click="handleEdit(scope.row)"
+          class="edit-btn"
+        >
+          <i class="iconfont icon-edit"></i> 编辑
+        </el-button>
+        <el-button
+          type="text"
+          class="delete-btn"
+          @click="handleDelete(scope.row)"
+        >
+          <i class="iconfont icon-delete"></i> 删除
+        </el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -58,17 +178,222 @@
     :page-sizes="[10, 20, 30]"
     :page-size="pageSize"
     layout="total, sizes, prev, pager, next, jumper"
-    :total=total
+    :total="filteredData.length"
     prev-text="上一页"
     next-text="下一页"
-    style="margin-top: 16px;"
+    class="containment-pagination"
   >
   </el-pagination>
+
+  <!-- 用户详情弹窗 -->
+  <el-dialog
+    v-model="createDialogVisible"
+    title="新建用户"
+    width="40%"
+    class="containment-dialog"
+  >
+    <el-form
+      :model="createForm"
+      ref="createFormRef"
+      label-width="120px"
+      label-position="left"
+      :rules="createRules"
+    >
+      <el-form-item label="姓名" prop="name">
+        <el-input v-model="createForm.name" placeholder="请输入姓名"></el-input>
+      </el-form-item>
+
+      <el-form-item label="权限等级" prop="level">
+        <el-select v-model="createForm.level" placeholder="请选择权限等级">
+          <el-option label="O5议会" value="O5"></el-option>
+          <el-option label="A级" value="A"></el-option>
+          <el-option label="B级" value="B"></el-option>
+          <el-option label="C级" value="C"></el-option>
+          <el-option label="D级" value="D"></el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="createForm.email" placeholder="请输入邮箱"></el-input>
+      </el-form-item>
+
+      <el-form-item label="所在地" prop="location">
+        <el-input v-model="createForm.location" placeholder="请输入所在地"></el-input>
+      </el-form-item>
+
+      <el-form-item label="上级" prop="superior">
+        <el-input v-model="createForm.superior" placeholder="请输入上级"></el-input>
+      </el-form-item>
+
+      <el-form-item label="状态" prop="status">
+        <el-switch
+          v-model="createForm.status"
+          :active-value="1"
+          :inactive-value="0"
+          active-text="启用"
+          inactive-text="停用"
+        ></el-switch>
+      </el-form-item>
+
+      <el-form-item label="简介" prop="description">
+        <el-input
+          v-model="createForm.description"
+          type="textarea"
+          :rows="3"
+          placeholder="请输入简介"
+        ></el-input>
+      </el-form-item>
+    </el-form>
+
+    <template #footer>
+      <el-button @click="createDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="submitCreate">确定</el-button>
+    </template>
+  </el-dialog>
+
+  <el-dialog
+    v-model="detailDialogVisible"
+    :title="`${selectedUser?.name} - 人员档案`"
+    width="50%"
+    class="containment-dialog"
+  >
+    <div v-if="selectedUser" class="user-detail">
+      <div class="security-stamp">
+        <div class="stamp-content">
+          <div class="stamp-title">SCP FOUNDATION</div>
+          <div class="stamp-level">机密等级: {{ selectedUser.level }}</div>
+        </div>
+      </div>
+
+      <div class="detail-header">
+        <div class="header-info">
+          <h2 class="user-name">{{ selectedUser.name }}</h2>
+          <div class="info-row">
+            <span class="info-item"><i class="iconfont icon-id"></i> ID：<strong>{{ selectedUser.id }}</strong></span>
+            <span class="info-item"><i class="iconfont icon-security"></i> 权限等级：
+              <el-tag :type="getLevelTagType(selectedUser.level)" class="clearance-tag">
+                {{ selectedUser.level }}
+              </el-tag>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-item"><i class="iconfont icon-status"></i> 状态：
+              <el-tag :type="selectedUser.status ? 'success' : 'danger'" class="status-tag">
+                {{ selectedUser.status ? '启用' : '停用' }}
+              </el-tag>
+            </span>
+            <span class="info-item"><i class="iconfont icon-location"></i> 所在地：<strong>{{ selectedUser.location }}</strong></span>
+          </div>
+          <div class="info-row">
+            <span class="info-item"><i class="iconfont icon-superior"></i> 上级：<strong>{{ selectedUser.superior }}</strong></span>
+          </div>
+          <div class="info-row">
+            <span class="info-item"><i class="iconfont icon-email"></i> 邮箱：<strong>{{ selectedUser.email }}</strong></span>
+          </div>
+          <div class="info-row description">
+            <span><i class="iconfont icon-description"></i> 简介：<span class="description-text">{{ selectedUser.description }}</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3 class="section-title"><i class="iconfont icon-security-level"></i> 安全信息</h3>
+        <div class="security-info">
+          <div class="info-card">
+            <div class="info-label"><i class="iconfont icon-clearance"></i> 安全许可：</div>
+            <div class="info-value">{{ getSecurityClearance(selectedUser.level) }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label"><i class="iconfont icon-access"></i> 访问权限：</div>
+            <div class="info-value">{{ getAccessLevel(selectedUser.level) }}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label"><i class="iconfont icon-login"></i> 最后登录：</div>
+            <div class="info-value">2023-08-15 14:32:18</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label"><i class="iconfont icon-date"></i> 注册日期：</div>
+            <div class="info-value">2022-05-10</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <template #footer>
+      <el-button
+        @click="detailDialogVisible = false"
+        class="dialog-button"
+      >
+        <i class="iconfont icon-close"></i> 关闭
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-import {getUserList} from "@/api/user.ts";
+import { reactive, ref, computed } from 'vue';
+import { ElMessage,type FormInstance, type FormRules } from 'element-plus';
+
+// 新建用户弹窗相关
+const createDialogVisible = ref(false);
+const createFormRef = ref<FormInstance>();
+const createForm = reactive({
+  name: '',
+  level: '',
+  email: '',
+  location: '',
+  superior: '',
+  status: 1,
+  description: ''
+});
+
+// 新建用户表单验证规则
+const createRules = reactive<FormRules>({
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  level: [{ required: true, message: '请选择权限等级', trigger: 'change' }],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: ['blur', 'change'] }
+  ],
+  location: [{ required: true, message: '请输入所在地', trigger: 'blur' }],
+  superior: [{ required: true, message: '请输入上级', trigger: 'blur' }]
+});
+
+// 打开新建用户弹窗
+const handleCreate = () => {
+  createDialogVisible.value = true;
+};
+
+const submitCreate = () => {
+  if (!createFormRef.value) return;
+
+  createFormRef.value.validate((valid) => {
+    if (valid) {
+      // 生成新用户ID
+      const newId = Math.max(...originTableData.value.map(u => u.id), 0) + 1;
+
+      // 创建新用户对象
+      const newUser = {
+        id: newId,
+        ...createForm
+      };
+
+      // 在控制台打印新建结果
+      console.log("新建用户成功:", newUser);
+
+      // 添加新用户到数据列表
+      originTableData.value.push(newUser);
+
+      ElMessage.success('新建用户成功');
+      createDialogVisible.value = false;
+
+      // 重置表单
+      createFormRef.value.resetFields();
+    } else {
+      ElMessage.warning('请填写完整信息');
+    }
+  });
+};
 
 // 搜索表单数据
 const searchForm = reactive({
@@ -79,7 +404,6 @@ const searchForm = reactive({
 });
 
 // 原始表格数据（静态）
-/*
 const originTableData = ref([
   {
     id: 1,
@@ -89,7 +413,6 @@ const originTableData = ref([
     location: 'Site-19',
     superior: 'O5议会',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
     description: '监督者议会成员'
   },
   {
@@ -100,7 +423,6 @@ const originTableData = ref([
     location: 'Site-19',
     superior: 'O5-13',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     description: '高级研究员，SCP-963持有者'
   },
   {
@@ -111,7 +433,6 @@ const originTableData = ref([
     location: 'Site-17',
     superior: 'O5-7',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png',
     description: '异常实体分析专家'
   },
   {
@@ -122,7 +443,6 @@ const originTableData = ref([
     location: 'Site-19',
     superior: 'O5-13',
     status: 0,
-    avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png',
     description: '机械工程与异常收容专家'
   },
   {
@@ -133,7 +453,6 @@ const originTableData = ref([
     location: '机动部署',
     superior: 'O5-13',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/e/f5/3f28f2a7e22d5c5c3d7b9e0e7b3e9png.png',
     description: '九尾狐机动特遣队指挥官'
   },
   {
@@ -144,7 +463,6 @@ const originTableData = ref([
     location: 'Site-19',
     superior: 'Dr. Bright',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png',
     description: 'D级人员，特殊测试对象'
   },
   {
@@ -155,7 +473,6 @@ const originTableData = ref([
     location: 'Site-17',
     superior: 'O5-7',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png',
     description: '摄影与异常实体研究专家'
   },
   {
@@ -166,7 +483,6 @@ const originTableData = ref([
     location: 'Site-64',
     superior: 'Dr. Kondraki',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/1/34/18c7e8f8e8f8e8f8e8f8e8f8e8f8e8.png',
     description: '收容措施优化专家'
   },
   {
@@ -177,7 +493,6 @@ const originTableData = ref([
     location: 'Area-01',
     superior: '监督者议会',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
     description: '监督者议会首席'
   },
   {
@@ -188,7 +503,6 @@ const originTableData = ref([
     location: '机动部署',
     superior: 'O5议会',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
     description: '红右手指挥官'
   },
   {
@@ -199,7 +513,6 @@ const originTableData = ref([
     location: 'Site-81',
     superior: 'Dr. Glass',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png',
     description: '初级研究员'
   },
   {
@@ -210,7 +523,6 @@ const originTableData = ref([
     location: 'Site-19',
     superior: 'Dr. Bright',
     status: 0,
-    avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png',
     description: 'D级人员'
   },
   {
@@ -221,7 +533,6 @@ const originTableData = ref([
     location: 'Area-07',
     superior: '监督者议会',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/e/f5/3f28f2a7e22d5c5c3d7b9e0e7b3e9png.png',
     description: '监督者议会成员'
   },
   {
@@ -232,7 +543,6 @@ const originTableData = ref([
     location: 'Site-15',
     superior: 'O5-7',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png',
     description: '伦理委员会成员'
   },
   {
@@ -243,29 +553,89 @@ const originTableData = ref([
     location: '机动部署',
     superior: 'O5-13',
     status: 1,
-    avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png',
     description: '红鲱鱼机动特遣队指挥官'
   }
 ]);
-*/
-
-const tableData = ref()
 
 // 分页相关数据
 const currentPage = ref(1);
 const pageSize = ref(10);
-const total = ref(0)
 
-const catchData = (currentPage: number, pageSize: number) =>{
-  getUserList(currentPage,pageSize).then((res)=>{
-    if(res.code === 200){
-      console.log("抓取数据")
-      // originTableData.value = res.data
-    }
-  })
-}
+// 详情弹窗相关
+const detailDialogVisible = ref(false);
+const selectedUser = ref<any>(null);
 
-catchData(currentPage.value,pageSize.value)
+// 实现搜索过滤功能
+const filteredData = computed(() => {
+  return originTableData.value.filter(item => {
+    const nameMatch = searchForm.name ? item.name.includes(searchForm.name) : true;
+    const levelMatch = searchForm.level ? item.level === searchForm.level : true;
+    const idMatch = searchForm.id ? item.id === parseInt(searchForm.id) : true;
+    const locationMatch = searchForm.location ? item.location.includes(searchForm.location) : true;
+    return nameMatch && levelMatch && idMatch && locationMatch;
+  });
+});
+
+// 计算当前页显示的数据
+const currentTableData = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredData.value.slice(start, end);
+});
+
+// 获取权限等级对应的标签类型
+const getLevelTagType = (level: string) => {
+  const types: Record<string, string> = {
+    'O5': 'danger',
+    'A': 'warning',
+    'B': 'primary',
+    'C': 'success',
+    'D': 'info'
+  };
+  return types[level] || '';
+};
+
+// 根据权限等级获取安全许可
+const getSecurityClearance = (level: string) => {
+  const clearance: Record<string, string> = {
+    'O5': '最高机密 (Top Secret)',
+    'A': '机密 (Secret)',
+    'B': '受限 (Restricted)',
+    'C': '内部 (Internal)',
+    'D': '公开 (Public)'
+  };
+  return clearance[level] || '未定义';
+};
+
+// 根据权限等级获取访问权限
+const getAccessLevel = (level: string) => {
+  const access: Record<string, string> = {
+    'O5': '所有区域',
+    'A': 'Keter级及以下',
+    'B': 'Euclid级及以下',
+    'C': 'Safe级',
+    'D': '仅指定区域'
+  };
+  return access[level] || '未定义';
+};
+
+// 表格头部样式
+const tableHeaderStyle = () => {
+  return {
+    background: 'linear-gradient(to bottom, #1a2a4a, #0c1a33)',
+    color: '#c0d1f2',
+    fontWeight: 'bold',
+    borderBottom: '1px solid #304878'
+  };
+};
+
+// 表格行样式
+const tableRowStyle = ({ rowIndex }: { rowIndex: number }) => {
+  return {
+    background: rowIndex % 2 === 0 ? 'rgba(10, 20, 41, 0.3)' : 'rgba(15, 30, 61, 0.3)',
+    color: '#e0f0ff'
+  };
+};
 
 // 搜索方法
 const handleSearch = () => {
@@ -294,22 +664,385 @@ const handleCurrentChange = (val: number) => {
 
 // 查看详情方法
 const handleDetail = (row: any) => {
-  console.log('查看详情：', row);
+  selectedUser.value = row;
+  detailDialogVisible.value = true;
 };
 
 // 编辑方法
 const handleEdit = (row: any) => {
-  console.log('编辑：', row);
+  ElMessage.info(`编辑用户: ${row.name}`);
+  // 这里可以添加实际编辑逻辑
 };
 
 // 添加删除方法
 const handleDelete = (row: any) => {
-  console.log(row)
+  const index = originTableData.value.findIndex(item => item.id === row.id);
+  if (index !== -1) {
+    originTableData.value.splice(index, 1);
+    ElMessage.warning(`已删除用户: ${row.name}`);
+    // 如果删除的是当前页最后一条且不是第一页，则跳转到上一页
+    if (currentTableData.value.length === 0 && currentPage.value > 1) {
+      currentPage.value -= 1;
+    }
+  }
 };
 </script>
 
 <style scoped>
-.el-button + .el-button {
-  margin-left: 8px;
+
+/* 添加新建按钮样式 */
+.create-button {
+  background: linear-gradient(to right, #4aaf7d, #3a8c5f);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.create-button:hover {
+  background: linear-gradient(to right, #5abf8d, #4a9c6f);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 175, 125, 0.4);
+}
+
+
+/* 搜索区域样式 */
+.search-form {
+  background: linear-gradient(135deg, #1a2a4a, #0c1a33);
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid #304878;
+}
+
+
+.search-input, .search-select {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #304878;
+  color: #e0f0ff;
+  border-radius: 4px;
+  width: 180px;
+}
+
+.search-input:hover, .search-select:hover {
+  border-color: #4a6fb3;
+}
+
+
+
+.search-button {
+  background: linear-gradient(to right, #4a6fb3, #3a5a9c);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background: linear-gradient(to right, #5a7fc3, #4a6aac);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 111, 179, 0.4);
+}
+
+.reset-button {
+  background: linear-gradient(to right, #5a5a7c, #4a4a6c);
+  border: none;
+  color: #e0e0ff;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.reset-button:hover {
+  background: linear-gradient(to right, #6a6a8c, #5a5a7c);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(90, 90, 140, 0.4);
+}
+
+/* 表格样式 */
+.containment-table {
+  background: rgba(10, 20, 41, 0.5);
+  border: 1px solid #304878;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.containment-table :deep(th) {
+  background: linear-gradient(to bottom, #1a2a4a, #0c1a33) !important;
+  color: #c0d1f2;
+  border-bottom: 1px solid #304878;
+  font-size: 15px;
+}
+
+.containment-table :deep(td) {
+  background: transparent;
+  color: #e0f0ff;
+  border-bottom: 1px solid #304878;
+  font-size: 14px;
+}
+
+.containment-table :deep(.el-table__row:hover td) {
+  background-color: rgba(74, 111, 179, 0.2) !important;
+}
+
+.containment-table :deep(.el-table__body tr:hover>td) {
+  background-color: rgba(74, 111, 179, 0.2) !important;
+}
+
+.user-name {
+  font-weight: bold;
+}
+
+.clearance-tag {
+  font-weight: bold;
+  border-radius: 12px;
+  padding: 0 10px;
+  height: 24px;
+  line-height: 24px;
+  border: none;
+}
+
+.status-tag {
+  font-weight: bold;
+  border-radius: 12px;
+  padding: 0 10px;
+  height: 24px;
+  line-height: 24px;
+  border: none;
+}
+
+.detail-btn {
+  color: #4a9cf0;
+  font-weight: bold;
+}
+
+.detail-btn:hover {
+  color: #6ab6ff;
+}
+
+.edit-btn {
+  color: #4a9cf0;
+  font-weight: bold;
+}
+
+.edit-btn:hover {
+  color: #6ab6ff;
+}
+
+.delete-btn {
+  color: #e63946;
+  font-weight: bold;
+}
+
+.delete-btn:hover {
+  color: #ff5a6e;
+}
+
+/* 分页样式 */
+.containment-pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  background: rgba(10, 20, 41, 0.3);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #304878;
+}
+
+.containment-pagination :deep(.el-pager li) {
+  background-color: #1a2a4a;
+  color: #c0d1f2;
+  border: 1px solid #304878;
+  border-radius: 4px;
+  margin: 0 4px;
+}
+
+
+/* 弹窗样式 */
+.user-detail {
+  position: relative;
+  background: rgba(15, 30, 61, 0.85);
+  padding: 25px;
+  border-radius: 6px;
+  border: 1px solid #304878;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.containment-dialog {
+  background: linear-gradient(135deg, #0c1a33, #1a2a4a);
+  border: 1px solid #4a6fb3;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(74, 111, 179, 0.5);
+}
+
+
+
+.dialog-button {
+  background: linear-gradient(to right, #4a6fb3, #3a5a9c);
+  border: none;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.dialog-button:hover {
+  background: linear-gradient(to right, #5a7fc3, #4a6aac);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 111, 179, 0.4);
+}
+
+/* 详情页样式 */
+.user-detail {
+  position: relative;
+}
+
+.security-stamp {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  width: 120px;
+  height: 120px;
+  border: 4px solid #e63946;
+  border-radius: 50%;
+  background: rgba(230, 57, 70, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(15deg);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.stamp-content {
+  text-align: center;
+  transform: rotate(-15deg);
+}
+
+.stamp-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #e63946;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stamp-level {
+  font-size: 10px;
+  color: #ff9aa2;
+  margin-top: 3px;
+}
+
+.detail-header {
+  margin-bottom: 20px;
+}
+
+.user-name {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #e0f0ff;
+  font-size: 24px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid #4a6fb3;
+  padding-bottom: 10px;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 12px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.info-item {
+  margin-right: 30px;
+  margin-bottom: 8px;
+  min-width: 45%;
+  display: flex;
+  align-items: center;
+}
+
+.info-item i {
+  margin-right: 8px;
+  color: #a0b9e0;
+  font-size: 16px;
+}
+
+.info-item strong {
+  color: #ffffff;
+  margin-left: 5px;
+  font-weight: 500;
+}
+
+.description {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed #4a6fb3;
+  color: #c0d1f2;
+  width: 100%;
+}
+
+.description-text {
+  color: #e0f0ff;
+  line-height: 1.6;
+}
+
+.detail-section {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #304878;
+}
+
+.section-title {
+  color: #e0f0ff;
+  font-size: 18px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.section-title i {
+  margin-right: 8px;
+  color: #4a9cf0;
+  font-size: 20px;
+}
+
+.security-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.info-card {
+  background: rgba(10, 20, 41, 0.5);
+  border: 1px solid #304878;
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  border-color: #4a6fb3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(74, 111, 179, 0.2);
+}
+
+.info-label {
+  color: #a0b9e0;
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.info-label i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.info-value {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
 }
 </style>

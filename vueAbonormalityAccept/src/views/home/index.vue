@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card style="height: 770px">
     <template #header>
     <el-carousel
         height="200px"
@@ -29,7 +29,7 @@
         </el-card>
       </el-aside>
       <el-main>
-        <el-calendar>
+        <el-calendar >
           <template #date-cell="{ data }">
             <p :class="data.isSelected ? 'is-selected' : ''">
               {{ data.day.split('-').slice(2).join('-') }}
@@ -125,6 +125,10 @@ const clickCarousel= (image: any) =>{
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.el-calendar-table .el-calendar-day{
+  height: 60px;
 }
 
 .el-table .warning {

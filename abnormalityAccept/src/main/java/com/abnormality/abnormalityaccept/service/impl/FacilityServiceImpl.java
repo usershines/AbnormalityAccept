@@ -3,6 +3,7 @@ import com.abnormality.abnormalityaccept.entity.Facility;
 import com.abnormality.abnormalityaccept.service.FacilityService;
 import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
@@ -34,16 +35,18 @@ public class FacilityServiceImpl implements FacilityService {
      * 根据ID查询设施
      */
     @Override
+
     public Facility findFacilityById(Long id) {
-        return facilityMapper.findFacilityById(id);
+        return facilityMapper.selectById(id);
     }
 
     /**
      * 添加设施
      */
     @Override
+    @DS("slave")
     public boolean addFacility(Facility facility) {
-        return facilityMapper.addFacility(facility) > 0;
+        return facilityMapper.insertOrUpdate(facility);
     }
 
     /**

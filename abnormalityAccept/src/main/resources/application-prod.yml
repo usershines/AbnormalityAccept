@@ -11,6 +11,8 @@ spring:
     username: abnormality
     password: abnormality
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+
   servlet:
     multipart:
       enabled: true

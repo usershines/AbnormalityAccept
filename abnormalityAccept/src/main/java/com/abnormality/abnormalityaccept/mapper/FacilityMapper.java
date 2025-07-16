@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Facility;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  * @since 2025-07-13
  */
 @Mapper
-public interface FacilityMapper {
+public interface FacilityMapper extends BaseMapper<Facility> {
     /**
      *查询所有设施
      */

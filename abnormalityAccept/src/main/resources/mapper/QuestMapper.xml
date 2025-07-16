@@ -4,4 +4,123 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.abnormality.abnormalityaccept.mapper.QuestMapper">
+    <resultMap id="BaseQuestResultMap" type="com.abnormality.abnormalityaccept.entity.Quest">
+        <id property="id" column="id"/>
+        <result property="questCode" column="quest_code"/>
+        <result property="questName" column="quest_name"/>
+        <result property="questDescription" column="quest_description"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <!-- 基础字段片段，复用查询 -->
+    <sql id="BaseQuestColumns">
+        id, quest_code, quest_name, quest_description, state
+    </sql>
+
+    <!-- 查询所有任务 -->
+    <select id="findAllQuests" resultMap="BaseQuestResultMap">
+        SELECT
+        <include refid="BaseQuestColumns"/>
+        FROM quest
+    </select>
+
+    <!-- 根据ID查询任务 -->
+    <select id="findQuestById" resultMap="BaseQuestResultMap">
+        SELECT
+        <include refid="BaseQuestColumns"/>
+        FROM quest
+        WHERE id = #{id}
+    </select>
+
+    <!-- 添加任务 -->
+    <insert id="addQuest">
+        INSERT INTO quest (quest_code, quest_name, quest_description, state)
+        VALUES (#{questCode}, #{questName}, #{questDescription}, #{state})
+    </insert>
+
+    <!-- 更新任务 -->
+    <update id="updateQuest">
+        UPDATE quest
+        SET quest_code = #{questCode},
+            quest_name = #{questName},
+            quest_description = #{questDescription},
+            state = #{state}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID删除任务 -->
+    <delete id="deleteQuestById">
+        DELETE FROM quest
+        WHERE id = #{id}
+    </delete>
+
+    <!-- ============== 拓展方法实现 ============== -->
+
+    <!-- 条件查询任务（动态SQL，根据quest_code、quest_name、state等过滤） -->
+    <select id="findQuestByCondition" resultMap="BaseQuestResultMap">
+        SELECT
+        <include refid="BaseQuestColumns"/>
+        FROM quest
+        <where>
+            <if test="questCode != null and questCode != ''">
+                AND quest_code LIKE CONCAT('%', #{questCode}, '%')
+            </if>
+            <if test="questName != null and questName != ''">
+                AND quest_name LIKE CONCAT('%', #{questName}, '%')
+            </if>
+            <if test="state != null and state != ''">
+                AND state = #{state}
+            </if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <!-- 分页查询任务 -->
+    <select id="findQuestByPage" resultMap="BaseQuestResultMap">
+        SELECT
+        <include refid="BaseQuestColumns"/>
+        FROM quest
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 根据状态查询任务 -->
+    <select id="findQuestByState" resultMap="BaseQuestResultMap">
+        SELECT
+        <include refid="BaseQuestColumns"/>
+        FROM quest
+        WHERE state = #{state}
+    </select>
+
+    <!-- 统计任务总数 -->
+    <select id="countQuest" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM quest
+    </select>
+
+    <!-- 批量更新任务状态 -->
+    <update id="batchUpdateQuestState">
+        UPDATE quest
+        SET state = #{state}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 批量删除任务 -->
+    <delete id="batchDeleteQuest">
+        DELETE FROM quest
+        WHERE id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 根据任务名称模糊查询 -->
+    <select id="findQuestByName" resultMap="BaseQuestResultMap">
+        SELECT
+        <include refid="BaseQuestColumns"/>
+        FROM quest
+        WHERE quest_name LIKE CONCAT('%', #{questName}, '%')
+    </select>
+
 </mapper>

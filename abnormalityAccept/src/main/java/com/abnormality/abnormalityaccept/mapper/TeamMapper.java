@@ -14,6 +14,9 @@ import java.util.List;
 @Mapper
 public interface TeamMapper {
 
+    // teamMapper.selectById()
+
+
     List<Team> findAllTeam();
 
     Team findTeamById(Long id);

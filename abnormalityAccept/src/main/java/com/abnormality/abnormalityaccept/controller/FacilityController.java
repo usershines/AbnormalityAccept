@@ -11,6 +11,8 @@ import com.abnormality.abnormalityaccept.entity.Facility;
 import com.abnormality.abnormalityaccept.service.FacilityService;
 import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
 
+import java.util.List;
+
 /**
  * @author shanh
  * @version 1.0
@@ -73,6 +75,16 @@ public class FacilityController {
         }
         return Result.error(500, "删除失败");
     }
-
-
+    // 拓展按等级查询设施
+    @Operation(summary = "按等级查询设施信息")
+    @GetMapping("/byLevel")
+    public Result<List<Facility>> findByLevel(@Parameter(description = "设施等级") @RequestParam Integer level) {
+        return facilityService.findByLevel(level);
+    }
+    // 拓展搜索设施（按名称或地址模糊查询）
+    @Operation(summary = "搜索设施（按名称或地址模糊匹配）")
+    @GetMapping("/search")
+    public Result<List<Facility>> search(@Parameter(description = "搜索关键词") @RequestParam String keyword) {
+        return facilityService.search(keyword);
+    }
 }

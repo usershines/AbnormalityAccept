@@ -19,50 +19,42 @@
     <select id="findAllNotice" resultMap="Base_Notice_List">
         SELECT
         <include refid="Base_Notice"/>
-        FROM mails
+        FROM notice
     </select>
 
     <select id="findNoticeById" resultMap="Base_Notice_List">
         SELECT
         <include refid="Base_Notice"/>
-        FROM mails
+        FROM notice
         WHERE id = #{id}
     </select>
 
     <insert id="addNotice">
-        INSERT INTO mails(status, sender_id, recipient_id, subject, content, is_urgent)
-        VALUES(#{status}, #{senderId}, #{recipientId}, #{subject}, #{content}, #{isUrgent})
+        INSERT INTO mails(id, content, time, state)
+        VALUES(#{id}, #{content}, #{time}, #{state})
     </insert>
 
     <update id="updateNotice">
-        UPDATE mails
-        SET status = #{status},
-            sender_id = #{senderId},
-            recipient_id = #{recipientId},
-            subject = #{subject},
+        UPDATE notice
+        SET id = #{id},
             content = #{content},
-            is_urgent = #{isUrgent}
+            time = #{time},
+            state = #{state},
         WHERE id = #{id}
     </update>
 
     <delete id="deleteNoticeById">
-        DELETE FROM mails
+        DELETE FROM notice
         WHERE id = #{id}
     </delete>
 
     <select id="findNoticeByCondition" resultMap="Base_Notice_List">
         SELECT
         <include refid="Base_Notice"/>
-        FROM mails
+        FROM notice
         <where>
-            <if test="subject != null and subject != ''">
-                AND subject LIKE CONCAT('%', #{subject}, '%')
-            </if>
-            <if test="status != null and status != ''">
-                AND status = #{status}
-            </if>
-            <if test="isUrgent != null">
-                AND is_urgent = #{isUrgent}
+            <if test="state != null and state != ''">
+                AND subject LIKE CONCAT('%', #{state}, '%')
             </if>
         </where>
     </select>

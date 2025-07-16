@@ -16,6 +16,12 @@ interface User {
 
 }
 
+export function login(form:any) {
+    console.log(form.name)
+
+    return request.post("/user/login", form)
+}
+
 // 分页获取用户信息
 export function getUserList(pageNum: number, pageSize: number){
     return request.get('/user/List', {

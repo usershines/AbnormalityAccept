@@ -1,169 +1,169 @@
 <template>
   <!-- 搜索表单区域 - 暗色主题 -->
-  <el-form
-    :model="searchForm"
-    inline
-    class="search-form"
-    style="margin-bottom: 16px;"
-  >
-    <el-form-item label="小队名称" class="search-item">
-      <el-input
-        v-model="searchForm.name"
-        placeholder="请输入小队名称"
-        clearable
-        class="search-input"
-      ></el-input>
-    </el-form-item>
-
-    <el-form-item label="权限等级" class="search-item">
-      <el-select
-        v-model="searchForm.level"
-        placeholder="请选择权限等级"
-        clearable
-        class="search-select"
+  <el-card style="margin: -20px 0 0px;height: 750px;">
+    <template #header>
+      <el-form
+          :model="searchForm"
+          inline
+          class="search-form"
+          style="display: flex;margin-bottom: -20px"
       >
-        <el-option label="O5议会" value="O5"></el-option>
-        <el-option label="A级" value="A"></el-option>
-        <el-option label="B级" value="B"></el-option>
-        <el-option label="C级" value="C"></el-option>
-        <el-option label="D级" value="D"></el-option>
-      </el-select>
-    </el-form-item>
+        <el-form-item label="小队名称">
+          <el-input
+              v-model="searchForm.name"
+              placeholder="请输入小队名称"
+              clearable
+              class="search-input"
+          ></el-input>
+        </el-form-item>
 
-    <el-form-item label="所在地" class="search-item">
-      <el-input
-        v-model="searchForm.location"
-        placeholder="请输入所在地"
-        clearable
-        class="search-input"
-      ></el-input>
-    </el-form-item>
+        <el-form-item label="权限等级" class="search-item">
+          <el-select
+              v-model="searchForm.level"
+              placeholder="请选择权限等级"
+              clearable
+              class="search-select"
+          >
+            <el-option label="O5议会" value="O5"></el-option>
+            <el-option label="A级" value="A"></el-option>
+            <el-option label="B级" value="B"></el-option>
+            <el-option label="C级" value="C"></el-option>
+            <el-option label="D级" value="D"></el-option>
+          </el-select>
+        </el-form-item>
 
-    <el-form-item label="状态" class="search-item">
-      <el-select
-        v-model="searchForm.status"
-        placeholder="请选择状态"
-        clearable
-        class="search-select"
-      >
-        <el-option label="空闲" value="空闲"></el-option>
-        <el-option label="任务中" value="任务中"></el-option>
-        <el-option label="无法活动" value="无法活动"></el-option>
-        <el-option label="未知" value="未知"></el-option>
-      </el-select>
-    </el-form-item>
+        <el-form-item label="所在地" class="search-item">
+          <el-input
+              v-model="searchForm.location"
+              placeholder="请输入所在地"
+              clearable
+              class="search-input"
+          ></el-input>
+        </el-form-item>
 
-    <el-form-item>
-      <el-button
-        type="primary"
-        @click="handleSearch"
-        class="search-button"
-      >
-        <i class="iconfont icon-search"></i> 搜索
-      </el-button>
-      <el-button
-        @click="handleReset"
-        class="reset-button"
-      >
-        <i class="iconfont icon-reset"></i> 重置
-      </el-button>
-    </el-form-item>
-  </el-form>
+        <el-form-item label="状态" class="search-item">
+          <el-select
+              v-model="searchForm.status"
+              placeholder="请选择状态"
+              clearable
+              class="search-select"
+          >
+            <el-option label="空闲" value="空闲"></el-option>
+            <el-option label="任务中" value="任务中"></el-option>
+            <el-option label="无法活动" value="无法活动"></el-option>
+            <el-option label="未知" value="未知"></el-option>
+          </el-select>
+        </el-form-item>
 
-  <!-- 卡片列表区域 - 收容单元风格 -->
-  <div class="team-cards">
-    <el-row :gutter="20">
-      <el-col
-        v-for="item in currentTableData"
-        :key="item.id"
-        :xs="24" :sm="12" :md="8" :lg="6"
-        class="card-col"
-      >
-        <el-card
-          class="containment-card"
-          :body-style="{ padding: '16px' }"
-          @click="handleDetail(item)"
-        >
-          <div class="card-header">
-            <div class="avatar-container">
-              <div class="security-badge">
-                <i class="iconfont icon-lock"></i>
-              </div>
-              <el-avatar :size="60" :src="item.avatar" class="team-avatar" />
-            </div>
-            <div class="card-title">
-              <h3 class="team-name">{{ item.name }}</h3>
-              <el-tag
-                :type="getLevelTagType(item.level)"
-                class="clearance-level"
+        <el-form-item style="margin-left: auto;margin-right: 10px;display: flex;flex-direction: row">
+          <el-button
+              type="primary"
+              @click="handleSearch"
+              class="search-button"
+          >搜索
+          </el-button>
+          <el-button
+              @click="handleReset"
+              class="reset-button"
+          >重置
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </template>
+
+    <!-- 卡片列表区域 - 收容单元风格 -->
+    <template #default>
+        <div style="margin: -10px 0 -30px; overflow-y: auto;overflow-x:hidden ; height: 630px">
+            <el-row :gutter="20">
+              <el-col
+                  v-for="item in currentTableData"
+                  :key="item.id"
+                  :xs="24" :sm="12" :md="8" :lg="6"
+                  style="width: 100%;margin-bottom: 10px"
               >
-                <i class="iconfont icon-security"></i> {{ item.level }}级权限
-              </el-tag>
-            </div>
-          </div>
+                <el-card
+                    style="height: 300px;"
+                    @click="handleDetail(item)"
+                    shadow="hover"
+                >
+                  <template #header>
+                    <div style="display: flex;flex-direction: row;">
+                      <div>
+                        <el-avatar :size="60" :src="item.avatar" style="margin-bottom: 0px" />
+                        <h3 style="margin-bottom: 5px;margin-top: 20px;overflow-x: hidden;white-space: nowrap">{{ item.name }}</h3>
+                      </div>
+                      <div style="display: flex;flex-direction: column;margin: 0px 0px 0 auto;align-items: flex-end">
+                        <el-button
+                            type="primary"
+                            style="margin-bottom: 5px"
+                            @click.stop="handleEdit(item)"
+                        >
+                          <i class="iconfont icon-edit"></i> 编辑
+                        </el-button>
+                        <el-button
+                            type="danger"
+                            @click.stop="handleDelete(item)"
+                        >
+                          <i class="iconfont icon-delete"></i> 删除
+                        </el-button>
+                      </div>
+                    </div>
 
-          <div class="card-content">
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-id"></i> 编号：</span>
-              <span class="value">{{ item.id }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-status"></i> 状态：</span>
-              <el-tag :type="getStatusTagType(item.status)" class="status-tag">
-                {{ item.status }}
-              </el-tag>
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-member"></i> 成员：</span>
-              <span class="value">{{ item.members.length }}人</span>
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-mission"></i> 任务：</span>
-              <span class="value mission-text">{{ item.currentMission || '无' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-location"></i> 所在地：</span>
-              <span class="value">{{ item.location }}</span>
-            </div>
-          </div>
+                    <div style="display: flex;flex-direction:row">
+                      <el-tag
+                          :type="getLevelTagType(item.level)"
+                          style="margin: 2px 10px 0px 0"
+                      >
+                        {{ item.level }}级权限
+                      </el-tag>
+                      <el-tag :type="getStatusTagType(item.status)" class="status-tag">
+                        {{ item.status }}
+                      </el-tag>
+                    </div>
+                  </template>
 
-          <div class="card-actions">
-            <el-button
-              type="text"
-              size="small"
-              @click.stop="handleEdit(item)"
-              class="edit-btn"
-            >
-              <i class="iconfont icon-edit"></i> 编辑
-            </el-button>
-            <el-button
-              type="text"
-              size="small"
-              class="delete-btn"
-              @click.stop="handleDelete(item)"
-            >
-              <i class="iconfont icon-delete"></i> 删除
-            </el-button>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
+                  <div style="margin-top: -10px">
+                    <div class="info-item">
+                      <span class="label">编号：{{ item.id }}</span>
+                    </div>
+                    <div class="info-item">
 
-  <!-- 分页组件区域 -->
-  <el-pagination
-    @size-change="handleSizeChange"
-    @current-change="handleCurrentChange"
-    :current-page="currentPage"
-    :page-sizes="[8, 16, 24]"
-    :page-size="pageSize"
-    layout="total, sizes, prev, pager, next, jumper"
-    :total="filteredData.length"
-    prev-text="上一页"
-    next-text="下一页"
-    class="containment-pagination"
-  >
-  </el-pagination>
+                    </div>
+                    <div class="info-item">
+                      <span class="label">成员：{{ item.members.length }}人</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="value">当前任务：{{ item.currentMission || '无' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="label">所在地：{{ item.location }}</span>
+                    </div>
+                  </div>
+                </el-card>
+              </el-col>
+            </el-row>
+        </div>
+    </template>
+
+    <!-- 分页组件区域 -->
+    <template #footer>
+      <div style="margin-top: -10px;display: flex;justify-content: flex-end">
+        <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[8, 16, 24]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="filteredData.length"
+            prev-text="上一页"
+            next-text="下一页"
+            class="containment-pagination"
+        >
+        </el-pagination>
+      </div>
+    </template>
+  </el-card>
 
   <!-- 小队详情弹窗 - 收容单元报告风格 -->
   <el-dialog
@@ -171,6 +171,7 @@
     :title="`${selectedTeam?.name} - 收容小队档案`"
     width="70%"
     class="containment-dialog"
+    style="margin-top: 10px"
   >
     <div v-if="selectedTeam" class="team-detail">
       <div class="detail-header">
@@ -573,7 +574,129 @@ const fetchTeamsFromDatabase = async () => {
         { title: 'D级人员政策修订', description: '修订D级人员使用政策', date: '2023-04-10', status: '成功', duration: '1个月' },
         { title: 'SCP-231程序审查', description: '审查SCP-231相关程序', date: '2023-02-15', status: '进行中', duration: '持续' }
       ]
-    }
+    },
+    {
+      id: 1,
+      name: 'O5-13',
+      level: 'O5',
+      email: 'o5-13@scp-foundation.org',
+      location: 'Site-19',
+      superior: 'O5议会',
+      status: '任务中',
+      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+      description: '监督者议会成员',
+      currentMission: 'SCP-682收容突破应对',
+      members: [
+        { id: 101, name: 'O5-13', role: '监督者', clearance: 'O5', status: '在岗', avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png', joinDate: '2010-05-12', securityClearance: '最高机密', bio: '监督者议会成员，负责Site-19管理', skills: ['战略决策', '异常评估', '资源管理'] },
+        { id: 102, name: 'Dr. Bright', role: '高级研究员', clearance: 'A', status: '任务中', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2015-08-23', securityClearance: '机密', bio: 'SCP-963持有者，异常实体专家', skills: ['实体收容', '跨维度研究', '紧急响应'] }
+      ],
+      missionHistory: [
+        { title: 'SCP-096收容失效', description: '处理SCP-096在Site-19的收容失效事件', date: '2023-05-15', status: '成功', duration: '8小时' },
+        { title: 'Site-81安全评估', description: '对Site-81进行年度安全审查', date: '2023-03-10', status: '成功', duration: '3天' },
+        { title: 'SCP-173迁移', description: '将SCP-173迁移至新收容设施', date: '2023-01-20', status: '部分成功', duration: '12小时' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'MTF Epsilon-11',
+      level: 'B',
+      email: 'epsilon11@scp-foundation.org',
+      location: '机动部署',
+      superior: 'O5-13',
+      status: '空闲',
+      avatar: 'https://cube.elemecdn.com/e/f5/3f28f2a7e22d5c5c3d7b9e0e7b3e9png.png',
+      description: '九尾狐机动特遣队',
+      currentMission: '',
+      members: [
+        { id: 201, name: '指挥官 Grant', role: '指挥官', clearance: 'B', status: '在岗', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2018-11-05', securityClearance: '机密', bio: '九尾狐特遣队指挥官，战术专家', skills: ['战术指挥', 'CQB', '爆破'] },
+        { id: 202, name: '特工 Davis', role: '医疗兵', clearance: 'C', status: '休假', avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png', joinDate: '2020-02-14', securityClearance: '受限', bio: '战地医疗专家，异常医疗处理', skills: ['急救', '异常医疗', '生物危害处理'] },
+        { id: 203, name: '特工 Miller', role: '重装兵', clearance: 'C', status: '在岗', avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png', joinDate: '2019-07-30', securityClearance: '受限', bio: '重武器专家，收容突破应对', skills: ['重武器', '防御战术', '装甲操作'] }
+      ],
+      missionHistory: [
+        { title: 'Site-19收容突破', description: '应对Site-19多起Keter级收容失效', date: '2023-06-20', status: '成功', duration: '36小时' },
+        { title: 'SCP-106追捕', description: '追捕并重新收容逃脱的SCP-106', date: '2023-04-05', status: '成功', duration: '18小时' }
+      ]
+    },
+    {
+      id: 3,
+      name: 'MTF Alpha-1',
+      level: 'A',
+      email: 'alpha1@scp-foundation.org',
+      location: '机动部署',
+      superior: 'O5议会',
+      status: '任务中',
+      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+      description: '红右手特别行动组',
+      currentMission: '内部安全审查',
+      members: [
+        { id: 301, name: '指挥官 Reed', role: '指挥官', clearance: 'A', status: '在岗', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2012-09-12', securityClearance: '最高机密', bio: '红右手指挥官，内部安全专家', skills: ['反情报', '内部调查', '特种作战'] },
+        { id: 302, name: '特工 Carter', role: '情报官', clearance: 'B', status: '任务中', avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png', joinDate: '2017-05-18', securityClearance: '机密', bio: '情报分析专家，反渗透', skills: ['情报分析', '密码学', '监视'] }
+      ],
+      missionHistory: [
+        { title: 'Site-43渗透测试', description: '对Site-43进行安全渗透测试', date: '2023-05-30', status: '成功', duration: '24小时' },
+        { title: 'O5-7安保任务', description: '为O5-7会议提供高级别安保', date: '2023-04-22', status: '成功', duration: '48小时' }
+      ]
+    },
+    {
+      id: 4,
+      name: '研究团队 Gamma',
+      level: 'C',
+      email: 'gamma@scp-foundation.org',
+      location: 'Site-64',
+      superior: 'Dr. Glass',
+      status: '无法活动',
+      avatar: 'https://cube.elemecdn.com/1/34/18c7e8f8e8f8e8f8e8f8e8f8e8f8e8.png',
+      description: '收容措施优化团队',
+      currentMission: '',
+      members: [
+        { id: 401, name: 'Dr. Shaw', role: '首席研究员', clearance: 'C', status: '医疗休假', avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png', joinDate: '2021-03-15', securityClearance: '受限', bio: '收容措施专家，物理学博士', skills: ['收容设计', '材料科学', '结构分析'] },
+        { id: 402, name: 'Dr. Finch', role: '研究员', clearance: 'C', status: '在岗', avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png', joinDate: '2022-01-10', securityClearance: '受限', bio: '异常工程学专家', skills: ['工程学', '异常材料', '原型设计'] }
+      ],
+      missionHistory: [
+        { title: 'SCP-914优化', description: '优化SCP-914的收容和测试协议', date: '2023-02-18', status: '成功', duration: '2周' },
+        { title: 'SCP-173收容间升级', description: '重新设计SCP-173的收容间', date: '2022-11-05', status: '成功', duration: '3周' }
+      ]
+    },
+    {
+      id: 5,
+      name: 'MTF Gamma-5',
+      level: 'B',
+      email: 'gamma5@scp-foundation.org',
+      location: '机动部署',
+      superior: 'O5-13',
+      status: '未知',
+      avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png',
+      description: '红鲱鱼机动特遣队',
+      currentMission: '深空探测任务',
+      members: [
+        { id: 501, name: '指挥官 Vega', role: '指挥官', clearance: 'B', status: '任务中', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2019-08-20', securityClearance: '机密', bio: '深空异常专家，宇航员', skills: ['太空作战', '零重力战术', '外星环境'] },
+        { id: 502, name: '特工 Nova', role: '领航员', clearance: 'C', status: '任务中', avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png', joinDate: '2020-05-15', securityClearance: '受限', bio: '天体导航专家，异常空间现象', skills: ['天体导航', '异常空间', '通信系统'] }
+      ],
+      missionHistory: [
+        { title: '月球异常调查', description: '调查月球背面的异常能量信号', date: '2023-01-10', status: '成功', duration: '14天' },
+        { title: 'SCP-2399收容', description: '执行SCP-2399收容协议', date: '2022-09-12', status: '部分成功', duration: '30天' }
+      ]
+    },
+    {
+      id: 6,
+      name: '伦理委员会',
+      level: 'A',
+      email: 'ethics@scp-foundation.org',
+      location: 'Site-15',
+      superior: 'O5-7',
+      status: '空闲',
+      avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png',
+      description: '基金会伦理监督',
+      currentMission: '',
+      members: [
+        { id: 601, name: 'Dr. Rights', role: '主席', clearance: 'A', status: '在岗', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2015-07-01', securityClearance: '机密', bio: '伦理委员会主席，法学博士', skills: ['伦理学', '法律', '政策制定'] },
+        { id: 602, name: 'Dr. Vale', role: '高级伦理官', clearance: 'B', status: '休假', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2018-03-22', securityClearance: '机密', bio: '生物伦理学专家', skills: ['生物伦理', '医学伦理', '风险评估'] }
+      ],
+      missionHistory: [
+        { title: 'D级人员政策修订', description: '修订D级人员使用政策', date: '2023-04-10', status: '成功', duration: '1个月' },
+        { title: 'SCP-231程序审查', description: '审查SCP-231相关程序', date: '2023-02-15', status: '进行中', duration: '持续' }
+      ]
+    },
   ];
 };
 
@@ -1054,5 +1177,11 @@ const handleDelete = (row: Team) => {
   border: none;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+.value {
+  white-space: nowrap; /* 不换行 */
+  overflow: hidden; /* 内容溢出隐藏 */
+  text-overflow: ellipsis; /* 使用省略号表示内容溢出 */
 }
 </style>

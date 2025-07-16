@@ -43,12 +43,12 @@ console.log(defaultActive.value)
 // 更新 defaultActive 的函数
 const updateDefaultActive = () => {
   if (route.path.startsWith('/workPlace')) {
-    defaultActive.value = 'workPlace';
+    defaultActive.value = '/workPlace';
   } else {
     if (route.path.startsWith('/email')) {
       defaultActive.value = '/email';
     }else {
-      defaultActive.value = route.name || '';
+      defaultActive.value = route.name;
     }
   }
 };

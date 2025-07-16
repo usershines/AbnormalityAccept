@@ -1,22 +1,23 @@
+# Spring Boot 应用基础配置
 spring:
   application:
-  name: abnormalityAccept
+    name: abnormalityAccept # 应用名称，用于注册中心和服务标识
   profiles:
-    active: dev
+    active: dev # 指定当前激活的配置文件，加载 application-dev.yml 中的配置
 
-
-
+# JWT 配置，用于 Token 生成与验证
 jwt:
-  keybase: abnormality
+  keybase: abnormality # JWT 加密密钥的基础字符串，用于生成动态密钥（如与用户名拼接后进行 MD5 加密）
 
-
+# 自定义异常处理模块相关 JWT 配置
 abnormality:
   jwt:
-    header: abnormality
-    expire: 604800 # 7天
-    secret: abnormalityabnormalityabnormality
+    header: abnormality # 请求头中 Token 的字段名，如 "Authorization"
+    expire: 604800 # Token 的过期时间，单位为秒，此处为 7 天（604800 秒）
+    secret: abnormalityabnormalityabnormality # JWT 签名密钥，用于 Token 的签名与验证
 
+# MyBatis 分页插件 PageHelper 配置
 pagehelper:
-  propertyName: propertyValue
-  reasonable: false
-  defaultCount: true # 分页插件默认参数支持 default-count 形式，自定义扩展的参数，必须大小写一致
+  propertyName: propertyValue # 自定义扩展属性名，用于高级配置或测试用途
+  reasonable: false # 是否启用分页参数合理性校验，false 表示不进行智能调整
+  defaultCount: true # 是否启用默认 count 查询逻辑，true 表示使用内置 count 查询

@@ -1,74 +1,85 @@
+# 服务器配置
 server:
-  port: 8080
+  port: 8080 # 应用启动的端口号
 
+# Spring 配置
 spring:
+  rabbitmq:
+    host: poyuan.kmdns.net # RabbitMQ 服务器地址
+    port: 5672 # RabbitMQ 通信端口
+    username: admin # 登录 RabbitMQ 的用户名
+    password: admin # 登录 RabbitMQ 的密码
+    virtual-host: / # 使用的虚拟主机名称
+
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: localhost # Redis 服务器地址
+      port: 6379 # Redis 服务端口
 
   datasource:
-    url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC
-    username: abnormality
-    password: abnormality
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
     dynamic:
-      primary: master
-      strict: true
+      primary: master # 指定默认数据源为 master
+      strict: false # 是否启用严格模式，false 表示非严格，允许某些操作失败
       datasource:
         master:
-          url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC
-          username: abnormality
-          password: abnormality
-          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC # 主数据库连接地址
+          username: abnormality # 主数据库用户名
+          password: abnormality # 主数据库密码
+          driver-class-name: com.mysql.cj.jdbc.Driver # 主数据库驱动类
 
-        slave:
-          url: jdbc:mysql://poyuan.kmdns.net:13306/abnormality?useSSL=false&serverTimezone=UTC
-          username: abnormality
-          password: abnormality
-          driver-class-name: com.mysql.cj.jdbc.Driver
+#        slave:
+#          url: jdbc:mysql://poyuan.kmdns.net:13306/abnormality?useSSL=false&serverTimezone=UTC # 从数据库连接地址
+#          username: abnormality # 从数据库用户名
+#          password: abnormality # 从数据库密码
+#          driver-class-name: com.mysql.cj.jdbc.Driver # 从数据库驱动类
 
   servlet:
     multipart:
-      enabled: true
-      max-file-size: 100MB
-      max-request-size: 100MB
+      enabled: true # 启用文件上传支持
+      max-file-size: 100MB # 单个上传文件最大大小限制
+      max-request-size: 100MB # 整个请求的最大大小限制（适用于多文件上传）
 
+# MyBatis 配置
 mybatis:
-  mapper-locations: classpath:mapper/*.xml
+  mapper-locations: classpath:mapper/*.xml # 指定 MyBatis 映射文件的位置
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 指定 MyBatis 使用的标准输出日志实现
+    map-underscore-to-camel-case: true # 自动将数据库下划线命名字段映射为 Java 对象的驼峰命名属性
 
+# SpringDoc 接口文档配置
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html
-    tags-sorter: alpha
-    operations-sorter: alpha
+    path: /swagger-ui.html # Swagger UI 访问路径
+    tags-sorter: alpha # 按标签名称排序方式（按字母顺序）
+    operations-sorter: alpha # 按接口操作名称排序方式（按字母顺序）
   api-docs:
-    path: /v3/api-docs
+    path: /v3/api-docs # OpenAPI 文档访问路径
   group-configs:
-    - group: 'default'
-      paths-to-match: '/**'
-      packages-to-scan: com.abnormality.abnormalityaccept.controller
+    - group: 'default' # 分组名称
+      paths-to-match: '/**' # 匹配所有路径
+      packages-to-scan: com.abnormality.abnormalityaccept.controller # 扫描生成文档的包路径
 
+# Knife4j 增强 UI 配置
 knife4j:
-  enable: true
+  enable: true # 启用 Knife4j UI 界面
   setting:
-    language: zh_cn
+    language: zh_cn # 设置界面语言为中文
 
+# PageHelper 分页插件配置
 pagehelper:
-  propertyName: propertyValue
-  reasonable: false
-  defaultCount: true
+  propertyName: propertyValue # 自定义扩展属性名，用于高级配置或测试用途
+  reasonable: false # 是否启用分页参数合理性校验，false 表示不进行智能调整
+  defaultCount: true # 是否启用默认 count 查询逻辑，true 表示使用内置 count 查询
 
+# MinIO 对象存储配置
 minio:
-  endpoint: http://poyuan.kmdns.net:19000
-  username: minioadmin
-  password: minioadmin
-  bucketName: abnormality
+  endpoint: http://poyuan.kmdns.net:19000 # MinIO 服务端点地址
+  username: minioadmin # MinIO 登录用户名
+  password: minioadmin # MinIO 登录密码
+  bucketName: abnormality # 默认使用的存储桶名称
 
+# 日志级别配置
 logging:
   level:
-    com.baomidou.dynamic.datasource: debug
+    com.baomidou.dynamic.datasource: debug # 设置动态数据源组件的日志输出级别为 debug

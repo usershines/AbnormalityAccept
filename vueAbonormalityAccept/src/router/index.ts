@@ -7,6 +7,7 @@ import User from '../views/workPlace/user/index.vue'
 import WorkPlaceMain from '../views/workPlace/main/index.vue'
 import Team from '../views/workPlace/team/index.vue'
 import Login from "../views/login/LoginViews.vue";
+import NotFound from "../views/notfound/index.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,6 +63,11 @@ const router = createRouter({
       path: '',
       component: Login,
 
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component:NotFound,
     }
     /*{
       path: '/about',

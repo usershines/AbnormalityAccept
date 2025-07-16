@@ -6,14 +6,33 @@ spring:
     redis:
       host: localhost
       port: 6379
+
   datasource:
     url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC
     username: abnormality
     password: abnormality
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+    dynamic:
+      primary: master
+      strict: true
+      datasource:
+        master:
+          url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC
+          username: abnormality
+          password: abnormality
+          driver-class-name: com.mysql.cj.jdbc.Driver
+
+        slave:
+          url: jdbc:mysql://poyuan.kmdns.net:13306/abnormality?useSSL=false&serverTimezone=UTC
+          username: abnormality
+          password: abnormality
+          driver-class-name: com.mysql.cj.jdbc.Driver
+
+  servlet:
     multipart:
       enabled: true
-      max-file-size: 100MB     # 单个文件最大大小
+      max-file-size: 100MB
       max-request-size: 100MB
 
 mybatis:
@@ -22,7 +41,6 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
 
-# springdoc-openapi项目配置
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -34,7 +52,7 @@ springdoc:
     - group: 'default'
       paths-to-match: '/**'
       packages-to-scan: com.abnormality.abnormalityaccept.controller
-# knife4j的增强配置，不需要增强可以不配
+
 knife4j:
   enable: true
   setting:
@@ -43,11 +61,14 @@ knife4j:
 pagehelper:
   propertyName: propertyValue
   reasonable: false
-  defaultCount: true # 分页插件默认参数支持 default-count 形式，自定义扩展的参数，必须大小写一致
-
+  defaultCount: true
 
 minio:
-  endpoint: http://poyuan.kmdns.net:9000
+  endpoint: http://poyuan.kmdns.net:19000
   username: minioadmin
   password: minioadmin
   bucketName: abnormality
+
+logging:
+  level:
+    com.baomidou.dynamic.datasource: debug

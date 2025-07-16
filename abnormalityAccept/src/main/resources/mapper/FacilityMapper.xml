@@ -68,8 +68,8 @@
     <!-- 10. 模糊查询（按设施名称或地址） -->
     <select id="searchByKeyword" resultType="com.abnormality.abnormalityaccept.entity.Facility">
         SELECT <include refid="Base_Columns"/> FROM facility
-        WHERE facility_name LIKE CONCAT('%', #{keyword}, '%')
-        OR facility_address LIKE CONCAT('%', #{keyword}, '%')
+        WHERE facility_name LIKE CONCAT('%', #{facilityName}, '%')
+        OR facility_address LIKE CONCAT('%', #{facilityName}, '%')
     </select>
 
 </mapper>

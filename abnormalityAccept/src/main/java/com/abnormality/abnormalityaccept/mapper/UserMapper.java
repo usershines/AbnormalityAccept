@@ -25,8 +25,6 @@ public interface UserMapper extends BaseMapper<User> {
      */
     User findUserById(Long id);
 
-    /** 根据用户名查询用户 */
-    User findUserByUsername(String username);
 
     /**
      * 新增数据

@@ -53,7 +53,176 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "用户注册")
+    @PostMapping("/register")
+    public Result<AuthResponse> register(@RequestBody AuthRequest req) {
+        return Result.ok(userService.register(req.getName(), req.getPassword()))
+                ;    }
 
+    @Operation(summary = "用户登录")
+    @PostMapping("/login")
+    public Result<AuthResponse> login(@RequestBody AuthRequest req) {
+        //return Result.ok(userService.login(name,password));
+        return Result.ok(userService.login(req.getName(), req.getPassword()));
+    }
+    
+    @Operation(summary = "用户登出")
+    @PostMapping("/logout")
+    public Result<Boolean> logout(@RequestHeader("Authorization") String token) {
+        return Result.ok(userService.logout(token));
+    }
+
+
+
+    //http://localhost:8080/user/findAllUser
+    @Operation(summary = "用户信息查询")
+    @GetMapping("/List")
+    public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+        //return List.of();
+        PageInfo<User> userList = userService.findAllUser(pageNum, pageSize);
+        return Result.ok(userList);
+    }
+
+    //http://localhost:8080/user/findUserById?id=1
+    @Operation(summary = "根据id查询用户")
+    @Parameter(name="id",description = "用户id",required = true,example = "1" ,in= ParameterIn.PATH )
+    @GetMapping("/{id}")
+    public Result<User>  findUserById(@PathVariable Long id) {
+        User user = userService.findUserById(id);
+        if(user == null) {
+            return Result.error(500,"用户不存在");
+        }
+        return Result.ok("查询成功", user);
+    }
+
+
+    /**
+     * 删除数据
+     */
+    @Operation(summary = "删除用户")
+    //@Parameter(name="id",description = "用户id",required = true,example = "1")
+    @DeleteMapping("/{id}")
+    public Result<String> deleteUserById(@PathVariable Long id){
+        if(userService.deleteUserById(id)){
+            return Result.ok("删除成功");
+        }
+        else {
+            return Result.error(500,"删除失败");
+        }
+    }
+
+    @Operation(summary = "添加用户")
+    @PostMapping("/invite")
+    public Result<String> inviteUser(@RequestParam String username,@RequestParam Long facilityId,@RequestParam Integer level,@RequestParam Long inviterId){
+        User user = new User();
+        user.setUsername(username);
+        user.setFacilityId(facilityId);
+        user.setLevel(level);
+        user.setInviterId(inviterId);
+        user.setLeaderId(inviterId);
+        if(userService.addUser(user,user.getInviterId())){
+            return Result.ok("添加成功");
+        }
+        else {
+            return Result.error(500,"添加失败");
+        }
+    }
+
+
+    @Operation(summary = "更新用户")
+    @PutMapping("/update")
+    public Result<String> updateUser(@RequestBody User user){
+        if(userService.updateUser(user)){
+            return Result.ok("更新成功");
+        }
+        else {
+            return Result.error(500,"更新失败");
+        }
+    }
+
+    @Operation(summary = "多条件查询")
+    @PostMapping("/findUserByConditions")
+    public Result<PageInfo<User>> findUserByConditions(@RequestParam Long id,
+                                                       @RequestParam String username,
+                                                       @RequestParam String email,
+                                                        @RequestParam Integer level,
+                                                       @RequestParam Long facilityId,
+                                                       @RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setLevel(level);
+        user.setFacilityId(facilityId);
+        PageInfo<User> userList = userService.findUserByConditions(user,pageNum, pageSize);
+        return Result.ok(userList);
+    }
+
+
+
+    // DTO类定义
+    @Data
+    public static class LoginRequest {
+        @NotBlank(message = "用户名不能为空")
+        private String username;
+
+        @NotBlank(message = "密码不能为空")
+        private String password;
+    }
+
+    @Data
+    public static class InviteRequest {
+        @NotBlank(message = "用户名不能为空")
+        private String username;
+
+        @NotNull(message = "设施ID不能为空")
+        private Long facilityId;
+
+        @NotNull(message = "用户等级不能为空")
+        @Min(value = 1, message = "等级必须大于0")
+        @Max(value = 5, message = "等级不能超过5")
+        private Integer level;
+    }
+
+
+    @Data
+    public static class UpdateUserRequest {
+        @NotBlank(message = "用户名不能为空")
+        private String username;
+
+        @Email(message = "邮箱格式不正确")
+        private String email;
+
+        @NotNull(message = "用户等级不能为空")
+        @Min(value = 1, message = "等级必须大于0")
+        @Max(value = 5, message = "等级不能超过5")
+        private Integer level;
+
+        @NotNull(message = "设施ID不能为空")
+        private Long facilityId;
+
+        private String introduction;
+
+        private String newPassword; // 新密码（可选）
+    }
+
+    @Data
+    public static class UpdatePasswordRequest {
+        @NotBlank(message = "旧密码不能为空")
+        private String oldPassword;
+
+        @NotBlank(message = "新密码不能为空")
+        @Size(min = 6, message = "密码长度至少6位")
+        private String newPassword;
+
+        @NotBlank(message = "确认密码不能为空")
+        private String confirmPassword;
+    }
+
+}
+
+
+//弃用
 //    @PostMapping("/login")
 //    public Result<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 //        try {
@@ -218,82 +387,7 @@ public class UserController {
 //        return user.getId();
 //    }
 
-    //http://localhost:8080/user/findAllUser
-    @Operation(summary = "用户信息查询")
-    @GetMapping("/List")
-    public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
-        //return List.of();
-        PageInfo<User> userList = userService.findAllUser(pageNum, pageSize);
-        return Result.ok(userList);
-    }
 
-    //http://localhost:8080/user/findUserById?id=1
-    @Operation(summary = "根据id查询用户")
-    @Parameter(name="id",description = "用户id",required = true,example = "1" ,in= ParameterIn.PATH )
-    @GetMapping("/{id}")
-    public Result<User>  findUserById(@PathVariable Long id) {
-        User user = userService.findUserById(id);
-        if(user == null) {
-            return Result.error(500,"用户不存在");
-        }
-        return Result.ok("查询成功", user);
-    }
-
-    /**
-     * 删除数据
-     */
-    @Operation(summary = "删除用户")
-    //@Parameter(name="id",description = "用户id",required = true,example = "1")
-    @DeleteMapping("/{id}")
-    public Result<String> deleteUserById(@PathVariable Long id){
-        if(userService.deleteUserById(id)){
-            return Result.ok("删除成功");
-        }
-        else {
-            return Result.error(500,"删除失败");
-        }
-    }
-
-    @Operation(summary = "添加用户")
-    @PostMapping("/invite")
-    public Result<String> inviteUser(@RequestBody User user){
-        if(userService.addUser(user,user.getInviterId())){
-            return Result.ok("添加成功");
-        }
-        else {
-            return Result.error(500,"添加失败");
-        }
-    }
-
-
-    @Operation(summary = "更新用户")
-    @PutMapping("/update")
-    public Result<String> updateUser(@RequestBody User user){
-        if(userService.updateUser(user)){
-            return Result.ok("更新成功");
-        }
-        else {
-            return Result.error(500,"更新失败");
-        }
-    }
-
-    @Operation(summary = "多条件查询")
-    @PostMapping("/findUserByConditions")
-    public Result<PageInfo<User>> findUserByConditions(@RequestParam Long id,
-                                                       @RequestParam String username,
-                                                       @RequestParam String email,
-                                                        @RequestParam Integer level,
-                                                       @RequestParam Long facilityId,
-                                                       @RequestParam Integer pageNum, @RequestParam Integer pageSize) {
-        User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setLevel(level);
-        user.setFacilityId(facilityId);
-        PageInfo<User> userList = userService.findUserByConditions(user,pageNum, pageSize);
-        return Result.ok(userList);
-    }
 
 //    // 添加专门的密码更新接口
 //    @PutMapping("/{id}/password")
@@ -358,84 +452,3 @@ public class UserController {
 //        );
 //    }
 //
-
-
-
-
-
-//    // DTO类定义
-//    @Data
-//    public static class LoginRequest {
-//        @NotBlank(message = "用户名不能为空")
-//        private String username;
-//
-//        @NotBlank(message = "密码不能为空")
-//        private String password;
-//    }
-//
-//    @Data
-//    public static class InviteRequest {
-//        @NotBlank(message = "用户名不能为空")
-//        private String username;
-//
-//        @NotNull(message = "设施ID不能为空")
-//        private Long facilityId;
-//
-//        @NotNull(message = "用户等级不能为空")
-//        @Min(value = 1, message = "等级必须大于0")
-//        @Max(value = 5, message = "等级不能超过5")
-//        private Integer level;
-//    }
-//
-//
-//
-//    @Data
-//    public static class UpdateUserRequest {
-//        @NotBlank(message = "用户名不能为空")
-//        private String username;
-//
-//        @Email(message = "邮箱格式不正确")
-//        private String email;
-//
-//        @NotNull(message = "用户等级不能为空")
-//        @Min(value = 1, message = "等级必须大于0")
-//        @Max(value = 5, message = "等级不能超过5")
-//        private Integer level;
-//
-//        @NotNull(message = "设施ID不能为空")
-//        private Long facilityId;
-//
-//        private String introduction;
-//
-//        private String newPassword; // 新密码（可选）
-//    }
-//
-//    @Data
-//    public static class UpdatePasswordRequest {
-//        @NotBlank(message = "旧密码不能为空")
-//        private String oldPassword;
-//
-//        @NotBlank(message = "新密码不能为空")
-//        @Size(min = 6, message = "密码长度至少6位")
-//        private String newPassword;
-//
-//        @NotBlank(message = "确认密码不能为空")
-//        private String confirmPassword;
-//    }
-
-
-
-
-    @Operation(summary = "用户注册")
-    @PostMapping("/register")
-    public Result<AuthResponse> register(@RequestBody AuthRequest req) {
-        return Result.ok(userService.register(req.getName(), req.getPassword()))
-;    }
-
-    @Operation(summary = "用户登录")
-    @PostMapping("/login")
-    public Result<AuthResponse> login(@RequestBody AuthRequest req) {
-        return Result.ok(userService.login(req.getName(), req.getPassword()));
-    }
-
-}

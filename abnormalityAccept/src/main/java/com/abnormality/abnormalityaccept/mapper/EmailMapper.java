@@ -15,7 +15,21 @@ import java.util.List;
 @Mapper
 public interface EmailMapper {
 
-    List<Email> findEmail(User user);
+    List<Email> findAllEmail(User user);
+
+    Email findEmailById(Long id);
+
+    boolean addEmail(Email email);
+
+    boolean updateEmail(Email email);
+
+    boolean deleteEmailById(Long id);
+
+    //boolean groupEmailByReceiverId(Long receiverId);
+
+
+    Email findEmailBySenderId(Long senderId);
+
 
 
 }

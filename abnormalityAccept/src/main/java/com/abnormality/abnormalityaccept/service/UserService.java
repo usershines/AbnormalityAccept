@@ -23,7 +23,6 @@ public interface UserService {
      */
     User findUserById(Long id);
 
-    User findUserByUsername(String username);
 
     /**
      * 删除数据
@@ -41,24 +40,16 @@ public interface UserService {
      */
     boolean updateUser(User user);
 
-//    /** 用户登录 */
-//    AuthResponse login(String username, String password);
-//
-//    /** 验证JWT令牌 */
-//    boolean verify(String token);
 
     /** 多条件查询用户（分页） */
     PageInfo<User> findUserByConditions(User user, Integer pageNum, Integer pageSize);
 
-//
-//    // 添加方法
-//    UserDetails loadUserByUsername(String username);
-//
+
 
 //
 //    /** 验证密码 */
 //
-    boolean updatePassword(Long id, String newPassword);
+  //   boolean updatePassword(Long id, String newPassword);
 
     AuthResponse login(String username, String password);
 
@@ -68,7 +59,7 @@ public interface UserService {
     boolean logout(String token);
 
     /**
-     * 验证token,只验证用户名与过期时间，其余字段请自行实现
+     * 验证token,只验证用户名与过期时间
      * @param token
      * @return true-验证成功，false-验证失败
      */

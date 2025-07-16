@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { reactive, onMounted, ref,toRaw} from 'vue'
-import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router' // 引入路由
 import { login} from "@/api/user.ts";
 // 表单响应式数据

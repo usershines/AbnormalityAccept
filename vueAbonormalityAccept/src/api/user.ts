@@ -16,6 +16,7 @@ interface User {
 
 }
 
+// 登录
 export function login(form:any) {
     console.log(form.name)
 
@@ -33,17 +34,33 @@ export function getUserList(pageNum: number, pageSize: number){
 }
 
 // 更新用户信息
-export function updataUser(updataUser: any){
-    const updata: User = {
-        id: updataUser.id,
-        username: updataUser.username,
-        password: updataUser.password,
-        email: updataUser.email,
-        inviterId: updataUser.inviterId,
-        leaderId: updataUser.leaderId,
-        facilityId: updataUser.facilityId,
-        introduction: updataUser.introduction,
-        level: updataUser.level,
+export function updateUser(user: any){
+    const update: User = {
+        id: user.id,
+        username: user.username,
+        password: user.password,
+        email: user.email,
+        inviterId: user.inviterId,
+        leaderId: user.leaderId,
+        facilityId: user.facilityId,
+        introduction: user.introduction,
+        level: user.level,
     }
-    return request.put('/user/updata',updata)
+    return request.put('/user/updata',{update})
+}
+
+// 新建用户
+export function addUser(user: any){
+    const newUser: User = {
+        id: 0,
+        username: user.username,
+        password: user.password,
+        email: user.email,
+        inviterId: user.inviterId,
+        leaderId: user.leaderId,
+        facilityId: user.facilityId,
+        introduction: user.introduction,
+        level: user.level,
+    }
+    return request.post('/user/invite', newUser)
 }

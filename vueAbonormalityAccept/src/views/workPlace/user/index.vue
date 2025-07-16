@@ -205,11 +205,11 @@
 
       <el-form-item label="权限等级" prop="level">
         <el-select v-model="createForm.level" placeholder="请选择权限等级">
-          <el-option label="O5议会" value="O5"></el-option>
-          <el-option label="A级" value="A"></el-option>
-          <el-option label="B级" value="B"></el-option>
-          <el-option label="C级" value="C"></el-option>
-          <el-option label="D级" value="D"></el-option>
+          <el-option label="O5议会" value="0"></el-option>
+          <el-option label="A级" value="1"></el-option>
+          <el-option label="B级" value="2"></el-option>
+          <el-option label="C级" value="3"></el-option>
+          <el-option label="D级" value="4"></el-option>
         </el-select>
       </el-form-item>
 
@@ -218,16 +218,16 @@
       </el-form-item>
 
       <el-form-item label="所在地" prop="location">
-        <el-input v-model="createForm.location" placeholder="请输入所在地"></el-input>
+        <el-input v-model="createForm.facilityId" placeholder="请输入所在地"></el-input>
       </el-form-item>
 
       <el-form-item label="上级" prop="superior">
-        <el-input v-model="createForm.superior" placeholder="请输入上级"></el-input>
+        <el-input v-model="createForm.leaderId" placeholder="请输入上级"></el-input>
       </el-form-item>
 
       <el-form-item label="状态" prop="status">
         <el-switch
-          v-model="createForm.status"
+          v-model="createForm.isActive"
           :active-value="1"
           :inactive-value="0"
           active-text="启用"
@@ -237,7 +237,7 @@
 
       <el-form-item label="简介" prop="description">
         <el-input
-          v-model="createForm.description"
+          v-model="createForm.introduction"
           type="textarea"
           :rows="3"
           placeholder="请输入简介"
@@ -248,6 +248,72 @@
     <template #footer>
       <el-button @click="createDialogVisible = false">取消</el-button>
       <el-button type="primary" @click="submitCreate">确定</el-button>
+    </template>
+  </el-dialog>
+
+<!-- 编辑用户信息 -->
+  <el-dialog
+      v-model="editFormVisable"
+      title="新建用户"
+      width="40%"
+      class="containment-dialog"
+  >
+    <el-form
+        :model="editForm"
+        ref="createFormRef"
+        label-width="120px"
+        label-position="left"
+        :rules="createRules"
+    >
+      <el-form-item label="姓名" prop="name">
+        <el-input v-model="editForm.name" placeholder="请输入姓名"></el-input>
+      </el-form-item>
+
+      <el-form-item label="权限等级" prop="level">
+        <el-select v-model="editForm.level" placeholder="请选择权限等级">
+          <el-option label="O5议会" value="0"></el-option>
+          <el-option label="A级" value="1"></el-option>
+          <el-option label="B级" value="2"></el-option>
+          <el-option label="C级" value="3"></el-option>
+          <el-option label="D级" value="4"></el-option>
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="邮箱" prop="email">
+        <el-input v-model="editForm.email" placeholder="请输入邮箱"></el-input>
+      </el-form-item>
+
+      <el-form-item label="所在地" prop="location">
+        <el-input v-model="editForm.facilityId" placeholder="请输入所在地"></el-input>
+      </el-form-item>
+
+      <el-form-item label="上级" prop="superior">
+        <el-input v-model="editForm.leaderId" placeholder="请输入上级"></el-input>
+      </el-form-item>
+
+      <el-form-item label="状态" prop="status">
+        <el-switch
+            v-model="editForm.isActive"
+            :active-value="1"
+            :inactive-value="0"
+            active-text="启用"
+            inactive-text="停用"
+        ></el-switch>
+      </el-form-item>
+
+      <el-form-item label="简介" prop="description">
+        <el-input
+            v-model="editForm.introduction"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入简介"
+        ></el-input>
+      </el-form-item>
+    </el-form>
+
+    <template #footer>
+      <el-button @click="editFormVisable = false">取消</el-button>
+      <el-button type="primary" @click="submitEdit">确定</el-button>
     </template>
   </el-dialog>
 
@@ -332,19 +398,21 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue';
-import { ElMessage,type FormInstance, type FormRules } from 'element-plus';
+import {getUserList, updateUser, addUser} from "@/api/user.ts";
+import {ElMessage} from "element-plus";
 
 // 新建用户弹窗相关
 const createDialogVisible = ref(false);
 const createFormRef = ref<FormInstance>();
 const createForm = reactive({
+  id: 0,
   name: '',
   level: '',
   email: '',
-  location: '',
-  superior: '',
-  status: 1,
-  description: ''
+  facilityId: 0,
+  leaderId: 0,
+  isActive: 1,
+  introduction: ''
 });
 
 // 新建用户表单验证规则
@@ -355,8 +423,8 @@ const createRules = reactive<FormRules>({
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱格式', trigger: ['blur', 'change'] }
   ],
-  location: [{ required: true, message: '请输入所在地', trigger: 'blur' }],
-  superior: [{ required: true, message: '请输入上级', trigger: 'blur' }]
+  facilityId: [{ required: true, message: '请输入所在地', trigger: 'blur' }],
+  leaderId: [{ required: true, message: '请输入上级', trigger: 'blur' }]
 });
 
 // 打开新建用户弹窗
@@ -369,31 +437,27 @@ const submitCreate = () => {
 
   createFormRef.value.validate((valid) => {
     if (valid) {
-      // 生成新用户ID
-      const newId = Math.max(...originTableData.value.map(u => u.id), 0) + 1;
-
-      // 创建新用户对象
+     // 创建新用户对象
       const newUser = {
-        id: newId,
         ...createForm
       };
 
-      // 在控制台打印新建结果
-      console.log("新建用户成功:", newUser);
-
-      // 添加新用户到数据列表
-      originTableData.value.push(newUser);
-
-      ElMessage.success('新建用户成功');
-      createDialogVisible.value = false;
-
-      // 重置表单
-      createFormRef.value.resetFields();
-    } else {
-      ElMessage.warning('请填写完整信息');
+      addUser(newUser).then((response) => {
+        if (response.code === 200) {
+          console.log("新建用户成功:", newUser);
+          ElMessage.success('新建用户成功');
+          createDialogVisible.value = false;
+          catchData(currentPage.value,pageSize.value)
+          // 重置表单
+          createFormRef.value.resetFields();
+        }
+      }).catch((error) => {
+        console.log('服务器错误',error);
+        ElMessage.error('服务器错误')
+      })
     }
-  });
-};
+  })
+}
 
 // 搜索表单数据
 const searchForm = reactive({
@@ -404,7 +468,7 @@ const searchForm = reactive({
 });
 
 // 原始表格数据（静态）
-const originTableData = ref([
+const tableData = ref([
   {
     id: 1,
     name: 'O5-13',
@@ -561,13 +625,32 @@ const originTableData = ref([
 const currentPage = ref(1);
 const pageSize = ref(10);
 
+// 获取数据
+const catchData = (currentPage: number, pageSize: number) => {
+  getUserList(currentPage, pageSize).then((response) => {
+    if(response.code === 200) {
+      tableData.value = response.data.list;
+      ElMessage.success('数据更新成功')
+      console.log('获取数据',response)
+    }else{
+      ElMessage.error('发生错误：',response.message);
+    }
+  }).catch((e) => {
+    console.log('错误',e)
+    ElMessage.error(e.message);
+  }
+  )
+}
+
+catchData(currentPage.value,pageSize.value)
+
 // 详情弹窗相关
 const detailDialogVisible = ref(false);
 const selectedUser = ref<any>(null);
 
 // 实现搜索过滤功能
 const filteredData = computed(() => {
-  return originTableData.value.filter(item => {
+  return tableData.value.filter(item => {
     const nameMatch = searchForm.name ? item.name.includes(searchForm.name) : true;
     const levelMatch = searchForm.level ? item.level === searchForm.level : true;
     const idMatch = searchForm.id ? item.id === parseInt(searchForm.id) : true;
@@ -668,17 +751,46 @@ const handleDetail = (row: any) => {
   detailDialogVisible.value = true;
 };
 
+// 编辑表单相关信息
+const editFormVisable = ref(false);
+const editForm = ref({
+  id: 0,
+  name: '',
+  level: '',
+  email: '',
+  facilityId: 0,
+  leaderId: 0,
+  isActive: 1,
+  introduction: ''
+})
+
 // 编辑方法
 const handleEdit = (row: any) => {
-  ElMessage.info(`编辑用户: ${row.name}`);
-  // 这里可以添加实际编辑逻辑
+  editForm.value = {...row}
+  editFormVisable.value = true
 };
+const submitEdit = () => {
+  console.log('提交编辑表单',editForm.value);
+  updateUser(editForm).then((response) => {
+    if(response.code === 200) {
+      tableData.value = response.data.list;
+      ElMessage.success('数据更新成功')
+      console.log('获取数据',response)
+    }else{
+      ElMessage.error('发生错误：',response.message);
+    }
+  }).catch((e) => {
+        console.log('错误',e)
+        ElMessage.error(e.message);
+      }
+  )
+}
 
 // 添加删除方法
 const handleDelete = (row: any) => {
-  const index = originTableData.value.findIndex(item => item.id === row.id);
+  const index = tableData.value.findIndex(item => item.id === row.id);
   if (index !== -1) {
-    originTableData.value.splice(index, 1);
+    tableData.value.splice(index, 1);
     ElMessage.warning(`已删除用户: ${row.name}`);
     // 如果删除的是当前页最后一条且不是第一页，则跳转到上一页
     if (currentTableData.value.length === 0 && currentPage.value > 1) {

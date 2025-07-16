@@ -19,8 +19,8 @@
             mode="horizontal"
             router
         >
-          <el-menu-item index="start" @click="goToHome" >首页</el-menu-item>
-          <el-menu-item index="workPlace">工作区</el-menu-item>
+          <el-menu-item index="/start" @click="goToHome" >首页</el-menu-item>
+          <el-menu-item index="/workPlace">工作区</el-menu-item>
           <el-menu-item index="/email">邮箱</el-menu-item>
           <el-menu-item index="4">Orders</el-menu-item>
         </el-menu>

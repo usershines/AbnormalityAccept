@@ -33,8 +33,14 @@
         from user
         where id=#{id}
     </select>
+    <select id="findUserByUsername" resultMap="Base_User_List">
+        select
+        <include refid="Base_User"/>
+        from user
+        where username= #{username}
+    </select>
 
-    <insert id="adduser" parameterType="com.abnormality.abnormalityaccept.entity.User">
+    <insert id="addUser" parameterType="com.abnormality.abnormalityaccept.entity.User">
         INSERT INTO user (
             username,
             password,

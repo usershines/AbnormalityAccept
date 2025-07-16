@@ -1,9 +1,12 @@
 package com.abnormality.abnormalityaccept.aspect;
 
+import cn.hutool.core.util.StrUtil;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.ExceptionLog;
+import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.event.ExceptionLogEvent;
 import com.abnormality.abnormalityaccept.exception.BaseException;
+import com.abnormality.abnormalityaccept.handler.AuthHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -20,6 +23,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,6 +43,9 @@ public class LogAspect {
      */
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private AuthHandler authHandler;
 
     @Pointcut("execution(* com.abnormality.abnormalityaccept.controller.*.*(..))")
     public void log(){
@@ -71,7 +78,28 @@ public class LogAspect {
         }
         String methodName = method.getName();
 
+        //鉴权部分
+        List<String> nonAuthMethodName=Arrays.asList("login","register");
+        if(!nonAuthMethodName.contains(methodName)){
+            String token= request.getHeader("Authorization");
+            if(StrUtil.isNotBlank(token)&&token.startsWith("Bearer ")){
+                token=token.substring("Bearer ".length());
+            }
+            log.info("token: " + token);
+            try{
+                boolean passed=authHandler.verify(token);
+            } catch (Exception e) {
+                log.error("令牌验证失败", e);
+                log.info("耗时{}", System.currentTimeMillis()-startTime);
+                if(e instanceof BaseException){
+                    return Result.error(((BaseException) e).getCode().getCode(),((BaseException) e).getMsg(),((BaseException) e).getMsgList());
+                }
+                return Result.error(Code.ERROR.getCode(),"系统错误: " + e.getMessage());
+            }
 
+        }
+
+        //业务逻辑执行部分
         try{
             Result result =(Result) joinPoint.proceed();
             log.info("请求 URL: {}, 方法: {},参数：{}, 耗时: {}ms, 返回值: {}", url, methodName, Arrays.toString(joinPoint.getArgs()) ,System.currentTimeMillis() - startTime, result);
@@ -84,7 +112,7 @@ public class LogAspect {
             exceptionLog.setExceptionInfo(Arrays.toString(e.getStackTrace()));
             String machineId="";
             try{
-                machineId= InetAddress.getLocalHost().getHostAddress();
+                machineId= InetAddress.getLocalHost().getHostName();
             }catch (Exception ex){
                 machineId="unknown";
             }
@@ -116,7 +144,7 @@ public class LogAspect {
 
         }finally {
             long endTime = System.currentTimeMillis();
-            System.out.println("耗时：" + (endTime - startTime));
+            log.info("耗时：" + (endTime - startTime));
             Object obj=new Object();
             obj.toString();
         }

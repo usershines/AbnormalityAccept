@@ -10,10 +10,14 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
 import cn.hutool.jwt.JWTValidator;
+import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
+import com.abnormality.abnormalityaccept.entity.Abnormality;
+import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.BaseException;
+import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.service.RedisService;
 import com.abnormality.abnormalityaccept.service.UserService;
@@ -24,8 +28,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,35 +50,42 @@ public class UserServiceImpl implements UserService {
     @Value("${jwt.keybase}")
     private String keyBase;
 
+
     @Autowired
     private RedisService redisService;
 
     @Autowired
     private final UserMapper userMapper;
 
+
     /**
-     *查询所有用户
+     * 查询所有用户
      */
     @Override
-    public PageInfo<User> findAllUser(Integer pageNum, Integer pageSize){
-        PageHelper.startPage(pageNum,pageSize);
+    public PageInfo<User> findAllUser(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "10") Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.findAllUser();
         return PageInfo.of(userList);
     }
 
     /**
-     *根据id查询用户
+     * 根据id查询用户
      */
     @Override
-    public User findUserById(Long id){
-        return userMapper.findUserById(id);
+    public User findUserById(Long id) {
+        return userMapper.selectById(id);
+    }
+
+    @Override
+    public User findUserByUsername(String username) {
+        return userMapper.findUserByUsername(username);
     }
 
     /**
      * 删除数据
      */
     @Override
-    public boolean deleteUserById(Long id){
+    public boolean deleteUserById(Long id) {
         int i = userMapper.deleteUserById(id);
         return i > 0;
     }
@@ -81,39 +95,170 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean addUser(User newUser, Long inviterId) {
-        // 1. 验证邀请人是否存在
-        User inviter = userMapper.findUserById(inviterId);
-        if (ObjectUtil.isNull(inviter)) {
-            throw new BaseException("邀请人不存在");
-        }
-
-        // 2. 验证用户名是否已存在
-        User existingUser = userMapper.selectOne(new QueryWrapper<User>().eq("username", newUser.getUsername()));
-        if (ObjectUtil.isNotNull(existingUser)) {
-            throw new BaseException("用户名已存在");
-        }
-
-        // 3. 设置新用户默认值
-        newUser.setPassword(encryptPassword(newUser.getUsername() + "123")); // 密码为用户名+123
-        newUser.setInviterId(inviterId); // 设置邀请人ID
-        newUser.setLeaderId(inviterId); // 设置上级ID（默认为邀请人）
-        newUser.setEmail(""); // 邮箱默认为空
-        newUser.setIntroduction("神秘特工"); // 简介默认为"神秘特工"
-
-        // 4. 插入新用户
-        int result = userMapper.adduser(newUser);
-        return result > 0;
+        return userMapper.addUser(newUser) > 0;
     }
+
+
+//    @Override
+//    public boolean addUser(User newUser, Long inviterId) {
+//        // 1. 验证邀请人是否存在
+//        User inviter = userMapper.findUserById(inviterId);
+//        if (ObjectUtil.isNull(inviter)) {
+//            throw new ServiceException(Code.NOT_FOUND, "邀请人不存在");
+//        }
+//
+//        // 2. 验证用户名是否已存在
+//        User existingUser = userMapper.findUserById(newUser.getId());
+//        if (ObjectUtil.isNotNull(existingUser)) {
+//            throw new ServiceException(Code.NOT_ACCEPTABLE, "用户名已存在");
+//        }
+//
+//        // 3. 权限检查 - 只有B级以上用户可邀请新用户
+//        if (inviter.getLevel() < 2) { // 假设0-4级，2为B级
+//            throw new ServiceException(Code.FORBIDDEN, "权限不足，需要B级及以上权限");
+//        }
+//
+//        // 4. 检查用户等级是否合法
+//        if (newUser.getLevel() > inviter.getLevel()) {
+//            throw new ServiceException(Code.FORBIDDEN, "不能创建高于自己等级的用户");
+//        }
+//
+//        // 5. 设置新用户默认值
+//        newUser.setPassword(encryptPassword(newUser.getUsername() + "123"));
+//        newUser.setInviterId(inviterId);
+//        newUser.setLeaderId(inviterId);
+//        newUser.setEmail("");
+//        newUser.setIntroduction("神秘特工");
+//
+//        // 6. 插入新用户
+//        int result = userMapper.addUser(newUser);
+//        return result > 0;
+//    }
 
     /**
      * 修改数据
      */
     @Override
-    public boolean updateUser(User user){
+    public boolean updateUser(User user) {
         int i = userMapper.updateUser(user);
         return i > 0;
     }
 
+    @Override
+    public PageInfo<User> findUserByConditions(User user, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> userList = userMapper.findUserByConditions(user);
+        return PageInfo.of(userList);
+    }
+
+
+    //
+//    @Override
+//    public AuthResponse login(String username, String password) {
+//        // 1. 查询用户
+//        User user = userMapper.findUserByUsername(username);
+//        if (ObjectUtil.isNull(user)) {
+//            throw new ServiceException(Code.NOT_FOUND, "用户不存在");
+//        }
+//
+//        // 2. 验证密码
+//        if (!verifyPassword(password, user.getPassword())) {
+//            throw new ServiceException(Code.UNAUTHORIZED, "密码错误");
+//        }
+//
+//        // 3. 生成JWT令牌
+//        String token = generateJwt(user);
+//
+//        // 4. 创建响应
+//        AuthResponse response = new AuthResponse();
+//        response.setName(user.getUsername());
+//        response.setToken(token);
+//        return response;
+//    }
+//
+//    @Override
+//    public boolean verify(String token) {
+//        try {
+//            // 1. 解析JWT
+//            JWT jwt = JWT.of(token);
+//
+//            // 2. 验证签名
+//            if (!JWTUtil.verify(token, jwtSecret.getBytes())) {
+//                return false;
+//            }
+//
+//            // 3. 验证有效期
+//            JWTValidator.of(token).validateDate(DateUtil.date());
+//
+//            // 4. 验证用户是否存在
+//            String username = jwt.getPayload("username").toString();
+//            User user = userMapper.findUserByUsername(username);
+//            return ObjectUtil.isNotNull(user);
+//
+//        } catch (Exception e) {
+//            log.error("JWT验证失败: {}", e.getMessage());
+//            return false;
+//        }
+//    }
+//
+//
+//    private String generateJwt(User user) {
+//        return JWT.create()
+//                .setPayload("userId", user.getId())
+//                .setPayload("username", user.getUsername())
+//                .setPayload("level", user.getLevel())
+//                .setKey(jwtSecret.getBytes())
+//                .setExpiresAt(DateUtil.date().offset(DateField.HOUR, 12))
+//                .sign();
+//    }
+//
+//    @Override
+//    public String encryptPassword(String password) {
+//        return passwordEncoder.encode(password);
+//    }
+//
+//    @Override
+//    public boolean verifyPassword(String rawPassword, String encodedPassword) {
+//        return passwordEncoder.matches(rawPassword, encodedPassword);
+//    }
+//
+//    @Override
+//    public UserDetails loadUserByUsername(String username) {
+//        User user = findUserByUsername(username);
+//        if (user == null) {
+//            throw new UsernameNotFoundException("用户不存在");
+//        }
+//
+//        // 用户角色根据等级确定
+//        List<GrantedAuthority> authorities = new ArrayList<>();
+//        if (user.getLevel() >= 4) {
+//            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+//        } else if (user.getLevel() >= 2) {
+//            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
+//        } else {
+//            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+//        }
+//
+//        return new org.springframework.security.core.userdetails.User(
+//                user.getUsername(),
+//                user.getPassword(),
+//                authorities
+//        );
+//    }
+//
+    // 添加专门的密码更新方法
+    public boolean updatePassword(Long userId, String newPassword) {
+        User user = userMapper.findUserById(userId);
+        if (user == null) {
+            throw new ServiceException(Code.NOT_FOUND, "用户不存在");
+        }
+
+        user.setPassword(encryptPassword(newPassword));
+        int result = userMapper.updateUser(user);
+        return result > 0;
+    }
+//
+//
     @Override
     public AuthResponse login(String username, String password) {
         AuthResponse authResponse = new AuthResponse();
@@ -130,6 +275,24 @@ public class UserServiceImpl implements UserService {
         authResponse.setToken(token);
         return authResponse;
 
+    }
+
+    @Override
+    public AuthResponse register(String username, String password) {
+        AuthResponse authResponse = new AuthResponse();
+        User user=userMapper.selectOne(new QueryWrapper<User>().eq("username",username) );
+        if(ObjectUtil.isNotEmpty(user)){
+            throw new BaseException("用户已存在");
+        }
+        user=new User();
+        user.setUsername(username);
+        user.setPassword(encryptPassword(password));
+        String token=generateJwt(user);
+        redisService.setEx(getTokenKey(token),token,12*60*60);
+        authResponse.setName(user.getUsername());
+        authResponse.setToken(token);
+        userMapper.insert(user);
+        return authResponse;
     }
 
 
@@ -162,22 +325,28 @@ public class UserServiceImpl implements UserService {
         byte[] keytBytes= key.getBytes();
         log.info("生成JWT参数");
         log.info("key:{},username:{},",key,user.getUsername());
+
+        JwtPayload jwtPayload=new JwtPayload();
+        jwtPayload.setUsername(user.getUsername());
+        jwtPayload.setLevel(user.getLevel());
+
+
         String token = JWT.create()
-                .setPayload("username",user.getUsername())
+                .addPayloads(jwtPayload.toMap())
                 .setKey(keytBytes)
-                .setExpiresAt(DateUtil.date().offset(DateField.DAY_OF_YEAR,7))
+                .setExpiresAt(DateUtil.date().offset(DateField.DAY_OF_YEAR,jwtPayload.getExpDays()))
                 .sign();
         return token;
     }
 
     private boolean validateJwt(String token){
         JWT jwt = JWT.of(token);
-        String username= jwt.getPayload("username").toString();
-        String role= jwt.getPayload("role").toString();
-        String key= SecureUtil.md5(keyBase+username+role);
+        JwtPayload payload =jwt.getPayloads().toBean(JwtPayload.class);
+        String username= payload.getUsername();
+        String key= SecureUtil.md5(keyBase+username);
         byte[] keytBytes= key.getBytes();
         log.info("验证JWT参数");
-        log.info("key:{},username:{},role:{}",key,username,role);
+        log.info("key:{},username:{}",key,username);
         JWTValidator validator = JWTValidator.of(token);
         try{
             validator.validateDate(DateUtil.date());
@@ -214,4 +383,15 @@ public class UserServiceImpl implements UserService {
         return username;
     }
 
+    private JwtPayload getJwtPayload(String token){
+        JWT jwt = JWT.of(token);
+        return jwt.getPayloads().toBean(JwtPayload.class);
+    }
+
+
+
 }
+
+
+
+

@@ -20,4 +20,5 @@ public class Facility {
     private Integer level;
     private Long leaderId;
     private Long[] abnormalityIds;
+    
 }

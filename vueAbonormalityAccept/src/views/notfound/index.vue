@@ -25,7 +25,7 @@ const router = useRouter()
 
 // 跳转主页面
 const goToHomePage = () => {
-  router.push({ name: 'start' })
+  router.push({ name: '/start' })
 }
 </script>
 

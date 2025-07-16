@@ -40,14 +40,9 @@ knife4j:
   setting:
     language: zh_cn
 
-pagehelper:
-  propertyName: propertyValue
-  reasonable: false
-  defaultCount: true # 分页插件默认参数支持 default-count 形式，自定义扩展的参数，必须大小写一致
-
 
 minio:
-  endpoint: http://poyuan.kmdns.net:9000
+  endpoint: http://localhost:9000
   username: minioadmin
   password: minioadmin
   bucketName: abnormality

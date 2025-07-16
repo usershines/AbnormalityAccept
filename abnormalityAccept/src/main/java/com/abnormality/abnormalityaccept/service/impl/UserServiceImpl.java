@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
      * 查询所有用户
      */
     @Override
-    public PageInfo<User> findAllUser(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "10") Integer pageSize) {
+    public PageInfo<User> findAllUser(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.findAllUser();
         return PageInfo.of(userList);
@@ -76,10 +76,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.selectById(id);
     }
 
-    @Override
-    public User findUserByUsername(String username) {
-        return userMapper.findUserByUsername(username);
-    }
 
     /**
      * 删除数据
@@ -93,47 +89,26 @@ public class UserServiceImpl implements UserService {
     /**
      * 新增数据
      */
+    //根据实际要求修改过的新增方法
     @Override
     public boolean addUser(User newUser, Long inviterId) {
+        if(inviterId <=2) throw new ServiceException(Code.ERROR,"用户级别不足以邀请新用户");
+        if(userMapper.selectOne(new QueryWrapper<User>().eq("username",newUser.getUsername())) != null)
+            throw new ServiceException(Code.ERROR,"用户名已存在");
+        if(inviterId == 3){
+            if( newUser.getLevel() >=3) throw new ServiceException(Code.ERROR,"只能设置比自己等级低的级别");
+            if(newUser.getFacilityId() != null) throw new ServiceException(Code.ERROR,"只有A级以上用户可以分配工作设施");
+        }
+        if(inviterId == 4){
+            if( newUser.getLevel() >=4) throw new ServiceException(Code.ERROR,"只能设置比自己等级低的级别");
+        }
+        newUser.setPassword(encryptPassword(newUser.getUsername()+"888"));
+        newUser.setInviterId(inviterId);
+        newUser.setLeaderId(inviterId);
         return userMapper.addUser(newUser) > 0;
     }
 
 
-//    @Override
-//    public boolean addUser(User newUser, Long inviterId) {
-//        // 1. 验证邀请人是否存在
-//        User inviter = userMapper.findUserById(inviterId);
-//        if (ObjectUtil.isNull(inviter)) {
-//            throw new ServiceException(Code.NOT_FOUND, "邀请人不存在");
-//        }
-//
-//        // 2. 验证用户名是否已存在
-//        User existingUser = userMapper.findUserById(newUser.getId());
-//        if (ObjectUtil.isNotNull(existingUser)) {
-//            throw new ServiceException(Code.NOT_ACCEPTABLE, "用户名已存在");
-//        }
-//
-//        // 3. 权限检查 - 只有B级以上用户可邀请新用户
-//        if (inviter.getLevel() < 2) { // 假设0-4级，2为B级
-//            throw new ServiceException(Code.FORBIDDEN, "权限不足，需要B级及以上权限");
-//        }
-//
-//        // 4. 检查用户等级是否合法
-//        if (newUser.getLevel() > inviter.getLevel()) {
-//            throw new ServiceException(Code.FORBIDDEN, "不能创建高于自己等级的用户");
-//        }
-//
-//        // 5. 设置新用户默认值
-//        newUser.setPassword(encryptPassword(newUser.getUsername() + "123"));
-//        newUser.setInviterId(inviterId);
-//        newUser.setLeaderId(inviterId);
-//        newUser.setEmail("");
-//        newUser.setIntroduction("神秘特工");
-//
-//        // 6. 插入新用户
-//        int result = userMapper.addUser(newUser);
-//        return result > 0;
-//    }
 
     /**
      * 修改数据
@@ -152,100 +127,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    //
-//    @Override
-//    public AuthResponse login(String username, String password) {
-//        // 1. 查询用户
-//        User user = userMapper.findUserByUsername(username);
-//        if (ObjectUtil.isNull(user)) {
-//            throw new ServiceException(Code.NOT_FOUND, "用户不存在");
-//        }
-//
-//        // 2. 验证密码
-//        if (!verifyPassword(password, user.getPassword())) {
-//            throw new ServiceException(Code.UNAUTHORIZED, "密码错误");
-//        }
-//
-//        // 3. 生成JWT令牌
-//        String token = generateJwt(user);
-//
-//        // 4. 创建响应
-//        AuthResponse response = new AuthResponse();
-//        response.setName(user.getUsername());
-//        response.setToken(token);
-//        return response;
-//    }
-//
-//    @Override
-//    public boolean verify(String token) {
-//        try {
-//            // 1. 解析JWT
-//            JWT jwt = JWT.of(token);
-//
-//            // 2. 验证签名
-//            if (!JWTUtil.verify(token, jwtSecret.getBytes())) {
-//                return false;
-//            }
-//
-//            // 3. 验证有效期
-//            JWTValidator.of(token).validateDate(DateUtil.date());
-//
-//            // 4. 验证用户是否存在
-//            String username = jwt.getPayload("username").toString();
-//            User user = userMapper.findUserByUsername(username);
-//            return ObjectUtil.isNotNull(user);
-//
-//        } catch (Exception e) {
-//            log.error("JWT验证失败: {}", e.getMessage());
-//            return false;
-//        }
-//    }
-//
-//
-//    private String generateJwt(User user) {
-//        return JWT.create()
-//                .setPayload("userId", user.getId())
-//                .setPayload("username", user.getUsername())
-//                .setPayload("level", user.getLevel())
-//                .setKey(jwtSecret.getBytes())
-//                .setExpiresAt(DateUtil.date().offset(DateField.HOUR, 12))
-//                .sign();
-//    }
-//
-//    @Override
-//    public String encryptPassword(String password) {
-//        return passwordEncoder.encode(password);
-//    }
-//
-//    @Override
-//    public boolean verifyPassword(String rawPassword, String encodedPassword) {
-//        return passwordEncoder.matches(rawPassword, encodedPassword);
-//    }
-//
-//    @Override
-//    public UserDetails loadUserByUsername(String username) {
-//        User user = findUserByUsername(username);
-//        if (user == null) {
-//            throw new UsernameNotFoundException("用户不存在");
-//        }
-//
-//        // 用户角色根据等级确定
-//        List<GrantedAuthority> authorities = new ArrayList<>();
-//        if (user.getLevel() >= 4) {
-//            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-//        } else if (user.getLevel() >= 2) {
-//            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
-//        } else {
-//            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-//        }
-//
-//        return new org.springframework.security.core.userdetails.User(
-//                user.getUsername(),
-//                user.getPassword(),
-//                authorities
-//        );
-//    }
-//
     // 添加专门的密码更新方法
     public boolean updatePassword(Long userId, String newPassword) {
         User user = userMapper.findUserById(userId);
@@ -257,6 +138,7 @@ public class UserServiceImpl implements UserService {
         int result = userMapper.updateUser(user);
         return result > 0;
     }
+
 //
 //
     @Override
@@ -274,7 +156,6 @@ public class UserServiceImpl implements UserService {
         redisService.setEx(getTokenKey(token),token,12*60*60);
         authResponse.setToken(token);
         return authResponse;
-
     }
 
     @Override
@@ -365,12 +246,14 @@ public class UserServiceImpl implements UserService {
 
         return result;
     }
+
+    //密码加密
     private String encryptPassword(String password){
         String salt= RandomUtil.randomString(16);
         String md5pwd= SecureUtil.md5(salt+password);
         return salt+"$"+md5pwd;
     }
-
+    //验证密码
     private boolean verifyPassword(String password,String inputPwd){
         String salt=inputPwd.substring(0,inputPwd.indexOf("$"));
         String md5pwd= SecureUtil.md5(salt+password);

@@ -20,10 +20,10 @@ public class AbnormalityPermissionService {
     private final AbnormalityMapper abnormalityMapper;
 
     //获取用户等级
-     int getUserLevel(Long id) {
-        User user = userMapper.findUserById(id);
-        return user.getLevel();
-    }
+//     int getUserLevel(Long id) {
+//        User user = userMapper.findUserById(id);
+//        return user.getLevel();
+//    }
 
     boolean compareLevel(Integer level1 , Integer level2){
          return level1 > level2;

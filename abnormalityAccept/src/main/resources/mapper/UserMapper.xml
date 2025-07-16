@@ -33,12 +33,7 @@
         from user
         where id=#{id}
     </select>
-    <select id="findUserByUsername" resultMap="Base_User_List">
-        select
-        <include refid="Base_User"/>
-        from user
-        where username= #{username}
-    </select>
+
 
     <insert id="addUser" parameterType="com.abnormality.abnormalityaccept.entity.User">
         INSERT INTO user (
@@ -86,6 +81,7 @@
                 inviter_id = #{inviterId},
             </if>
         </set>
+        where id = #{id}
     </update>
 
     <select id="findUserByConditions" resultType="com.abnormality.abnormalityaccept.entity.User">

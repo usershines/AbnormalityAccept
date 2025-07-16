@@ -18,7 +18,7 @@ public class Facility {
     private String facilityName;
     private String facilityAddress;
     private Integer level;
-    private Long leaderId;
+    private Long managerId;
     private Long[] abnormalityIds;
     
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 
 import lombok.Data;
+import org.apache.poi.hpsf.Date;
 
 /**
  * @author shanh
@@ -23,4 +24,5 @@ public class Email {
     private Long receiverId;
     private String theme;
     private String content;
+    private Date sendTime;
 }

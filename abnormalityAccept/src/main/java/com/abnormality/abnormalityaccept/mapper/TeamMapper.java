@@ -1,6 +1,9 @@
 package com.abnormality.abnormalityaccept.mapper;
 
+import com.abnormality.abnormalityaccept.entity.Team;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author shanh
@@ -10,4 +13,11 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface TeamMapper {
+
+    List<Team> findAllTeam();
+
+    Team findTeamById(Long id);
+
+    Team findTeamByName(String name);
+
 }

@@ -36,49 +36,68 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author shanh
- * @version 1.0
- * {@code @description:}
- * @since 2025-07-13
+ * 用户服务实现类，提供用户管理、认证、权限验证等功能。
+ *
+ * <p>该类实现了 UserService 接口，封装了对数据库的操作，并处理 JWT 生成与校验、密码加密等安全相关逻辑。</p>
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-
+    /**
+     * JWT 密钥基础字符串，用于生成和验证 JWT 的密钥。
+     */
     @Value("${jwt.keybase}")
     private String keyBase;
 
-
+    /**
+     * Redis 服务实例，用于缓存 Token 并设置过期时间。
+     */
     @Autowired
     private RedisService redisService;
 
+    /**
+     * 用户数据访问对象，用于执行与用户相关的数据库操作。
+     */
     @Autowired
     private final UserMapper userMapper;
 
-
     /**
-     * 查询所有用户
+     * 分页查询所有用户信息。
+     *
+     * <p>使用 PageHelper 实现分页功能，将查询结果封装为 PageInfo 返回。</p>
+     *
+     * @param pageNum  当前页码
+     * @param pageSize 每页显示条数
+     * @return 包含用户列表的 PageInfo 对象
      */
     @Override
     public PageInfo<User> findAllUser(Integer pageNum, Integer pageSize) {
+        // 开启分页
         PageHelper.startPage(pageNum, pageSize);
+        // 查询用户列表
         List<User> userList = userMapper.findAllUser();
+        // 封装分页结果
         return PageInfo.of(userList);
     }
 
     /**
-     * 根据id查询用户
+     * 根据用户 ID 查询用户详情。
+     *
+     * @param id 用户唯一标识
+     * @return 查询到的用户对象
      */
     @Override
     public User findUserById(Long id) {
         return userMapper.selectById(id);
     }
 
-
     /**
-     * 删除数据
+     * 根据用户 ID 删除用户。
+     *
+     * @param id 用户唯一标识
+     * @return 删除成功返回 true，否则返回 false
      */
     @Override
     public boolean deleteUserById(Long id) {
@@ -87,31 +106,48 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * 新增数据
+     * 添加新用户，并根据邀请者身份进行权限控制。
+     *
+     * <p>此方法包含以下逻辑：</p>
+     * <ul>
+     *   <li>邀请者等级不足 3 级时，不能邀请新用户。</li>
+     *   <li>用户名已存在时抛出异常。</li>
+     *   <li>邀请者为 3 级用户时，新用户级别必须低于 3 且不能分配设施。</li>
+     *   <li>邀请者为 4 级用户时，新用户级别必须低于 4。</li>
+     * </ul>
+     *
+     * @param newUser   待添加的新用户对象
+     * @param inviterId 邀请者的用户 ID
+     * @return 添加成功返回 true，否则返回 false
+     * @throws ServiceException 如果违反权限规则或用户名重复时抛出业务异常
      */
-    //根据实际要求修改过的新增方法
     @Override
     public boolean addUser(User newUser, Long inviterId) {
-        if(inviterId <=2) throw new ServiceException(Code.ERROR,"用户级别不足以邀请新用户");
-        if(userMapper.selectOne(new QueryWrapper<User>().eq("username",newUser.getUsername())) != null)
-            throw new ServiceException(Code.ERROR,"用户名已存在");
-        if(inviterId == 3){
-            if( newUser.getLevel() >=3) throw new ServiceException(Code.ERROR,"只能设置比自己等级低的级别");
-            if(newUser.getFacilityId() != null) throw new ServiceException(Code.ERROR,"只有A级以上用户可以分配工作设施");
+        if (inviterId <= 2)
+            throw new ServiceException(Code.ERROR, "用户级别不足以邀请新用户");
+        if (userMapper.selectOne(new QueryWrapper<User>().eq("username", newUser.getUsername())) != null)
+            throw new ServiceException(Code.ERROR, "用户名已存在");
+        if (inviterId == 3) {
+            if (newUser.getLevel() >= 3)
+                throw new ServiceException(Code.ERROR, "只能设置比自己等级低的级别");
+            if (newUser.getFacilityId() != null)
+                throw new ServiceException(Code.ERROR, "只有A级以上用户可以分配工作设施");
         }
-        if(inviterId == 4){
-            if( newUser.getLevel() >=4) throw new ServiceException(Code.ERROR,"只能设置比自己等级低的级别");
+        if (inviterId == 4) {
+            if (newUser.getLevel() >= 4)
+                throw new ServiceException(Code.ERROR, "只能设置比自己等级低的级别");
         }
-        newUser.setPassword(encryptPassword(newUser.getUsername()+"888"));
+        newUser.setPassword(encryptPassword(newUser.getUsername() + "888"));
         newUser.setInviterId(inviterId);
         newUser.setLeaderId(inviterId);
         return userMapper.addUser(newUser) > 0;
     }
 
-
-
     /**
-     * 修改数据
+     * 更新用户信息。
+     *
+     * @param user 待更新的用户对象
+     * @return 更新成功返回 true，否则返回 false
      */
     @Override
     public boolean updateUser(User user) {
@@ -119,6 +155,14 @@ public class UserServiceImpl implements UserService {
         return i > 0;
     }
 
+    /**
+     * 根据条件分页查询用户信息。
+     *
+     * @param user      查询条件封装的用户对象
+     * @param pageNum   当前页码
+     * @param pageSize 每页显示条数
+     * @return 包含符合条件用户的 PageInfo 对象
+     */
     @Override
     public PageInfo<User> findUserByConditions(User user, Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
@@ -126,8 +170,14 @@ public class UserServiceImpl implements UserService {
         return PageInfo.of(userList);
     }
 
-
-    // 添加专门的密码更新方法
+    /**
+     * 更新指定用户的密码。
+     *
+     * @param userId    用户 ID
+     * @param newPassword 新密码
+     * @return 更新成功返回 true，否则返回 false
+     * @throws ServiceException 如果用户不存在时抛出异常
+     */
     public boolean updatePassword(Long userId, String newPassword) {
         User user = userMapper.findUserById(userId);
         if (user == null) {
@@ -139,140 +189,200 @@ public class UserServiceImpl implements UserService {
         return result > 0;
     }
 
-//
-//
+    /**
+     * 用户登录方法，验证用户名和密码并生成 JWT Token。
+     *
+     * @param username 用户名
+     * @param password 密码
+     * @return 登录成功返回 AuthResponse，包含用户名和 Token
+     * @throws BaseException 如果用户不存在或密码错误时抛出异常
+     */
     @Override
     public AuthResponse login(String username, String password) {
         AuthResponse authResponse = new AuthResponse();
-        User user=userMapper.selectOne(new QueryWrapper<User>().eq("username",username));
-        if(ObjectUtil.isNull(user)){
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        if (ObjectUtil.isNull(user)) {
             throw new BaseException("用户不存在");
         }
-        if(!verifyPassword(password,user.getPassword())){
+        if (!verifyPassword(password, user.getPassword())) {
             throw new BaseException("密码错误");
         }
         authResponse.setName(user.getUsername());
-        String token=generateJwt(user);
-        redisService.setEx(getTokenKey(token),token,12*60*60);
+        String token = generateJwt(user);
+        redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setToken(token);
         return authResponse;
     }
 
+    /**
+     * 用户注册方法，创建新用户并生成 JWT Token。
+     *
+     * @param username 用户名
+     * @param password 密码
+     * @return 注册成功返回 AuthResponse，包含用户名和 Token
+     * @throws BaseException 如果用户名已存在时抛出异常
+     */
     @Override
     public AuthResponse register(String username, String password) {
         AuthResponse authResponse = new AuthResponse();
-        User user=userMapper.selectOne(new QueryWrapper<User>().eq("username",username) );
-        if(ObjectUtil.isNotEmpty(user)){
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        if (ObjectUtil.isNotEmpty(user)) {
             throw new BaseException("用户已存在");
         }
-        user=new User();
+        user = new User();
         user.setUsername(username);
         user.setPassword(encryptPassword(password));
-        String token=generateJwt(user);
-        redisService.setEx(getTokenKey(token),token,12*60*60);
+        String token = generateJwt(user);
+        redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setName(user.getUsername());
         authResponse.setToken(token);
         userMapper.insert(user);
         return authResponse;
     }
 
-
+    /**
+     * 用户登出方法，从 Redis 中移除 Token。
+     *
+     * @param token 登录 Token
+     * @return 登出成功返回 true
+     */
     @Override
     public boolean logout(String token) {
-        if(redisService.exists(getTokenKey(token))){
+        if (redisService.exists(getTokenKey(token))) {
             redisService.delete(getTokenKey(token));
         }
         return true;
     }
 
+    /**
+     * 验证 Token 是否有效。
+     *
+     * @param token 登录 Token
+     * @return 验证通过返回 true，否则抛出异常
+     * @throws BaseException 如果 Token 无效或已过期时抛出异常
+     */
     @Override
     public boolean verify(String token) {
-        if(!redisService.exists(getTokenKey(token))){
-            throw new BaseException(Code.ERROR,"用户未登录");
+        if (!redisService.exists(getTokenKey(token))) {
+            throw new BaseException(Code.ERROR, "用户未登录");
         }
-        try{
+        try {
             return validateJwt(token);
         } catch (Exception e) {
-            if(redisService.exists(getTokenKey(token))){
+            if (redisService.exists(getTokenKey(token))) {
                 redisService.delete(getTokenKey(token));
             }
-            throw new BaseException(Code.ERROR,"用户未登录",e);
+            throw new BaseException(Code.ERROR, "用户未登录", e);
         }
-
     }
 
-    private String generateJwt(User user){
-        String key= SecureUtil.md5(keyBase+user.getUsername());
-        byte[] keytBytes= key.getBytes();
+    /**
+     * 生成 JWT Token。
+     *
+     * <p>使用用户名和密钥生成 MD5 作为签名密钥，并设置过期时间为当前日期加指定天数。</p>
+     *
+     * @param user 用户对象，用于提取用户名和权限等级
+     * @return 生成的 JWT Token 字符串
+     */
+    private String generateJwt(User user) {
+        String key = SecureUtil.md5(keyBase + user.getUsername());
+        byte[] keytBytes = key.getBytes();
         log.info("生成JWT参数");
-        log.info("key:{},username:{},",key,user.getUsername());
+        log.info("key:{},username:{},", key, user.getUsername());
 
-        JwtPayload jwtPayload=new JwtPayload();
+        JwtPayload jwtPayload = new JwtPayload();
         jwtPayload.setUsername(user.getUsername());
         jwtPayload.setLevel(user.getLevel());
-
 
         String token = JWT.create()
                 .addPayloads(jwtPayload.toMap())
                 .setKey(keytBytes)
-                .setExpiresAt(DateUtil.date().offset(DateField.DAY_OF_YEAR,jwtPayload.getExpDays()))
+                .setExpiresAt(DateUtil.date().offset(DateField.DAY_OF_YEAR, jwtPayload.getExpDays()))
                 .sign();
         return token;
     }
 
-    private boolean validateJwt(String token){
+    /**
+     * 验证 JWT Token 的有效性。
+     *
+     * @param token 待验证的 JWT Token
+     * @return 验证通过返回 true，否则抛出异常
+     * @throws BaseException 如果 Token 无效、过期或用户不存在时抛出异常
+     */
+    private boolean validateJwt(String token) {
         JWT jwt = JWT.of(token);
-        JwtPayload payload =jwt.getPayloads().toBean(JwtPayload.class);
-        String username= payload.getUsername();
-        String key= SecureUtil.md5(keyBase+username);
-        byte[] keytBytes= key.getBytes();
+        JwtPayload payload = jwt.getPayloads().toBean(JwtPayload.class);
+        String username = payload.getUsername();
+        String key = SecureUtil.md5(keyBase + username);
+        byte[] keytBytes = key.getBytes();
         log.info("验证JWT参数");
-        log.info("key:{},username:{}",key,username);
+        log.info("key:{},username:{}", key, username);
         JWTValidator validator = JWTValidator.of(token);
-        try{
+        try {
             validator.validateDate(DateUtil.date());
         } catch (ValidateException e) {
-            throw new BaseException(Code.ERROR,"用户未登录",e);
+            throw new BaseException(Code.ERROR, "用户未登录", e);
         }
 
-        QueryWrapper<User> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("username",username);
-        User user= userMapper.selectOne(queryWrapper);
-        if(user==null){
-            throw new BaseException(Code.ERROR,"用户不存在");
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        User user = userMapper.selectOne(queryWrapper);
+        if (user == null) {
+            throw new BaseException(Code.ERROR, "用户不存在");
         }
-        boolean result=JWTUtil.verify(token,keytBytes);
-        log.info("用户名：{} 验证结果：{}",username,result);
+        boolean result = JWTUtil.verify(token, keytBytes);
+        log.info("用户名：{} 验证结果：{}", username, result);
 
         return result;
     }
 
-    //密码加密
-    private String encryptPassword(String password){
-        String salt= RandomUtil.randomString(16);
-        String md5pwd= SecureUtil.md5(salt+password);
-        return salt+"$"+md5pwd;
-    }
-    //验证密码
-    private boolean verifyPassword(String password,String inputPwd){
-        String salt=inputPwd.substring(0,inputPwd.indexOf("$"));
-        String md5pwd= SecureUtil.md5(salt+password);
-        return inputPwd.substring(inputPwd.indexOf("$")+1).equals(md5pwd);
+    /**
+     * 加密用户密码，使用盐值 + MD5 加密方式。
+     *
+     * @param password 原始密码
+     * @return 加密后的字符串，格式为 salt$md5pwd
+     */
+    private String encryptPassword(String password) {
+        String salt = RandomUtil.randomString(16);
+        String md5pwd = SecureUtil.md5(salt + password);
+        return salt + "$" + md5pwd;
     }
 
-    private String getTokenKey(String token){
+    /**
+     * 验证输入密码是否与加密后的密码匹配。
+     *
+     * @param password 输入的明文密码
+     * @param inputPwd 加密后的密码（格式为 salt$md5pwd）
+     * @return 匹配返回 true，否则返回 false
+     */
+    private boolean verifyPassword(String password, String inputPwd) {
+        String salt = inputPwd.substring(0, inputPwd.indexOf("$"));
+        String md5pwd = SecureUtil.md5(salt + password);
+        return inputPwd.substring(inputPwd.indexOf("$") + 1).equals(md5pwd);
+    }
+
+    /**
+     * 构建 Redis 缓存 Token 的键。
+     *
+     * @param token 登录 Token
+     * @return Redis 中存储的键名
+     */
+    private String getTokenKey(String token) {
         JWT jwt = JWT.of(token);
-        String username= jwt.getPayload("username").toString();
+        String username = jwt.getPayload("username").toString();
         return username;
     }
 
-    private JwtPayload getJwtPayload(String token){
+    /**
+     * 解析 JWT Token 获取负载信息。
+     *
+     * @param token 待解析的 JWT Token
+     * @return 解析得到的 JwtPayload 对象
+     */
+    private JwtPayload getJwtPayload(String token) {
         JWT jwt = JWT.of(token);
         return jwt.getPayloads().toBean(JwtPayload.class);
     }
-
-
-
 }
 
 

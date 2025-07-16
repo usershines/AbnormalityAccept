@@ -27,10 +27,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 日志切面类，用于记录控制器层的请求日志和异常处理
- * <p>该切面通过AOP环绕通知方式，对控制器层所有方法进行拦截，实现请求信息记录、
- * 执行时间统计、正常响应日志记录以及异常捕获与日志发布功能
- * @author poyuan
+ * 日志切面类，用于统一处理控制器层的请求日志记录、权限验证和异常捕获。
+ *
+ * <p>该类通过 AOP 环绕通知对控制器方法进行拦截，实现了以下功能：</p>
+ * <ul>
+ *   <li>记录请求 URL、方法名、参数、耗时等信息。</li>
+ *   <li>对非登录/注册接口进行 Token 鉴权。</li>
+ *   <li>捕获业务异常并返回统一错误响应。</li>
+ *   <li>发布异常日志事件供监听器处理。</li>
+ * </ul>
  */
 @Aspect
 @Component
@@ -38,115 +43,141 @@ import java.util.Objects;
 public class LogAspect {
 
     /**
-     * Spring应用上下文对象，用于发布事件
-     * <p>主要用于在捕获异常时发布{@link ExceptionLogEvent}事件
+     * Spring 应用上下文对象，用于发布自定义事件（如异常日志事件）。
      */
     @Autowired
     private ApplicationContext applicationContext;
 
+    /**
+     * 认证处理器实例，用于执行 Token 验证逻辑。
+     */
     @Autowired
     private AuthHandler authHandler;
 
+    /**
+     * 定义切点，匹配控制器包下的所有方法。
+     */
     @Pointcut("execution(* com.abnormality.abnormalityaccept.controller.*.*(..))")
-    public void log(){
-
+    public void log() {
+        // 仅作为切点声明使用
     }
 
     /**
-     * 环绕通知方法，用于处理控制器方法的执行过程
-     * <p>该方法会在目标控制器方法执行前后进行拦截，实现以下功能：
-     * <ul>
-     *   <li>记录请求开始时间，计算方法执行耗时</li>
-     *   <li>获取请求上下文信息（URL、方法名、参数等）</li>
-     *   <li>执行目标方法并记录正常响应日志</li>
-     *   <li>捕获方法执行过程中的异常，记录异常信息并发布异常日志事件</li>
-     *   <li>无论方法正常执行还是异常，均记录方法执行耗时</li>
-     * </ul>
-     * @param joinPoint 连接点对象，包含目标方法的信息和参数
-     * @return 目标方法的执行结果，封装为{@link Result}对象
+     * 环绕通知方法，用于处理控制器方法的整个执行过程。
+     *
+     * <p>主要完成以下任务：</p>
+     * <ol>
+     *   <li>记录请求开始时间，计算执行耗时。</li>
+     *   <li>获取请求相关信息（URL、IP、User-Agent、参数等）。</li>
+     *   <li>对除 login 和 register 外的所有方法执行 Token 验证。</li>
+     *   <li>执行目标方法，并记录正常响应日志。</li>
+     *   <li>捕获异常，记录异常信息并发布 ExceptionLogEvent。</li>
+     *   <li>统一返回封装后的 Result 对象。</li>
+     * </ol>
+     *
+     * @param joinPoint 连接点对象，包含被拦截方法的信息和参数
+     * @return 返回封装后的 {@link Result} 响应对象
      */
     @Around("log()")
-    public Result<?> controller(ProceedingJoinPoint joinPoint)  {
+    public Result<?> controller(ProceedingJoinPoint joinPoint) {
         long startTime = System.currentTimeMillis();
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes).resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes)
+                .resolveReference(RequestAttributes.REFERENCE_REQUEST);
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
-        String url= null;
+
+        String url = null;
         if (request != null) {
             url = request.getRequestURI();
         }
         String methodName = method.getName();
 
-        //鉴权部分
-        List<String> nonAuthMethodName=Arrays.asList("login","register");
-        if(!nonAuthMethodName.contains(methodName)){
-            String token= request.getHeader("Authorization");
-            if(StrUtil.isNotBlank(token)&&token.startsWith("Bearer ")){
-                token=token.substring("Bearer ".length());
+        // 获取请求头中的 Token 并进行鉴权，排除 login 和 register 方法
+        List<String> nonAuthMethodName = Arrays.asList("login", "register");
+        if (!nonAuthMethodName.contains(methodName)) {
+            String token = request.getHeader("Authorization");
+            if (StrUtil.isNotBlank(token) && token.startsWith("Bearer ")) {
+                token = token.substring("Bearer ".length());
             }
             log.info("token: " + token);
-            try{
-                boolean passed=authHandler.verify(token);
+
+            try {
+                boolean passed = authHandler.verify(token);
             } catch (Exception e) {
                 log.error("令牌验证失败", e);
-                log.info("耗时{}", System.currentTimeMillis()-startTime);
-                if(e instanceof BaseException){
-                    return Result.error(((BaseException) e).getCode().getCode(),((BaseException) e).getMsg(),((BaseException) e).getMsgList());
+                log.info("耗时{}", System.currentTimeMillis() - startTime);
+                if (e instanceof BaseException) {
+                    return Result.error(((BaseException) e).getCode().getCode(),
+                            ((BaseException) e).getMsg(), ((BaseException) e).getMsgList());
                 }
-                return Result.error(Code.ERROR.getCode(),"系统错误: " + e.getMessage());
+                return Result.error(Code.ERROR.getCode(), "系统错误: " + e.getMessage());
             }
-
         }
 
-        //业务逻辑执行部分
-        try{
-            Result result =(Result) joinPoint.proceed();
-            log.info("请求 URL: {}, 方法: {},参数：{}, 耗时: {}ms, 返回值: {}", url, methodName, Arrays.toString(joinPoint.getArgs()) ,System.currentTimeMillis() - startTime, result);
+        // 执行目标方法并记录响应结果
+        try {
+            Result result = (Result) joinPoint.proceed();
+            log.info("请求 URL: {}, 方法: {}, 参数：{}, 耗时: {}ms, 返回值: {}", url, methodName,
+                    Arrays.toString(joinPoint.getArgs()), System.currentTimeMillis() - startTime, result);
             return result;
         } catch (Throwable e) {
-
-            // 异常处理逻辑
+            // 捕获异常并记录详细日志
             log.error("请求 URL: {}, 方法: {}, 发生异常: {}", url, methodName, e.getMessage());
+
             ExceptionLog exceptionLog = new ExceptionLog();
             exceptionLog.setExceptionInfo(Arrays.toString(e.getStackTrace()));
-            String machineId="";
-            try{
-                machineId= InetAddress.getLocalHost().getHostName();
-            }catch (Exception ex){
-                machineId="unknown";
+
+            // 获取本机主机名，标识发生异常的机器
+            String machineId = "";
+            try {
+                machineId = InetAddress.getLocalHost().getHostName();
+            } catch (Exception ex) {
+                machineId = "unknown";
             }
             exceptionLog.setMachineId(machineId);
-            if(e instanceof BaseException){
+
+            // 设置异常消息
+            if (e instanceof BaseException) {
                 exceptionLog.setMessage(Arrays.toString(((BaseException) e).getMsgList().toArray()));
-            }else{
+            } else {
                 exceptionLog.setMessage(e.getMessage());
             }
 
+            // 设置客户端 IP 地址
             exceptionLog.setIp(request.getRemoteAddr());
+            // 设置方法名
             exceptionLog.setMethod(method.getName());
+            // 设置请求 URL
             exceptionLog.setUrl(request.getRequestURI());
-            exceptionLog.setUrl(request.getRequestURI());
+            // 设置 User-Agent
             exceptionLog.setUserAgent(request.getHeader("User-Agent"));
-            Object[] args= joinPoint.getArgs();
+            // 设置请求参数
+            Object[] args = joinPoint.getArgs();
             exceptionLog.setParams(Arrays.toString(args));
+            // 设置用户名（远程用户）
             exceptionLog.setUsername(request.getRemoteUser());
+
+            // 发布异常日志事件
             applicationContext.publishEvent(new ExceptionLogEvent(exceptionLog));
+
+            // 输出日志内容便于调试
             log.info(exceptionLog.toString());
             log.error(exceptionLog.getExceptionInfo());
             log.error(exceptionLog.getMessage());
             e.printStackTrace();
-            if(e instanceof BaseException){
-                return Result.error(((BaseException) e).getCode().getCode(), ((BaseException) e).getCode().getMsg(),e.getMessage());
-            }else{
+
+            // 返回统一异常响应
+            if (e instanceof BaseException) {
+                return Result.error(((BaseException) e).getCode().getCode(),
+                        ((BaseException) e).getCode().getMsg(), e.getMessage());
+            } else {
                 return Result.error(e.getMessage());
             }
-
-        }finally {
+        } finally {
+            // 记录最终执行耗时
             long endTime = System.currentTimeMillis();
             log.info("耗时：" + (endTime - startTime));
-            Object obj=new Object();
-            obj.toString();
         }
     }
 }

@@ -16,35 +16,82 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 
+/**
+ * 文件服务实现类，用于处理与 MinIO 对象存储交互的文件上传和 URL 获取操作。
+ *
+ * <p>该类实现了 FileService 接口，封装了文件上传至 MinIO 及生成预签名访问 URL 的逻辑。</p>
+ */
 @Service
 @Slf4j
 public class FileServiceImpl implements FileService {
 
+    /**
+     * MinIO 客户端实例，用于执行对象存储操作。
+     */
     @Autowired
     private MinioClient minioClient;
 
+    /**
+     * 存储桶名称，从配置文件中注入，用于指定上传文件的目标存储位置。
+     */
     @Value("${minio.bucketName}")
     private String bucketName;
 
-    private final Integer expSecs=30*60;
+    /**
+     * 预签名 URL 的过期时间（单位：秒），默认为 30 分钟。
+     */
+    private final Integer expSecs = 30 * 60;
 
+    /**
+     * 获取指定文件的预签名访问 URL。
+     *
+     * <p>通过 MinIO 客户端生成一个带有访问权限的临时 URL，允许在有效期内下载该文件。</p>
+     *
+     * @param filename 文件名，用于构建访问路径
+     * @return 生成的预签名 URL 字符串
+     * @throws ServiceException 如果生成 URL 过程中发生异常，则抛出业务异常
+     */
     @Override
     public String getPublicUrl(String filename) {
         try {
-            // 获取预签名URL
-            return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder().bucket(bucketName).object(filename).method(Method.GET).expiry(expSecs).build());
+            // 调用 MinIO API 生成 GET 方法可访问的预签名 URL
+            return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                    .bucket(bucketName)
+                    .object(filename)
+                    .method(Method.GET)
+                    .expiry(expSecs)
+                    .build());
         } catch (Exception e) {
+            // 记录日志并抛出异常，避免调用方无法感知错误
             log.error("获取上传文件URL失败：{}", e.getMessage());
             throw new ServiceException("获取上传文件URL失败");
         }
     }
 
+    /**
+     * 将字节数组上传至 MinIO，并返回目标文件名。
+     *
+     * <p>该方法的主要流程如下：</p>
+     * <ul>
+     *   <li>将传入的字节数组写入本地临时文件。</li>
+     *   <li>使用 MinIO 客户端上传该临时文件到指定存储桶。</li>
+     *   <li>上传成功后删除临时文件，并返回生成的文件名。</li>
+     * </ul>
+     *
+     * @param fileName 原始文件名，用于构造临时文件及最终存储名
+     * @param bytes    待上传的文件内容，以字节数组形式提供
+     * @return 上传后的文件名（唯一随机前缀 + 原始文件名）
+     * @throws ServiceException 如果上传过程中发生异常，则抛出业务异常
+     */
     @Override
     public String upload(String fileName, byte[] bytes) {
-        String tempFilePath = AFileUtil.createTempFile(fileName,bytes);
-        String targetFileName= RandomUtil.randomString(5)+fileName;
+        // 创建临时文件用于上传
+        String tempFilePath = AFileUtil.createTempFile(fileName, bytes);
+        // 生成唯一文件名，防止重名冲突
+        String targetFileName = RandomUtil.randomString(5) + fileName;
+
         try {
-            // 上传文件到MinIO存储桶
+            // 执行 MinIO 文件上传操作
             ObjectWriteResponse wres = minioClient.uploadObject(
                     UploadObjectArgs.builder()
                             .bucket(bucketName)
@@ -52,19 +99,22 @@ public class FileServiceImpl implements FileService {
                             .filename(tempFilePath)
                             .build());
 
-            // 检查上传结果是否有效
+            // 检查上传结果是否成功
             if (wres.etag() == null) {
                 throw new ServiceException("上传文件失败");
             }
-            // 删除临时文件
+
+            // 删除本地临时文件
             File t = new File(tempFilePath);
             if (t.exists()) {
                 t.delete();
             }
+
+            // 返回上传后的文件名
             return targetFileName;
         } catch (Exception e) {
+            // 记录日志并删除临时文件，同时抛出异常
             log.error("上传文件失败：{}", e.getMessage());
-            // 删除临时文件
             File t = new File(tempFilePath);
             if (t.exists()) {
                 t.delete();
@@ -72,8 +122,4 @@ public class FileServiceImpl implements FileService {
             throw new ServiceException("上传文件失败");
         }
     }
-
-
-
-
 }

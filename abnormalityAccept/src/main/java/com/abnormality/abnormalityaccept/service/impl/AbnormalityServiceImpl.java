@@ -30,7 +30,7 @@ public class AbnormalityServiceImpl implements AbnormalityService {
     @DS("slave")
     public PageInfo<Abnormality> findAllAbnormality(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum,pageSize);
-        List<Abnormality> abnormalityList = abnormalityMapper.findAllAbnormality();
+        List<Abnormality> abnormalityList = abnormalityMapper.findAllAbnormality(pageNum, pageSize);
         return PageInfo.of(abnormalityList);
     }
 

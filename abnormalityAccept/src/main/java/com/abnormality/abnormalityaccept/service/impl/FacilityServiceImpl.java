@@ -28,7 +28,7 @@ public class FacilityServiceImpl implements FacilityService {
     @Override
     public PageInfo<Facility> findAllFacility(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Facility> facilityList = facilityMapper.findAllFacility();
+        List<Facility> facilityList = facilityMapper.findAllFacility(pageNum, pageSize);
         return PageInfo.of(facilityList);
     }
 

@@ -18,7 +18,7 @@ public interface EquipmentMapper {
     /**
      *查询所有装备
      */
-    List<Equipment> findAllEquipment();
+    List<Equipment> findAllEquipment(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
     /**
      根据id查询装备
      */

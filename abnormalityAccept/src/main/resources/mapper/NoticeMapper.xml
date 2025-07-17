@@ -20,6 +20,7 @@
         SELECT
         <include refid="Base_Notice"/>
         FROM notice
+        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <select id="findNoticeById" resultMap="Base_Notice_List">

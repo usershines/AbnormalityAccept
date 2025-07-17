@@ -18,7 +18,7 @@ public interface QuestMapper extends BaseMapper<Quest> {
     /**
      * 查询所有任务
      */
-    List<Quest> findAllQuests();
+    List<Quest> findAllQuests(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
 
     /**
      * 根据id查询任务

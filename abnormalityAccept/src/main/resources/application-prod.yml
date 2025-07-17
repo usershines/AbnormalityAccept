@@ -25,3 +25,12 @@ minio:
   username: name
   password: 12345678
   bucketName: abnormality
+
+#pagehelper:
+#  propertyName: propertyValue
+#  reasonable: false
+#  defaultCount: true # 分页插件默认参数支持 default-count 形式，自定义扩展的参数，必须大小写一致
+pagehelper:
+  helper-dialect: mysql  # 数据库方言，根据实际数据库调整
+  reasonable: true       # 启用合理化，页码<=0 查第一页，页码>总页数查最后一页
+  support-methods-arguments: true  # 支持通过 Mapper 接口参数传递分页参数

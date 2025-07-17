@@ -17,7 +17,7 @@ public interface FacilityMapper extends BaseMapper<Facility> {
     /**
      *查询所有设施
      */
-    List<Facility> findAllFacility();
+    List<Facility> findAllFacility(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
     /**
      根据id查询设施
      */

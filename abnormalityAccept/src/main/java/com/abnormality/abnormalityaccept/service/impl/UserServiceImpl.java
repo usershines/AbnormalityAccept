@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
         // 查询用户列表
-        List<User> userList = userMapper.findAllUser();
+        List<User> userList = userMapper.findAllUser(pageNum, pageSize);
         // 封装分页结果
         return PageInfo.of(userList);
     }

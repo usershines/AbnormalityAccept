@@ -21,6 +21,7 @@
         SELECT
         <include refid="Base_Equipment"/>
         FROM equipment
+        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <select id="findEquipmentById" resultMap="Base_Equipment_List">
@@ -72,11 +73,11 @@
         ORDER BY update_time DESC
     </select>
 
-    <!-- 分页查询装备 -->
-    <select id="findEquipmentByPage" resultType="com.abnormality.abnormalityaccept.entity.Equipment">
-        SELECT * FROM equipment
-            LIMIT #{offset}, #{pageSize}
-    </select>
+<!--    &lt;!&ndash; 分页查询装备 &ndash;&gt;-->
+<!--    <select id="findEquipmentByPage" resultType="com.abnormality.abnormalityaccept.entity.Equipment">-->
+<!--        SELECT * FROM equipment-->
+<!--            LIMIT #{offset}, #{pageSize}-->
+<!--    </select>-->
 
     <!-- 根据状态查询装备 -->
     <select id="findEquipmentByState" resultType="com.abnormality.abnormalityaccept.entity.Equipment">

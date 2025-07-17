@@ -23,8 +23,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public PageInfo<Equipment> findAllEquipment(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Equipment> EquipmentList = equipmentMapper.findAllEquipment();
-        return PageInfo.of(EquipmentList);
+        List<Equipment> EquipmentList = equipmentMapper.findAllEquipment(pageNum, pageSize);
+//        return PageInfo.of(EquipmentList);
+        return new PageInfo<>(EquipmentList);
     }
 
 

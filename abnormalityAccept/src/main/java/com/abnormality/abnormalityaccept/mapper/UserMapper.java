@@ -18,7 +18,7 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      *查询所有用户
      */
-    List<User> findAllUser();
+    List<User> findAllUser(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
 
     /**
      *根据id查询用户

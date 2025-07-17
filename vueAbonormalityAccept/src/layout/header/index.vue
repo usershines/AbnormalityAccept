@@ -22,9 +22,10 @@
           <el-menu-item index="/start" @click="goToHome" >首页</el-menu-item>
           <el-menu-item index="/workPlace">工作区</el-menu-item>
           <el-menu-item index="/email">邮箱</el-menu-item>
-          <el-menu-item index="4">Orders</el-menu-item>
+          <el-menu-item index="order">Orders</el-menu-item>
         </el-menu>
         <el-avatar  :size="80" :src="userAvatar" />
+        <el-button @click="Logout">登出</el-button>
       </div>
     </div>
 </template>
@@ -33,6 +34,7 @@
 import { ref, onMounted, onBeforeUnmount, watch} from 'vue'
 import router from "@/router";
 import {useRoute} from "vue-router";
+import {logout} from "@/api/user.ts";
 
 // 获取当前路由
 const route = useRoute()
@@ -57,7 +59,7 @@ const logo = '/src/assets/pic/logo.png'
 const userAvatar = ref("https://ts3.tc.mm.bing.net/th/id/OIP-C.UpIFaAcZ-SrEPtvYmhWOMwHaHa?w=249&h=250&c=8&rs=1&qlt=90&o=6&dpr=1.5&pid=3.1&rm=2")
 const goToHome = () =>{
   console.log("返回主页")
-  router.push({name: 'start'})
+  router.push({name: '/start'})
 }
 // 时钟
 const currentHour = ref()
@@ -91,6 +93,17 @@ onBeforeUnmount(() => {
   }
 })
 
+// 登出
+const Logout = () => {
+  logout().then((res) => {
+    if(res.code === 200){
+      router.push("/login")
+    }
+  }).catch(e => {
+    console.log(e)
+  }
+  )
+}
 
 </script>
 

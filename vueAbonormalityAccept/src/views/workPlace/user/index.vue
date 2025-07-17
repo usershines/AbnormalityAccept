@@ -778,17 +778,15 @@ const handleEdit = (row: any) => {
 };
 const submitEdit = () => {
   console.log('提交编辑表单',editForm.value);
-  updateUser(editForm).then((response) => {
+  updateUser(editForm.value).then((response) => {
     if(response.code === 200) {
       tableData.value = response.data.list;
       ElMessage.success('数据更新成功')
       console.log('获取数据',response)
-    }else{
-      ElMessage.error('发生错误：',response.message);
     }
   }).catch((e) => {
         console.log('错误',e)
-        ElMessage.error(e.message);
+        ElMessage.error(e.msg);
       }
   )
 }

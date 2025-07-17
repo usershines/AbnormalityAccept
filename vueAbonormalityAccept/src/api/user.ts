@@ -35,32 +35,34 @@ export function getUserList(pageNum: number, pageSize: number){
 
 // 更新用户信息
 export function updateUser(user: any){
-    const update: User = {
-        id: user.id,
-        username: user.username,
-        password: user.password,
-        email: user.email,
-        inviterId: user.inviterId,
-        leaderId: user.leaderId,
-        facilityId: user.facilityId,
-        introduction: user.introduction,
-        level: user.level,
-    }
-    return request.put('/user/updata',{update})
+    return request.put('/user/updata',user)
 }
 
 // 新建用户
 export function addUser(user: any){
-    const newUser: User = {
+    const newUser = {
         id: 0,
-        username: user.username,
-        password: user.password,
-        email: user.email,
-        inviterId: user.inviterId,
-        leaderId: user.leaderId,
-        facilityId: user.facilityId,
-        introduction: user.introduction,
-        level: user.level,
+        ...user,
     }
     return request.post('/user/invite', newUser)
+}
+
+// 删除用户
+export function deleteUser(id:number){
+    return request.delete(`/user/${id}` )
+}
+
+// 用户登出
+export function logout(){
+    const token = localStorage.getItem('token');
+    if(token){
+        return request.post('/user/logout', token)
+    }else {
+        console.log('请先登录')
+    }
+}
+
+// 条件查询
+export function findUser(user: any){
+    return request.post('/user/findUserByCondition', user)
 }

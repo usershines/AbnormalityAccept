@@ -2,11 +2,9 @@ package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.annotation.AuthIgnore;
 import com.abnormality.abnormalityaccept.dto.Result;
-import com.abnormality.abnormalityaccept.dto.request.AuthRequest;
-import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
-import com.abnormality.abnormalityaccept.dto.request.RegistRequest;
-import com.abnormality.abnormalityaccept.dto.request.UpdateUserRequest;
+import com.abnormality.abnormalityaccept.dto.request.*;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
+import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
@@ -79,8 +77,10 @@ public class UserController {
     //http://localhost:8080/user/findAllUser
     @Operation(summary = "用户信息查询")
     @GetMapping("/list")
-    public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize,@RequestParam Long finderId) {
+    public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         //return List.of();
+        String token = AopUtil.getToken();
+        Long finderId = JwtPayload.fromToken(token).getId();
         PageInfo<User> userList = userService.findAllUser(pageNum, pageSize,finderId);
         return Result.ok(userList);
     }
@@ -89,7 +89,8 @@ public class UserController {
     @Operation(summary = "根据id查询用户")
     @Parameter(name="id",description = "用户id",required = true,example = "1" ,in= ParameterIn.PATH )
     @GetMapping("/{id}")
-    public Result<User>  findUserById(@PathVariable Long id , @RequestParam Long finderId) {
+    public Result<User>  findUserById(@PathVariable Long id ) {
+        Long finderId = JwtPayload.fromToken(AopUtil.getToken()).getId();
         User user = userService.findUserById(id,finderId);
         if(user == null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
         return Result.ok("查询成功", user);
@@ -102,7 +103,8 @@ public class UserController {
     @Operation(summary = "删除用户")
     //@Parameter(name="id",description = "用户id",required = true,example = "1")
     @DeleteMapping("/{id}")
-    public Result<String> deleteUserById(@PathVariable Long id,@RequestParam Long editorId){
+    public Result<String> deleteUserById(@PathVariable Long id){
+        Long editorId = JwtPayload.fromToken(AopUtil.getToken()).getId();
         if(userService.deleteUserById(id,editorId)){
             return Result.ok("删除成功");
         }
@@ -111,7 +113,8 @@ public class UserController {
 
     @Operation(summary = "邀请用户")
     @PostMapping("/invite")
-    public Result<String> inviteUser(@RequestBody InviteRequest inviteRequest, @RequestParam Long inviterId){
+    public Result<String> inviteUser(@RequestBody InviteRequest inviteRequest){
+        Long inviterId = JwtPayload.fromToken(AopUtil.getToken()).getId();
         if(userService.addUser(inviteRequest,inviterId)){
             return Result.ok("添加成功");
         }
@@ -121,7 +124,8 @@ public class UserController {
 
     @Operation(summary = "更新用户")
     @PutMapping("/update")
-    public Result<String> updateUser(@RequestBody UpdateUserRequest updateUserRequest, @RequestParam Long editorId){
+    public Result<String> updateUser(@RequestBody UpdateUserRequest updateUserRequest){
+        Long editorId = JwtPayload.fromToken(AopUtil.getToken()).getId();
         if(userService.updateUser(updateUserRequest,editorId)){
             return Result.ok("更新成功");
         }
@@ -130,20 +134,27 @@ public class UserController {
 
     @Operation(summary = "多条件查询")
     @PostMapping("/findUserByConditions")
-    public Result<PageInfo<User>> findUserByConditions(@RequestParam Long id,
-                                                       @RequestParam String username,
-                                                       @RequestParam String email,
-                                                        @RequestParam Integer level,
-                                                       @RequestParam Long facilityId,
-                                                       @RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+    public Result<PageInfo<User>> findUserByConditions(@RequestBody UserParamRequest userParamRequest, @RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+
         User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setLevel(level);
-        user.setFacilityId(facilityId);
+        user.setId(userParamRequest.getId());
+        user.setUsername(userParamRequest.getUsername());
+        user.setEmail(userParamRequest.getEmail());
+        user.setLevel(userParamRequest.getLevel());
+        user.setFacilityId(userParamRequest.getFacilityId());
         PageInfo<User> userList = userService.findUserByConditions(user,pageNum, pageSize);
         return Result.ok(userList);
+    }
+
+    @Operation(summary = "修改密码")
+    @PostMapping("/updatePassword")
+    public Result<String> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest){
+        String token = AopUtil.getToken();
+        JwtPayload jwtPayload = JwtPayload.fromToken(token);
+        Long userId = jwtPayload.getId();
+        if (userService.updatePassword(userId,updatePasswordRequest.getNewPassword()))
+            return Result.ok("修改成功");
+        else throw new ServiceException(Code.ERROR,"修改失败");
     }
 
 

@@ -7,11 +7,13 @@ import java.util.Map;
 
 @Data
 public class JwtPayload {
+    private Long id;
     private String username;
     private int level;
     private int expDays=7;
     public Map<String,String> toMap(){
         return Map.of(
+                "id",id.toString(),
                 "username",username,
                 "level",String.valueOf(level)
         );

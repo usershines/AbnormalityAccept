@@ -79,7 +79,7 @@ public class AuthAspect {
             // Token 验证失败，记录错误日志并抛出异常
             log.error("令牌验证失败", e);
             log.info("耗时{}", System.currentTimeMillis() - startTime);
-            throw new BaseException(Code.NOT_AUTHORIZED, "登录令牌验证失败", e);
+            throw new BaseException(Code.NOT_AUTHORIZED, "登录令牌验证失败");
         }
     }
 }

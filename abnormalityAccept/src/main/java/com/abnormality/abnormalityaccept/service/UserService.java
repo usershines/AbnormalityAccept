@@ -1,11 +1,13 @@
 package com.abnormality.abnormalityaccept.service;
 
+import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
 import com.abnormality.abnormalityaccept.dto.request.UpdateUserRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
 //import org.springframework.security.core.userdetails.UserDetails;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.stereotype.Service;
 
 /**
@@ -51,7 +53,7 @@ public interface UserService {
 //
 //    /** 验证密码 */
 //
-  //   boolean updatePassword(Long id, String newPassword);
+     boolean updatePassword(Long id, String newPassword);
 
     AuthResponse login(String username, String password);
 
@@ -68,6 +70,7 @@ public interface UserService {
      * @return true-验证成功，false-验证失败
      */
     boolean verify(String token);
+
 //
 //
 

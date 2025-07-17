@@ -23,6 +23,7 @@ import com.abnormality.abnormalityaccept.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -204,7 +205,7 @@ public class UserServiceImpl implements UserService {
      * @throws ServiceException 如果用户不存在时抛出异常
      */
     public boolean updatePassword(Long userId, String newPassword) {
-        User user = userMapper.findUserById(userId);
+        User user = userMapper.selectById(userId);
         if (user == null) {
             throw new ServiceException(Code.NOT_FOUND, "用户不存在");
         }
@@ -310,11 +311,13 @@ public class UserServiceImpl implements UserService {
         }
         try {
             return validateJwt(token);
-        } catch (Exception e) {
+        } catch (JwtException e) {
             if (redisService.exists(getTokenKey(token))) {
                 redisService.delete(getTokenKey(token));
             }
-            throw new BaseException(Code.ERROR, "用户未登录", e);
+            throw new BaseException(Code.ERROR, "Token 无效，请重新登录", e);
+        }catch (BaseException e) {
+            throw new BaseException(Code.ERROR,"Token 验证过程中发生异常");
         }
     }
 

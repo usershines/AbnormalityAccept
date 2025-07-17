@@ -33,7 +33,7 @@
 
         <el-form-item label="所在设施ID" class="search-item">
           <el-input
-              v-model="searchForm.location"
+              v-model="searchForm.facilityId"
               clearable
               class="search-input"
               prefix-icon="el-icon-location-outline"
@@ -403,7 +403,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed } from 'vue';
-import {getUserList, updateUser, addUser} from "@/api/user.ts";
+import {getUserList, updateUser, addUser, deleteUser, findUser} from "@/api/user.ts";
 import {ElMessage} from "element-plus";
 
 // 新建用户弹窗相关
@@ -468,7 +468,7 @@ const submitCreate = () => {
 const searchForm = reactive({
   name: '',
   level: '',
-  location: '',
+  facilityId: '',
   id: ''
 });
 
@@ -659,7 +659,7 @@ const filteredData = computed(() => {
     const nameMatch = searchForm.name ? item.name.includes(searchForm.name) : true;
     const levelMatch = searchForm.level ? item.level === searchForm.level : true;
     const idMatch = searchForm.id ? item.id === parseInt(searchForm.id) : true;
-    const locationMatch = searchForm.location ? item.location.includes(searchForm.location) : true;
+    const locationMatch = searchForm.facilityId ? item.location.includes(searchForm.facilityId) : true;
     return nameMatch && levelMatch && idMatch && locationMatch;
   });
 });
@@ -719,16 +719,26 @@ const tableHeaderStyle = () => {
 
 // 搜索方法
 const handleSearch = () => {
-  currentPage.value = 1;
+  findUser(searchForm).then(response => {
+    if(response.code === 200) {
+      catchData(currentPage.value,pageSize.value)
+      ElMessage.success('搜索请求成功')
+    }else {
+      ElMessage.error('搜索失败'+response.message);
+    }
+  }).catch(e => {
+    ElMessage.error(e.message);
+    console.log('搜索失败', e)
+  })
 };
 
 // 重置方法
 const handleReset = () => {
   searchForm.name = '';
   searchForm.level = '';
-  searchForm.location = '';
+  searchForm.facilityId = '';
   searchForm.id = '';
-  currentPage.value = 1;
+  catchData(currentPage.value,pageSize.value)
 };
 
 // 每页条数改变
@@ -795,9 +805,18 @@ const handleDelete = (row: any) => {
       }
   )
       .then(() => {
-        ElMessage({
-          type: 'success',
-          message: '删除成功',
+        deleteUser(row.id).then((response) => {
+          if(response.code === 200) {
+            ElMessage({
+              type: 'success',
+              message: '删除成功',
+            })
+          }
+          else {
+            ElMessage.error('删除失败'+response.message);
+          }
+        }).catch((e) => {
+          ElMessage.error('删除失败'+e.message);
         })
       })
       .catch(() => {

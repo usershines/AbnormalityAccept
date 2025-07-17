@@ -189,8 +189,8 @@
 
     <!-- 新建/编辑对话框 -->
     <el-dialog
-      v-model="dialogVisible"
-      :title="dialogTitle"
+      v-model="creatDialogVisible"
+      title= "新建异想体"
       width="50%"
       class="containment-dialog"
     >
@@ -201,20 +201,33 @@
         :rules="rules"
         label-position="left"
       >
-        <el-form-item label="SCP编号" prop="number">
-          <el-input v-model="abnormalityForm.number" placeholder="SCP-XXX" />
+        <el-form-item label="异想体编号" prop="number">
+          <el-input v-model="abnormalityForm.number" placeholder="异想体编号(请和ID区分)" />
         </el-form-item>
         <el-form-item label="名称" prop="name">
           <el-input v-model="abnormalityForm.name" placeholder="异想体名称" />
         </el-form-item>
         <el-form-item label="危险等级" prop="level">
           <el-select v-model="abnormalityForm.level" placeholder="请选择危险等级">
-            <el-option label="Keter" value="Keter" />
-            <el-option label="Euclid" value="Euclid" />
-            <el-option label="Safe" value="Safe" />
-            <el-option label="Thaumiel" value="Thaumiel" />
-            <el-option label="Neutralized" value="Neutralized" />
+            <el-option label="灭世" value="1" />
+            <el-option label="未解明" value="2" />
+            <el-option label="安全" value="3" />
+            <el-option label="机密" value="4" />
+            <el-option label="无效化" value="5" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="异想体图片">
+          <el-upload
+              class="avatar-uploader"
+              action="http://localhost:8080/file/upload"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+              :headers="headers"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-upload>
         </el-form-item>
         <el-form-item label="特性" prop="characteristics">
           <el-input v-model="abnormalityForm.characteristics" type="textarea" :rows="3" />
@@ -240,7 +253,7 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false" class="dialog-button">取消</el-button>
+        <el-button @click="creatDialogVisible = false" class="dialog-button">取消</el-button>
         <el-button type="primary" @click="submitAbnormality" class="dialog-button">确认</el-button>
       </template>
     </el-dialog>
@@ -341,9 +354,10 @@
   </el-main>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
+import {ElMessage} from "element-plus";
 
 // 模拟数据
 const abnormalityData = ref([
@@ -425,7 +439,8 @@ const abnormalityForm = ref({
   specialNotes: '',
   remarks: '',
   facility: '',
-  status: '稳定'
+  status: '稳定',
+  imageName: "",
 })
 
 const rules = {
@@ -444,7 +459,7 @@ const pagination = ref({
   total: 0
 })
 
-const dialogVisible = ref(false)
+const creatDialogVisible = ref(false)
 const detailDialogVisible = ref(false)
 const dialogTitle = ref('新建异想体')
 const currentAbnormality = ref({})
@@ -563,26 +578,13 @@ const resetFilter = () => {
 }
 
 const showCreateDialog = () => {
-  dialogTitle.value = '新建异想体'
-  abnormalityForm.value = {
-    id: null,
-    number: '',
-    name: '',
-    level: '',
-    characteristics: '',
-    managementMeasures: '',
-    specialNotes: '',
-    remarks: '',
-    facility: '',
-    status: '稳定'
-  }
-  dialogVisible.value = true
+  creatDialogVisible.value = true
 }
 
 const editAbnormality = (item) => {
   dialogTitle.value = '编辑异想体'
   abnormalityForm.value = { ...item }
-  dialogVisible.value = true
+  creatDialogVisible.value = true
 }
 
 const viewDetail = (item) => {
@@ -613,29 +615,7 @@ const deleteAbnormality = (item) => {
 }
 
 const submitAbnormality = () => {
-  abnormalityFormRef.value.validate(valid => {
-    if (valid) {
-      if (abnormalityForm.value.id) {
-        // 编辑
-        const index = abnormalityData.value.findIndex(item => item.id === abnormalityForm.value.id)
-        if (index !== -1) {
-          abnormalityData.value[index] = { ...abnormalityForm.value }
-          ElMessage.success('更新成功')
-        }
-      } else {
-        // 新建
-        const newId = abnormalityData.value.length > 0
-          ? Math.max(...abnormalityData.value.map(item => item.id)) + 1
-          : 1
-        abnormalityData.value.push({
-          ...abnormalityForm.value,
-          id: newId
-        })
-        ElMessage.success('创建成功')
-      }
-      dialogVisible.value = false
-    }
-  })
+  console.log(abnormalityForm.value)
 }
 
 const handleSizeChange = (val) => {
@@ -650,6 +630,39 @@ const handleCurrentChange = (val) => {
 // 初始化
 onMounted(() => {
   pagination.value.total = abnormalityData.value.length
+})
+
+
+// 上传图片
+const imageUrl = ref('')
+
+const handleAvatarSuccess: UploadProps['onSuccess'] = (
+    response,
+    uploadFile
+) => {
+  imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+  console.log(response)
+  if(response.code === 200) {
+    abnormalityForm.value.imageName = response.data
+    ElMessage.success("图片上传成功")
+  }else{
+    ElMessage.error(response.msg)
+  }
+}
+
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg') {
+    ElMessage.error('Avatar picture must be JPG format!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('Avatar picture size can not exceed 2MB!')
+    return false
+  }
+  return true
+}
+
+const headers = ref({
+  Authorization: 'Bearer ' + localStorage.getItem('token')
 })
 </script>
 
@@ -1030,4 +1043,32 @@ onMounted(() => {
   gap: 15px;
 }
 
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>
+
+<style>
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
 </style>

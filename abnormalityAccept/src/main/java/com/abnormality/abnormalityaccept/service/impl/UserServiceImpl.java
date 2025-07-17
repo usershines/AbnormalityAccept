@@ -254,11 +254,11 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         user.setPassword(encryptPassword(password));
         userMapper.insert(user);
+
         String token = generateJwt(user);
         redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setName(user.getUsername());
         authResponse.setToken(token);
-
         return authResponse;
     }
     /**

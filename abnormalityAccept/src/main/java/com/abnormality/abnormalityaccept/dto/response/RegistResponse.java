@@ -1,0 +1,17 @@
+package com.abnormality.abnormalityaccept.dto.response;
+
+import lombok.Data;
+
+/**
+ * @author shanh
+ * @version 1.0
+ * {@code @description:}
+ * @since 2025-07-17
+ */
+@Data
+public class RegistResponse {
+    private String token;
+    private String name;
+    private String email;
+
+}

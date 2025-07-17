@@ -4,12 +4,25 @@ package com.abnormality.abnormalityaccept.handler;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.ExceptionLog;
 import com.abnormality.abnormalityaccept.event.ExceptionLogEvent;
+import com.abnormality.abnormalityaccept.exception.BaseException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.messaging.handler.HandlerMethod;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+
+import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * 全局异常处理类，用于捕获和处理控制器层抛出的异常。
@@ -22,7 +35,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  *   <li>返回统一格式的错误响应。</li>
  * </ul>
  *
- * @author poyuan
  */
 @Slf4j
 @RestControllerAdvice
@@ -58,4 +70,78 @@ public class ControllerAdviceHandler {
         applicationContext.publishEvent(new ExceptionLogEvent(exceptionLog));
         return Result.error("请求参数错误");
     }
+
+    @ExceptionHandler(Exception.class)
+    public Result handleBaseException(BaseException e){
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes)
+                .resolveReference(RequestAttributes.REFERENCE_REQUEST);
+        String methodName = "unknown";
+
+        if (request instanceof ServletWebRequest swr) {
+            HandlerMethod handlerMethod = (HandlerMethod) swr.getRequest()
+                    .getAttribute("org.springframework.web.servlet.HandlerExceptionResolver.originalControllerMethod");
+
+            if (handlerMethod != null) {
+                methodName = handlerMethod.getMethod().getName();
+            }
+        }
+        log.error("请求 URL: {}, 方法: {}, 发生异常: {}", request.getRequestURI(), methodName, e.getMessage());
+
+        ExceptionLog exceptionLog = new ExceptionLog();
+        exceptionLog.setExceptionInfo(Arrays.toString(e.getStackTrace()));
+
+        // 获取本机主机名，标识发生异常的机器
+        String machineId = "";
+        try {
+            machineId = InetAddress.getLocalHost().getHostName();
+        } catch (Exception ex) {
+            machineId = "unknown";
+        }
+        exceptionLog.setMachineId(machineId);
+
+        // 设置异常消息
+        if (e instanceof BaseException) {
+            exceptionLog.setMessage(Arrays.toString(((BaseException) e).getMsgList().toArray()));
+        } else {
+            exceptionLog.setMessage(e.getMessage());
+        }
+
+        // 设置客户端 IP 地址
+        exceptionLog.setIp(request.getRemoteAddr());
+        // 设置方法名
+        exceptionLog.setMethod(methodName);
+        // 设置请求 URL
+        exceptionLog.setUrl(request.getRequestURI());
+        // 设置 User-Agent
+        exceptionLog.setUserAgent(request.getHeader("User-Agent"));
+        // 设置请求参数
+        String body="unknown";
+        if (request instanceof ContentCachingRequestWrapper) {
+            body = ((ContentCachingRequestWrapper) request).getContentAsString();
+            log.error("异常发生时请求体: {}", body);
+        }
+        exceptionLog.setParams(body);
+        // 设置用户名（远程用户）
+        exceptionLog.setUsername(request.getRemoteUser());
+
+        // 发布异常日志事件
+        applicationContext.publishEvent(new ExceptionLogEvent(exceptionLog));
+
+        // 输出日志内容便于调试
+        log.info(exceptionLog.toString());
+        log.error(exceptionLog.getExceptionInfo());
+        log.error(exceptionLog.getMessage());
+        e.printStackTrace();
+
+        // 返回统一异常响应
+        if (e instanceof BaseException) {
+            return Result.error(((BaseException) e).getCode().getCode(),
+                    ((BaseException) e).getCode().getMsg(), e.getMessage());
+        } else {
+            return Result.error(e.getMessage());
+        }
+    }
+
+
 }

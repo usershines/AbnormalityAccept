@@ -1,39 +1,27 @@
 package com.abnormality.abnormalityaccept.controller;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.jwt.JWT;
+
+import com.abnormality.abnormalityaccept.annotation.AuthIgnore;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.AuthRequest;
+import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
+import com.abnormality.abnormalityaccept.dto.request.RegistRequest;
+import com.abnormality.abnormalityaccept.dto.request.UpdateUserRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
-import com.abnormality.abnormalityaccept.exception.BaseException;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageInfo;
-import com.google.code.kaptcha.Producer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 
 
@@ -55,12 +43,23 @@ public class UserController {
 
     @Operation(summary = "用户注册")
     @PostMapping("/register")
+    @AuthIgnore
     public Result<AuthResponse> register(@RequestBody AuthRequest req) {
-        return Result.ok(userService.register(req.getName(), req.getPassword()))
-                ;    }
+        return Result.ok(userService.register(req.getName(), req.getPassword()));
+    }
+
+    @Operation(summary = "用户注册(优化)")
+    @PostMapping("/regist")
+    @AuthIgnore
+    public Result<String> regist (@RequestBody RegistRequest req){
+        if(userService.regist(req.getUsername(), req.getPassword(), req.getEmail()))
+            return Result.ok("注册成功");
+        else throw new RuntimeException("注册失败");
+    }
 
     @Operation(summary = "用户登录")
     @PostMapping("/login")
+    @AuthIgnore
     public Result<AuthResponse> login(@RequestBody AuthRequest req) {
         //return Result.ok(userService.login(name,password));
         return Result.ok(userService.login(req.getName(), req.getPassword()));
@@ -68,18 +67,18 @@ public class UserController {
     
     @Operation(summary = "用户登出")
     @PostMapping("/logout")
+    @AuthIgnore
     public Result<Boolean> logout(@RequestHeader("Authorization") String token) {
         return Result.ok(userService.logout(token));
     }
 
 
-
     //http://localhost:8080/user/findAllUser
     @Operation(summary = "用户信息查询")
-    @GetMapping("/List")
-    public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+    @GetMapping("/list")
+    public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize,@RequestParam Long finderId) {
         //return List.of();
-        PageInfo<User> userList = userService.findAllUser(pageNum, pageSize);
+        PageInfo<User> userList = userService.findAllUser(pageNum, pageSize,finderId);
         return Result.ok(userList);
     }
 
@@ -87,11 +86,9 @@ public class UserController {
     @Operation(summary = "根据id查询用户")
     @Parameter(name="id",description = "用户id",required = true,example = "1" ,in= ParameterIn.PATH )
     @GetMapping("/{id}")
-    public Result<User>  findUserById(@PathVariable Long id) {
-        User user = userService.findUserById(id);
-        if(user == null) {
-            return Result.error(500,"用户不存在");
-        }
+    public Result<User>  findUserById(@PathVariable Long id , @RequestParam Long finderId) {
+        User user = userService.findUserById(id,finderId);
+        if(user == null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
         return Result.ok("查询成功", user);
     }
 
@@ -102,42 +99,30 @@ public class UserController {
     @Operation(summary = "删除用户")
     //@Parameter(name="id",description = "用户id",required = true,example = "1")
     @DeleteMapping("/{id}")
-    public Result<String> deleteUserById(@PathVariable Long id){
-        if(userService.deleteUserById(id)){
+    public Result<String> deleteUserById(@PathVariable Long id,@RequestParam Long editorId){
+        if(userService.deleteUserById(id,editorId)){
             return Result.ok("删除成功");
         }
-        else {
-            return Result.error(500,"删除失败");
-        }
+        else throw new ServiceException(Code.ERROR, "删除失败");
     }
 
-    @Operation(summary = "添加用户")
+    @Operation(summary = "邀请用户")
     @PostMapping("/invite")
-    public Result<String> inviteUser(@RequestParam String username,@RequestParam Long facilityId,@RequestParam Integer level,@RequestParam Long inviterId){
-        User user = new User();
-        user.setUsername(username);
-        user.setFacilityId(facilityId);
-        user.setLevel(level);
-        user.setInviterId(inviterId);
-        user.setLeaderId(inviterId);
-        if(userService.addUser(user,user.getInviterId())){
+    public Result<String> inviteUser(@RequestBody InviteRequest inviteRequest, @RequestParam Long inviterId){
+        if(userService.addUser(inviteRequest,inviterId)){
             return Result.ok("添加成功");
         }
-        else {
-            return Result.error(500,"添加失败");
-        }
+        else throw new ServiceException(Code.ERROR,"添加失败");
     }
 
 
     @Operation(summary = "更新用户")
     @PutMapping("/update")
-    public Result<String> updateUser(@RequestBody User user){
-        if(userService.updateUser(user)){
+    public Result<String> updateUser(@RequestBody UpdateUserRequest updateUserRequest, @RequestParam Long editorId){
+        if(userService.updateUser(updateUserRequest,editorId)){
             return Result.ok("更新成功");
         }
-        else {
-            return Result.error(500,"更新失败");
-        }
+        else throw new ServiceException(Code.ERROR,"更新失败");
     }
 
     @Operation(summary = "多条件查询")
@@ -159,65 +144,6 @@ public class UserController {
     }
 
 
-
-    // DTO类定义
-    @Data
-    public static class LoginRequest {
-        @NotBlank(message = "用户名不能为空")
-        private String username;
-
-        @NotBlank(message = "密码不能为空")
-        private String password;
-    }
-
-    @Data
-    public static class InviteRequest {
-        @NotBlank(message = "用户名不能为空")
-        private String username;
-
-        @NotNull(message = "设施ID不能为空")
-        private Long facilityId;
-
-        @NotNull(message = "用户等级不能为空")
-        @Min(value = 1, message = "等级必须大于0")
-        @Max(value = 5, message = "等级不能超过5")
-        private Integer level;
-    }
-
-
-    @Data
-    public static class UpdateUserRequest {
-        @NotBlank(message = "用户名不能为空")
-        private String username;
-
-        @Email(message = "邮箱格式不正确")
-        private String email;
-
-        @NotNull(message = "用户等级不能为空")
-        @Min(value = 1, message = "等级必须大于0")
-        @Max(value = 5, message = "等级不能超过5")
-        private Integer level;
-
-        @NotNull(message = "设施ID不能为空")
-        private Long facilityId;
-
-        private String introduction;
-
-        private String newPassword; // 新密码（可选）
-    }
-
-    @Data
-    public static class UpdatePasswordRequest {
-        @NotBlank(message = "旧密码不能为空")
-        private String oldPassword;
-
-        @NotBlank(message = "新密码不能为空")
-        @Size(min = 6, message = "密码长度至少6位")
-        private String newPassword;
-
-        @NotBlank(message = "确认密码不能为空")
-        private String confirmPassword;
-    }
 
 }
 

@@ -1,5 +1,7 @@
 package com.abnormality.abnormalityaccept.service;
 
+import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
+import com.abnormality.abnormalityaccept.dto.request.UpdateUserRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
@@ -17,28 +19,28 @@ public interface UserService {
     /**
      *查询所有用户
      */
-    PageInfo<User> findAllUser(Integer pageNum, Integer pageSize);
+    PageInfo<User> findAllUser(Integer pageNum, Integer pageSize, Long finderId);
     /**
      *根据id查询用户
      */
-    User findUserById(Long id);
-
+    User findUserById(Long id,Long finderId);
+    User findUserByName(String name);
 
     /**
      * 删除数据
      */
-    boolean deleteUserById(Long id);
+    boolean deleteUserById(Long id,Long editor);
 
     /**
      * 新增数据
      */
     // 修改后的addUser方法
-    boolean addUser(User newUser, Long inviterId);
+    boolean addUser(InviteRequest inviteRequest, Long inviterId);
 
     /**
      * 修改数据
      */
-    boolean updateUser(User user);
+    boolean updateUser(UpdateUserRequest updateUserRequest, Long editorId);
 
 
     /** 多条件查询用户（分页） */
@@ -54,6 +56,8 @@ public interface UserService {
     AuthResponse login(String username, String password);
 
     AuthResponse register(String username, String password);
+
+    boolean regist(String username, String password ,String email);
 
 
     boolean logout(String token);

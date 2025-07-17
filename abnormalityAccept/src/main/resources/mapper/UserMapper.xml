@@ -7,24 +7,27 @@
     <resultMap id="Base_User_List" type="com.abnormality.abnormalityaccept.entity.User">
         <id property="id" column="id"/>
         <result property="username" column="username"/>
-        <result property="level" column="level"/>
         <result property="password" column="password"/>
         <result property="email" column="email"/>
+        <result property="level" column="levle"/>
+        <result property="teamName" column="team_name"/>
         <result property="inviterId" column="inviter_id"/>
         <result property="leaderId" column="leader_id"/>
         <result property="facilityId" column="facility_id"/>
         <result property="introduction" column="introduction"/>
+        <result property="isActive" column="is_active"/>
 
     </resultMap>
 
     <sql id="Base_User">
-        id,username,level,password,email,inviter_id,leader_id,facility_id,introduction
+        id,username,password,email,level,team_name,inviter_id,leader_id,facility_id,introduction,is_active
     </sql>
 
     <select id="findAllUser" resultMap="Base_User_List">
         select
         <include refid="Base_User"/>
         from user
+        where level &lt;= #{level} and isActive = 1
         LIMIT #{pageNum},#{pageSize}
     </select>
 
@@ -32,7 +35,7 @@
         select
         <include refid="Base_User"/>
         from user
-        where id=#{id}
+        where id=#{id} and isActive = 1
     </select>
 
 
@@ -41,48 +44,50 @@
             username,
             password,
             email,
+            level,
+            team_name,
+            level,
+            team_name,
             inviter_id,
             leader_id,
             facility_id,
             introduction,
-            level
+            isActive
         )
         VALUES (
                      #{user.username},
                      #{user.password},
                      #{user.email},
+                     #{user.level},
+                     #{user.teamName},
                      #{user.inviterId},
                      #{user.leaderId},
                      #{user.facilityId},
                      #{user.introduction},
-                     #{user.level}
+                     1
                  )
     </insert>
-
-    <delete id="deleteUserById" parameterType="int">
-        delete  from user where id = #{id}
-    </delete>
-
+    <!-- 删除用户 -->
+    <update id="deleteUserById">
+        update user
+        set isActive = 0
+        where id = #{id}
+    </update>
+    <!-- 修改用户 -->
     <update id="updateUser">
         update user
-        <set>
-            <if test="username != null">
-                username = #{username},
-            </if>
-            <if test="level != null">
-                level = #{level},
-            </if>
-            <if test="password != null">
-                password = #{password},
-            </if>
-            <if test="email != null">
-                email = #{email},
-            </if>
-            <if test="inviterId != null">
-                inviter_id = #{inviterId},
-            </if>
-        </set>
-        where id = #{id}
+            set username = #{username},
+            email = #{email},
+            level = #{level},
+            facility_id = #{facilityId},
+            introduction = #{introduction}
+        where id = #{id} and isActive = 1
+    </update>
+    <!-- 专门修改密码 -->
+    <update id="updatePassword">
+        update user
+        set password = #{newPassword}
+        where id = #{userId}
     </update>
 
     <select id="findUserByConditions" resultType="com.abnormality.abnormalityaccept.entity.User">
@@ -93,6 +98,7 @@
             <if test="email != null and email != ''">AND email = #{email}</if>
             <if test="level != null">AND level = #{level}</if>
             <if test="facilityId != null">AND facility_id = #{facilityId}</if>
+            isActive = 1
         </where>
     </select>
 

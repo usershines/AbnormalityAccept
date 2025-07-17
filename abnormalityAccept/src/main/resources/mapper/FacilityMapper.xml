@@ -4,7 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.abnormality.abnormalityaccept.mapper.FacilityMapper">
-    <!-- 基础结果映射：实体类属性与数据库字段对应 -->
     <resultMap id="Base_Facility_List" type="com.abnormality.abnormalityaccept.entity.Facility">
         <id property="id" column="id"/>
         <result property="level" column="level"/>
@@ -13,20 +12,16 @@
         <result property="facilityAddress" column="facility_address"/>
     </resultMap>
 
-    <!-- 基础字段SQL片段（复用查询字段） -->
     <sql id="Base_Facility">
-        id, level, leader_id, facility_name, facility_address
+        id, level,,leader_id, facility_name, facility_address
     </sql>
 
-    <!-- 1. 查询所有设施 -->
     <select id="findAllFacility" resultMap="Base_Facility_List">
         SELECT
         <include refid="Base_Facility"/>
         FROM facility
-        LIMIT #{pageNum},#{pageSize}
     </select>
 
-    <!-- 2. 根据ID查询设施 -->
     <select id="findFacilityById" resultMap="Base_Facility_List">
         SELECT
         <include refid="Base_Facility"/>
@@ -34,52 +29,47 @@
         WHERE id = #{id}
     </select>
 
-    <!-- 3. 添加设施 -->
     <insert id="addFacility">
-        <!-- 若id为自增主键，建议去掉id字段，由数据库自动生成 -->
-        INSERT INTO facility(level, leader_id, facility_name, facility_address)
-        VALUES(#{level}, #{leaderId}, #{facilityName}, #{facilityAddress})
+        INSERT INTO facility(id, level,leader_id,facility_name, facility_address)
+        VALUES(#{id}, #{level}, #{leaderId},#{facilityName}, #{facilityAddress})
     </insert>
 
-    <!-- 4. 更新设施 -->
     <update id="updateFacility">
         UPDATE facility
-        SET level = #{level},
-            leader_id = #{leaderId},
-            facility_name = #{facilityName},
+        SET id = #{name},
+            level = #{level},
+            leader_id = #{leaderId}
+            facility_name = #{facilityName}
             facility_address = #{facilityAddress}
         WHERE id = #{id}
     </update>
 
-    <!-- 5. 根据ID删除设施 -->
     <delete id="deleteFacilityById">
         DELETE FROM facility
         WHERE id = #{id}
     </delete>
 
-    <!-- 6. 条件查询设施 -->
     <select id="findFacilityByCondition" resultMap="Base_Facility_List">
         SELECT
         <include refid="Base_Facility"/>
-        FROM facility  <!-- 表名修正：原"facilities"改为"facility" -->
+        FROM facilities
         <where>
             <if test="facilityName != null and facilityName != ''">
-                AND facility_name LIKE CONCAT('%', #{facilityName}, '%')  <!-- 字段修正：原"name"改为"facility_name" -->
+                AND name LIKE CONCAT('%', #{facilityName}, '%')
             </if>
         </where>
     </select>
-
-    <!-- 7. 按等级查询设施 -->
-    <select id="findByLevel" resultMap="Base_Facility_List">  <!-- 结果映射修正：原"resultType"改为"resultMap"，复用已定义的映射 -->
-        SELECT <include refid="Base_Facility"/> FROM facility  <!-- 片段引用修正：原"Base_Columns"改为"Base_Facility" -->
+    <!-- 6. 按等级查询设施 -->
+    <select id="findByLevel" resultType="com.abnormality.abnormalityaccept.entity.Facility">
+        SELECT <include refid="Base_Facility"/> FROM facility
         WHERE level = #{level}
-    </select>
 
-    <!-- 8. 模糊查询（按设施名称或地址） -->
-    <select id="searchByKeyword" resultMap="Base_Facility_List">  <!-- 结果映射修正：原"resultType"改为"resultMap" -->
-        SELECT <include refid="Base_Facility"/> FROM facility  <!-- 片段引用修正：原"Base_Columns"改为"Base_Facility" -->
-        WHERE facility_name LIKE CONCAT('%', #{keyword}, '%')  <!-- 参数修正：原"facilityName"改为"keyword"，匹配接口方法参数 -->
-        OR facility_address LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+    <!-- 10. 模糊查询（按设施名称或地址） -->
+    <select id="searchByKeyword" resultType="com.abnormality.abnormalityaccept.entity.Facility">
+        SELECT <include refid="Base_Facility"/> FROM facility
+        WHERE facility_name LIKE CONCAT('%', #{facilityName}, '%')
+        OR facility_address LIKE CONCAT('%', #{facilityName}, '%')
     </select>
 
 </mapper>

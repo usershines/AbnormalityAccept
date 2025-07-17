@@ -5,14 +5,13 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
 import cn.hutool.jwt.JWTValidator;
-import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
+import com.abnormality.abnormalityaccept.dto.request.UpdateUserRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
-import com.abnormality.abnormalityaccept.entity.Abnormality;
 import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
@@ -30,9 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,6 +41,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
+
+
+
 
     /**
      * JWT 密钥基础字符串，用于生成和验证 JWT 的密钥。
@@ -57,12 +57,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RedisService redisService;
 
-    /**
-     * 用户数据访问对象，用于执行与用户相关的数据库操作。
-     */
+
     @Autowired
     private final UserMapper userMapper;
-
 
     /**
      * 分页查询所有用户信息。
@@ -74,11 +71,14 @@ public class UserServiceImpl implements UserService {
      * @return 包含用户列表的 PageInfo 对象
      */
     @Override
-    public PageInfo<User> findAllUser(Integer pageNum, Integer pageSize) {
+    public PageInfo<User> findAllUser(Integer pageNum, Integer pageSize, Long finderId) {
+
+        int finderLevel = userMapper.selectById(finderId).getLevel();
+
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
         // 查询用户列表
-        List<User> userList = userMapper.findAllUser(pageNum, pageSize);
+        List<User> userList = userMapper.findAllUser(pageNum, pageSize, finderLevel);
         // 封装分页结果
         return PageInfo.of(userList);
     }
@@ -90,8 +90,15 @@ public class UserServiceImpl implements UserService {
      * @return 查询到的用户对象
      */
     @Override
-    public User findUserById(Long id) {
-        return userMapper.selectById(id);
+    public User findUserById(Long id , Long finderId) {
+        User finder = userMapper.selectById(finderId);
+        int finderLevel = finder.getLevel();
+        if(finderLevel<userMapper.selectById(id).getLevel())throw new ServiceException(Code.FORBIDDEN,"无权查看当前用户");
+        return userMapper.selectById(id);}
+
+    @Override
+    public User findUserByName(String name) {
+        return userMapper.selectOne(new QueryWrapper<User>().eq("username", name));
     }
 
     /**
@@ -101,7 +108,10 @@ public class UserServiceImpl implements UserService {
      * @return 删除成功返回 true，否则返回 false
      */
     @Override
-    public boolean deleteUserById(Long id) {
+    public boolean deleteUserById(Long id , Long editorId) {
+        int editorLevel = userMapper.selectById(editorId).getLevel();
+        if(editorLevel<=userMapper.selectById(id).getLevel())throw new ServiceException(Code.FORBIDDEN,"无权删除当前用户");
+        if(userMapper.selectById(id).getLevel()==3 && editorLevel!=5) throw new ServiceException(Code.FORBIDDEN,"无权删除当前用户");
         int i = userMapper.deleteUserById(id);
         return i > 0;
     }
@@ -117,43 +127,57 @@ public class UserServiceImpl implements UserService {
      *   <li>邀请者为 4 级用户时，新用户级别必须低于 4。</li>
      * </ul>
      *
-     * @param newUser   待添加的新用户对象
+     * @param inviteRequest   待添加的新用户对象
      * @param inviterId 邀请者的用户 ID
      * @return 添加成功返回 true，否则返回 false
      * @throws ServiceException 如果违反权限规则或用户名重复时抛出业务异常
      */
     @Override
-    public boolean addUser(User newUser, Long inviterId) {
-        if (inviterId <= 2)
-            throw new ServiceException(Code.ERROR, "用户级别不足以邀请新用户");
-        if (userMapper.selectOne(new QueryWrapper<User>().eq("username", newUser.getUsername())) != null)
+    public boolean addUser(InviteRequest inviteRequest, Long inviterId) {
+        User newUser = new User();
+        User inviter = userMapper.findUserById(inviterId);
+        int inviterLevel = inviter.getLevel();
+        if (inviterLevel <= 2)
+            throw new ServiceException(Code.FORBIDDEN, "用户级别不足以邀请新用户");
+        if (userMapper.selectOne(new QueryWrapper<User>().eq("username", inviteRequest.getUsername())) != null)
             throw new ServiceException(Code.ERROR, "用户名已存在");
-        if (inviterId == 3) {
-            if (newUser.getLevel() >= 3)
-                throw new ServiceException(Code.ERROR, "只能设置比自己等级低的级别");
-            if (newUser.getFacilityId() != null)
-                throw new ServiceException(Code.ERROR, "只有A级以上用户可以分配工作设施");
+        if (inviterLevel == 3) {
+            if (inviteRequest.getLevel() >= 3)
+                throw new ServiceException(Code.FORBIDDEN, "只能设置比自己等级低的级别");
+            if (inviteRequest.getFacilityId() != null)
+                throw new ServiceException(Code.FORBIDDEN, "只有A级以上用户可以分配工作设施");
         }
-        if (inviterId == 4) {
-            if (newUser.getLevel() >= 4)
-                throw new ServiceException(Code.ERROR, "只能设置比自己等级低的级别");
+        if (inviterLevel == 4) {
+            if (inviteRequest.getLevel() >= 4)
+                throw new ServiceException(Code.FORBIDDEN, "只能设置比自己等级低的级别");
         }
+        newUser.setUsername(inviteRequest.getUsername());
+        newUser.setFacilityId(inviteRequest.getFacilityId());
         newUser.setPassword(encryptPassword(newUser.getUsername() + "888"));
         newUser.setInviterId(inviterId);
         newUser.setLeaderId(inviterId);
         return userMapper.addUser(newUser) > 0;
     }
 
-    /**
-     * 更新用户信息。
-     *
-     * @param user 待更新的用户对象
-     * @return 更新成功返回 true，否则返回 false
-     */
+
     @Override
-    public boolean updateUser(User user) {
-        int i = userMapper.updateUser(user);
-        return i > 0;
+    public boolean updateUser(UpdateUserRequest updateUserRequest, Long editorId) {
+        User user = new User();
+
+        User editor = userMapper.findUserById(editorId);
+        int editorLevel = editor.getLevel();
+        if(editorLevel !=5){
+            if (editorLevel < updateUserRequest.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "不能更新等级比自己高的用户信息");
+            if (editorLevel == updateUserRequest.getLevel())
+                if (editorId != updateUserRequest.getId()) throw new ServiceException(Code.BAD_REQUEST, "不能更新等级相同的用户信息");
+            return userMapper.updateUser(user)>0;
+        }
+        user.setUsername(updateUserRequest.getUsername());
+        user.setEmail(updateUserRequest.getEmail());
+        user.setLevel(updateUserRequest.getLevel());
+        user.setFacilityId(updateUserRequest.getFacilityId());
+        user.setIntroduction(updateUserRequest.getIntroduction());
+        return userMapper.updateUser(user) > 0;
     }
 
     /**
@@ -186,7 +210,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPassword(encryptPassword(newPassword));
-        int result = userMapper.updateUser(user);
+        int result = userMapper.updatePassword( user.getId());
         return result > 0;
     }
 
@@ -209,6 +233,7 @@ public class UserServiceImpl implements UserService {
             throw new BaseException("密码错误");
         }
         authResponse.setName(user.getUsername());
+        user.setLevel(1);
         String token = generateJwt(user);
         redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setToken(token);
@@ -233,12 +258,28 @@ public class UserServiceImpl implements UserService {
         user = new User();
         user.setUsername(username);
         user.setPassword(encryptPassword(password));
+        userMapper.insert(user);
         String token = generateJwt(user);
         redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setName(user.getUsername());
         authResponse.setToken(token);
-        userMapper.insert(user);
+
         return authResponse;
+    }
+    /**
+     * 优化后的注册，注册仅将新用户加入数据库，不需要生成Token以及加入Redis
+     */
+    @Override
+    public boolean regist(String username, String password, String email) {
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        if (ObjectUtil.isNotEmpty(user)) {
+            throw new BaseException("用户已存在");
+        }
+        user = new User();
+        user.setUsername(username);
+        user.setPassword(encryptPassword(password));
+        user.setEmail(email);
+        return userMapper.insert(user) > 0;
     }
 
     /**

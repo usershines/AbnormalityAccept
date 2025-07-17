@@ -14,4 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 @Tag(name = "小队管理")
 public class TeamController {
+
+
 }

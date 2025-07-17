@@ -67,13 +67,13 @@ public class FacilityServiceImpl implements FacilityService {
     }
     @Override
     public Result<List<Facility>> findByLevel(Integer level) {
-        List<Facility> facilities = facilityMapper.findByLevel(level);
-        return Result.ok(facilities);
+        List<Facility> facility = facilityMapper.findByLevel(level);
+        return Result.ok(facility);
     }
     // 拓展搜索设施（按名称或地址模糊查询）
     @Override
     public Result<List<Facility>> search(String keyword) {
-        List<Facility> facilities = facilityMapper.searchByKeyword(keyword);
-        return Result.ok(facilities);
+        List<Facility> facility = facilityMapper.searchByKeyword(keyword);
+        return Result.ok(facility);
     }
 }

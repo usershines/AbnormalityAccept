@@ -15,4 +15,5 @@ public interface NoticeService {
     boolean addNotice(Notice notice);
     boolean updateNotice(Notice notice);
     boolean deleteNoticeById(Long id);
+    PageInfo<Notice> findNoticeByCondition(Notice notice, Integer pageNum, Integer pageSize);
 }

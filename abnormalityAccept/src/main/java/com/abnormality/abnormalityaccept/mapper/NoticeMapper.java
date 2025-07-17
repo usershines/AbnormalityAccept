@@ -35,4 +35,6 @@ public interface NoticeMapper {
      */
     boolean deleteNoticeById(Long id);
 
+    List<Notice> findNoticeByConditions(Notice notice);
+
 }

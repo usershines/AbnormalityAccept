@@ -26,5 +26,6 @@ public class User  {
     private String introduction ;
     private Integer isActive=1;
 
+    private String role;
 
 }

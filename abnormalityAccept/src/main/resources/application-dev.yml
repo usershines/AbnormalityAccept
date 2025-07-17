@@ -56,6 +56,7 @@ mybatis:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html # Swagger UI 访问路径
+    url: /v3/api-docs
     tags-sorter: alpha # 按标签名称排序方式（按字母顺序）
     operations-sorter: alpha # 按接口操作名称排序方式（按字母顺序）
   api-docs:

@@ -20,7 +20,6 @@
         SELECT
         <include refid="Base_Notice"/>
         FROM notice
-        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <select id="findNoticeById" resultMap="Base_Notice_List">
@@ -55,8 +54,18 @@
         FROM notice
         <where>
             <if test="state != null and state != ''">
-                AND subject LIKE CONCAT('%', #{state}, '%')
+                AND state LIKE CONCAT('%', #{state}, '%')
             </if>
+            <if test="id !=null''">
+                and id like concat('%',#{id},'%')
+            </if>
+            <if test="content !=null and content !=''">
+                and content like concat ('%',#{content},'%')
+            </if>
+            <if test="time != null and time !=''">
+                and time like concat('%',#{time},'%')
+            </if>
+
         </where>
     </select>
 </mapper>

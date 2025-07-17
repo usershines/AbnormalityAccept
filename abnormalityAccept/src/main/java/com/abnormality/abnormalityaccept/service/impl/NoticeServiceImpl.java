@@ -62,5 +62,11 @@ public class NoticeServiceImpl implements NoticeService {
         return noticeMapper.deleteNoticeById(id);
     }
 
+    @Override
+    public PageInfo<Notice> findNoticeByCondition(Notice notice, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Notice> noticeList = noticeMapper.findNoticeByConditions(notice);
+        return PageInfo.of(noticeList);
+    }
 
 }

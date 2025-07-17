@@ -245,12 +245,6 @@ const handleClose = (key: string, keyPath: string[]) => {
   flex-direction: column;
 }
 
-.user-name {
-  color: #e0e7ff;
-  font-weight: 600;
-  font-size: 14px;
-}
-
 .user-level {
   color: #5d8bf4;
   font-size: 12px;

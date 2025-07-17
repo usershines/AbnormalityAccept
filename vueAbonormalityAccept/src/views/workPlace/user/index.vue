@@ -1,203 +1,208 @@
 <template>
-  <!-- 搜索表单区域 - 暗色主题 -->
-  <el-form
-    :model="searchForm"
-    inline
-    class="search-form"
-    style="margin-bottom: 16px;"
-  >
-    <el-form-item label="姓名" class="search-item">
-      <el-input
-        v-model="searchForm.name"
-        placeholder="请输入姓名"
-        clearable
-        class="search-input"
-        prefix-icon="el-icon-user"
-      ></el-input>
-    </el-form-item>
-
-    <el-form-item label="权限等级" class="search-item">
-      <el-select
-        v-model="searchForm.level"
-        placeholder="请选择权限等级"
-        clearable
-        class="search-select"
+  <el-card style="margin-top: -20px">
+    <!-- 搜索表单区域 - 暗色主题 -->
+    <template #header>
+      <el-form
+          :model="searchForm"
+          inline
+          style="display: flex;margin-bottom: -20px"
       >
-        <el-option label="O5议会" value="O5"></el-option>
-        <el-option label="A级" value="A"></el-option>
-        <el-option label="B级" value="B"></el-option>
-        <el-option label="C级" value="C"></el-option>
-        <el-option label="D级" value="D"></el-option>
-      </el-select>
-    </el-form-item>
+        <el-form-item label="姓名" class="search-item">
+          <el-input
+              v-model="searchForm.name"
+              clearable
+              class="search-input"
+              prefix-icon="el-icon-user"
+          ></el-input>
+        </el-form-item>
 
-    <el-form-item label="所在地" class="search-item">
-      <el-input
-        v-model="searchForm.location"
-        placeholder="请输入所在地"
-        clearable
-        class="search-input"
-        prefix-icon="el-icon-location-outline"
-      ></el-input>
-    </el-form-item>
+        <el-form-item label="权限等级" class="search-item">
+          <el-select
+              v-model="searchForm.level"
+              clearable
+              class="search-select"
+              style="width: 80px"
+          >
+            <el-option label="O5议会" value="O5"></el-option>
+            <el-option label="A级" value="A"></el-option>
+            <el-option label="B级" value="B"></el-option>
+            <el-option label="C级" value="C"></el-option>
+            <el-option label="D级" value="D"></el-option>
+          </el-select>
+        </el-form-item>
 
-    <el-form-item label="ID" class="search-item">
-      <el-input
-        v-model="searchForm.id"
-        placeholder="请输入ID"
-        clearable
-        class="search-input"
-        prefix-icon="el-icon-key"
-      ></el-input>
-    </el-form-item>
+        <el-form-item label="所在设施ID" class="search-item">
+          <el-input
+              v-model="searchForm.location"
+              clearable
+              class="search-input"
+              prefix-icon="el-icon-location-outline"
+          ></el-input>
+        </el-form-item>
 
-    <el-form-item>
-      <el-button
-        type="primary"
-        @click="handleSearch"
-        class="search-button"
+        <el-form-item label="ID" class="search-item">
+          <el-input
+              v-model="searchForm.id"
+              clearable
+              class="search-input"
+              prefix-icon="el-icon-key"
+          ></el-input>
+        </el-form-item>
+
+        <el-form-item style="margin-left: auto;margin-right: 10px">
+          <div style="display: flex;">
+            <el-button
+                type="primary"
+                @click="handleSearch"
+                class="search-button"
+            >
+              <i class="iconfont icon-search"></i> 搜索
+            </el-button>
+            <el-button
+                @click="handleReset"
+                class="reset-button"
+            >
+              <i class="iconfont icon-reset"></i> 重置
+            </el-button>
+            <!-- 添加新建用户按钮 -->
+            <el-button
+                type="success"
+                @click="handleCreate"
+                class="create-button"
+            >
+              <i class="iconfont icon-add"></i> 新建用户
+            </el-button>
+          </div>
+
+        </el-form-item>
+      </el-form>
+    </template>
+
+    <!-- 数据表格区域 - 收容单元风格 -->
+    <template #default>
+      <el-table
+          :data="currentTableData"
+          border
+          style="width: 100%;margin-top: -10px"
+          max-height="600px"
+          class="containment-table"
+          :header-cell-style="tableHeaderStyle"
+          stripe
       >
-        <i class="iconfont icon-search"></i> 搜索
-      </el-button>
-      <el-button
-        @click="handleReset"
-        class="reset-button"
+        <el-table-column prop="id" label="ID" width="50">
+          <template #header>
+            <span><i class="iconfont icon-id"></i> ID</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="name" label="名称" width="150">
+          <template #default="scope">
+            <span class="user-name">{{ scope.row.name }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="level" label="权限等级" width="120">
+          <template #header>
+            <span><i class="iconfont icon-security"></i> 权限等级</span>
+          </template>
+          <template #default="scope">
+            <el-tag :type="getLevelTagType(scope.row.level)" class="clearance-tag">
+              {{ scope.row.level }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="status" label="状态" width="100">
+          <template #header>
+            <span><i class="iconfont icon-status"></i> 状态</span>
+          </template>
+          <template #default="scope">
+            <el-tag :type="scope.row.status ? 'success' : 'danger'" class="status-tag">
+              {{ scope.row.status ? '启用' : '停用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="location" label="所在地" width="150">
+          <template #header>
+            <span><i class="iconfont icon-location"></i> 所在地</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="superior" label="上级" width="150">
+          <template #header>
+            <span><i class="iconfont icon-superior"></i> 上级</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="description" label="简介" min-width="200" show-overflow-tooltip>
+          <template #header>
+            <span><i class="iconfont icon-description"></i> 简介</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #header>
+            <span><i class="iconfont icon-operation"></i> 操作</span>
+          </template>
+          <template #default="scope">
+            <el-button
+                type="text"
+                @click="handleDetail(scope.row)"
+                class="detail-btn"
+            >
+              <i class="iconfont icon-detail"></i> 详情
+            </el-button>
+            <el-button
+                type="text"
+                @click="handleEdit(scope.row)"
+                class="edit-btn"
+            >
+              <i class="iconfont icon-edit"></i> 编辑
+            </el-button>
+            <el-button
+                type="text"
+                class="delete-btn"
+                @click="handleDelete(scope.row)"
+            >
+              <i class="iconfont icon-delete"></i> 删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </template>
+
+    <!-- 分页组件区域 -->
+    <template #footer>
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 20, 30]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="filteredData.length"
+          prev-text="上一页"
+          next-text="下一页"
+          class="containment-pagination"
       >
-        <i class="iconfont icon-reset"></i> 重置
-      </el-button>
-      <!-- 添加新建用户按钮 -->
-      <el-button
-        type="success"
-        @click="handleCreate"
-        class="create-button"
-      >
-        <i class="iconfont icon-add"></i> 新建用户
-      </el-button>
-    </el-form-item>
-  </el-form>
-
-  <!-- 数据表格区域 - 收容单元风格 -->
-  <el-table
-    :data="currentTableData"
-    border
-    style="width: 100%"
-    class="containment-table"
-    :header-cell-style="tableHeaderStyle"
-    :row-style="tableRowStyle"
-  >
-    <el-table-column prop="id" label="ID" width="100">
-      <template #header>
-        <span><i class="iconfont icon-id"></i> ID</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column prop="name" label="名称" width="150">
-      <template #header>
-        <span><i class="iconfont icon-user"></i> 名称</span>
-      </template>
-      <template #default="scope">
-        <span class="user-name">{{ scope.row.name }}</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column prop="level" label="权限等级" width="120">
-      <template #header>
-        <span><i class="iconfont icon-security"></i> 权限等级</span>
-      </template>
-      <template #default="scope">
-        <el-tag :type="getLevelTagType(scope.row.level)" class="clearance-tag">
-          {{ scope.row.level }}
-        </el-tag>
-      </template>
-    </el-table-column>
-
-    <el-table-column prop="status" label="状态" width="100">
-      <template #header>
-        <span><i class="iconfont icon-status"></i> 状态</span>
-      </template>
-      <template #default="scope">
-        <el-tag :type="scope.row.status ? 'success' : 'danger'" class="status-tag">
-          {{ scope.row.status ? '启用' : '停用' }}
-        </el-tag>
-      </template>
-    </el-table-column>
-
-    <el-table-column prop="location" label="所在地" width="150">
-      <template #header>
-        <span><i class="iconfont icon-location"></i> 所在地</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column prop="superior" label="上级" width="150">
-      <template #header>
-        <span><i class="iconfont icon-superior"></i> 上级</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column prop="description" label="简介" min-width="200">
-      <template #header>
-        <span><i class="iconfont icon-description"></i> 简介</span>
-      </template>
-    </el-table-column>
-
-    <el-table-column label="操作" width="220" fixed="right">
-      <template #header>
-        <span><i class="iconfont icon-operation"></i> 操作</span>
-      </template>
-      <template #default="scope">
-        <el-button
-          type="text"
-          @click="handleDetail(scope.row)"
-          class="detail-btn"
-        >
-          <i class="iconfont icon-detail"></i> 详情
-        </el-button>
-        <el-button
-          type="text"
-          @click="handleEdit(scope.row)"
-          class="edit-btn"
-        >
-          <i class="iconfont icon-edit"></i> 编辑
-        </el-button>
-        <el-button
-          type="text"
-          class="delete-btn"
-          @click="handleDelete(scope.row)"
-        >
-          <i class="iconfont icon-delete"></i> 删除
-        </el-button>
-      </template>
-    </el-table-column>
-  </el-table>
-
-  <!-- 分页组件区域 -->
-  <el-pagination
-    @size-change="handleSizeChange"
-    @current-change="handleCurrentChange"
-    :current-page="currentPage"
-    :page-sizes="[10, 20, 30]"
-    :page-size="pageSize"
-    layout="total, sizes, prev, pager, next, jumper"
-    :total="filteredData.length"
-    prev-text="上一页"
-    next-text="下一页"
-    class="containment-pagination"
-  >
-  </el-pagination>
+      </el-pagination>
+    </template>
+  </el-card>
 
   <!-- 用户详情弹窗 -->
   <el-dialog
-    v-model="createDialogVisible"
-    title="新建用户"
-    width="40%"
-    class="containment-dialog"
+      v-model="createDialogVisible"
+      title="新建用户"
+      width="40%"
+      class="containment-dialog"
   >
     <el-form
-      :model="createForm"
-      ref="createFormRef"
-      label-width="120px"
-      label-position="left"
-      :rules="createRules"
+        :model="createForm"
+        ref="createFormRef"
+        label-width="120px"
+        label-position="left"
+        :rules="createRules"
     >
       <el-form-item label="姓名" prop="name">
         <el-input v-model="createForm.name" placeholder="请输入姓名"></el-input>
@@ -227,20 +232,20 @@
 
       <el-form-item label="状态" prop="status">
         <el-switch
-          v-model="createForm.isActive"
-          :active-value="1"
-          :inactive-value="0"
-          active-text="启用"
-          inactive-text="停用"
+            v-model="createForm.isActive"
+            :active-value="1"
+            :inactive-value="0"
+            active-text="启用"
+            inactive-text="停用"
         ></el-switch>
       </el-form-item>
 
       <el-form-item label="简介" prop="description">
         <el-input
-          v-model="createForm.introduction"
-          type="textarea"
-          :rows="3"
-          placeholder="请输入简介"
+            v-model="createForm.introduction"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入简介"
         ></el-input>
       </el-form-item>
     </el-form>
@@ -251,7 +256,7 @@
     </template>
   </el-dialog>
 
-<!-- 编辑用户信息 -->
+  <!-- 编辑用户信息 -->
   <el-dialog
       v-model="editFormVisable"
       title="新建用户"
@@ -318,10 +323,10 @@
   </el-dialog>
 
   <el-dialog
-    v-model="detailDialogVisible"
-    :title="`${selectedUser?.name} - 人员档案`"
-    width="50%"
-    class="containment-dialog"
+      v-model="detailDialogVisible"
+      :title="`${selectedUser?.name} - 人员档案`"
+      width="50%"
+      class="containment-dialog"
   >
     <div v-if="selectedUser" class="user-detail">
       <div class="security-stamp">
@@ -387,8 +392,8 @@
 
     <template #footer>
       <el-button
-        @click="detailDialogVisible = false"
-        class="dialog-button"
+          @click="detailDialogVisible = false"
+          class="dialog-button"
       >
         <i class="iconfont icon-close"></i> 关闭
       </el-button>
@@ -437,7 +442,7 @@ const submitCreate = () => {
 
   createFormRef.value.validate((valid) => {
     if (valid) {
-     // 创建新用户对象
+      // 创建新用户对象
       const newUser = {
         ...createForm
       };
@@ -636,9 +641,9 @@ const catchData = (currentPage: number, pageSize: number) => {
       ElMessage.error('发生错误：',response.message);
     }
   }).catch((e) => {
-    console.log('错误',e)
-    ElMessage.error(e.message);
-  }
+        console.log('错误',e)
+        ElMessage.error(e.message);
+      }
   )
 }
 
@@ -709,14 +714,6 @@ const tableHeaderStyle = () => {
     color: '#c0d1f2',
     fontWeight: 'bold',
     borderBottom: '1px solid #304878'
-  };
-};
-
-// 表格行样式
-const tableRowStyle = ({ rowIndex }: { rowIndex: number }) => {
-  return {
-    background: rowIndex % 2 === 0 ? 'rgba(10, 20, 41, 0.3)' : 'rgba(15, 30, 61, 0.3)',
-    color: '#e0f0ff'
   };
 };
 
@@ -809,6 +806,7 @@ const handleDelete = (row: any) => {
   color: #fff;
   font-weight: bold;
   transition: all 0.3s ease;
+  margin-left: 30px;
 }
 
 .create-button:hover {
@@ -833,7 +831,7 @@ const handleDelete = (row: any) => {
   border: 1px solid #304878;
   color: #e0f0ff;
   border-radius: 4px;
-  width: 180px;
+  width: 100px;
 }
 
 .search-input:hover, .search-select:hover {
@@ -872,7 +870,6 @@ const handleDelete = (row: any) => {
 
 /* 表格样式 */
 .containment-table {
-  background: rgba(10, 20, 41, 0.5);
   border: 1px solid #304878;
   border-radius: 8px;
   overflow: hidden;
@@ -880,28 +877,22 @@ const handleDelete = (row: any) => {
 
 .containment-table :deep(th) {
   background: linear-gradient(to bottom, #1a2a4a, #0c1a33) !important;
-  color: #c0d1f2;
   border-bottom: 1px solid #304878;
   font-size: 15px;
 }
 
 .containment-table :deep(td) {
   background: transparent;
-  color: #e0f0ff;
   border-bottom: 1px solid #304878;
   font-size: 14px;
 }
 
 .containment-table :deep(.el-table__row:hover td) {
-  background-color: rgba(74, 111, 179, 0.2) !important;
+  background-color: rgba(74, 111, 179, 0.1) !important;
 }
 
 .containment-table :deep(.el-table__body tr:hover>td) {
-  background-color: rgba(74, 111, 179, 0.2) !important;
-}
-
-.user-name {
-  font-weight: bold;
+  background-color: rgba(74, 111, 179, 0.1) !important;
 }
 
 .clearance-tag {
@@ -1050,10 +1041,7 @@ const handleDelete = (row: any) => {
 .user-name {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #e0f0ff;
-  font-size: 24px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  border-bottom: 2px solid #4a6fb3;
+  font-size: 17px;
   padding-bottom: 10px;
 }
 

@@ -1,7 +1,7 @@
 package com.abnormality.abnormalityaccept.mapper;
 
 import com.abnormality.abnormalityaccept.entity.Email;
-import com.abnormality.abnormalityaccept.entity.User;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -27,8 +27,9 @@ public interface EmailMapper {
 
     //boolean groupEmailByReceiverId(Long receiverId);
 
+    List<Email> findEmailByReceiverId(Long receiverId);
 
-    Email findEmailBySenderId(Long senderId);
+    List<Email> findEmailBySenderId(Long senderId);
 
 
 

@@ -21,6 +21,13 @@
         <include refid="Base_Column_List" />
         FROM email
     </select>
+
+    <select id="findEmailByReceiverId" resultMap="Email_Base_Data">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM email
+        WHERE sender_id = #{senderId}
+    </select>
     <select id="findEmailBySenderId" resultMap="Email_Base_Data">
         SELECT
         <include refid="Base_Column_List" />

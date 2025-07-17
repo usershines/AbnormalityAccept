@@ -18,7 +18,7 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      *查询所有用户
      */
-    List<User> findAllUser(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
+    List<User> findAllUser(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize, Integer level);
 
     /**
      *根据id查询用户
@@ -29,10 +29,10 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      * 新增数据
      */
-    int addUser(User user);
+    int addUser(@Param("user") User user);
 
     /**
-     * 删除数据
+     * 删除数据,逻辑删除
      */
     int deleteUserById(Long id);
 
@@ -41,6 +41,7 @@ public interface UserMapper extends BaseMapper<User> {
      */
     int updateUser(User user);
 
+    int updatePassword(Long userId);
     // 多条件查询用户
     List<User> findUserByConditions(User user);
 

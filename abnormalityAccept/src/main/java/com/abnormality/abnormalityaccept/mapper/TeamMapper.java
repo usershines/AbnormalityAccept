@@ -23,4 +23,13 @@ public interface TeamMapper {
 
     Team findTeamByName(String name);
 
+    int addTeam(Team team);
+
+    int updateTeam(Team team);
+
+    int deleteTeamById(Long id);
+
+    int deleteTeamByName(String name);
+
+
 }

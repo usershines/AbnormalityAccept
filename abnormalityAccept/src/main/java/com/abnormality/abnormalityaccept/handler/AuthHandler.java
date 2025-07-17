@@ -9,52 +9,37 @@ import com.abnormality.abnormalityaccept.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+
 /**
- * 认证处理类，用于校验用户请求中的 JWT Token 合法性及权限有效性。
- *
- * <p>该类为 Spring 组件，通过注入的 UserService 执行最终的 Token 验证逻辑。</p>
+ * 认证处理器，用于处理与 Token 验证相关的认证逻辑。
+ * 该类通过注入的用户服务（UserService）来完成实际的 Token 验证操作。
+ * <p><strong>该类只负责验证是否登录，不负责权限限制验证</strong></p>
  */
 @Component
 public class AuthHandler {
 
     /**
      * 用户服务实例，用于执行 Token 的最终验证逻辑。
+     * 通过 Spring 自动注入的方式获取 UserService 实例。
      */
     @Autowired
     private UserService userService;
 
     /**
-     * 校验传入的 Token 是否有效，并验证用户权限等级。
+     * 验证提供的 Token 是否有效。
      *
-     * <p>该方法主要完成以下操作：</p>
-     * <ul>
-     *   <li>检查 Token 是否为空或空白字符串，若为空则抛出未登录异常。</li>
-     *   <li>解析 JWT Token 并将其负载部分转换为 JwtPayload 对象。</li>
-     *   <li>校验负载中的权限等级字段（level），如果权限不足（level == 0）则抛出权限不足异常。</li>
-     *   <li>调用 UserService 进行最终的 Token 正确性校验。</li>
-     * </ul>
+     * <p>该方法首先检查传入的 Token 是否为空或空白字符串。如果 Token 无效，
+     * 则抛出 ServiceException 异常，提示用户未登录。否则，将验证逻辑委托给
+     * UserService 的 verify 方法进行进一步的验证。</p>
      *
-     * @param token 请求中携带的 JWT Token
-     * @return 如果 Token 有效且权限满足要求，则返回 true
-     * @throws ServiceException 如果 Token 无效、为空或权限不足时抛出相应业务异常
+     * @param token 需要验证的 Token 字符串
+     * @return 如果 Token 有效，返回 true；否则返回 false
+     * @throws ServiceException 如果 Token 为空或空白字符串，抛出未认证的异常
      */
     public boolean verify(String token) {
         // 检查 Token 是否为空或空白字符串
         if (StrUtil.isBlankIfStr(token)) {
             throw new ServiceException(Code.NOT_AUTHENTICATED, "用户未登录");
-        }
-
-        // 解析 JWT Token
-        JWT jwt = JWT.of(token);
-        // 获取并转换 Token 中的负载信息为 JwtPayload 类型
-        JwtPayload payload = jwt.getPayloads().toBean(JwtPayload.class);
-
-        // 获取用户权限等级
-        int level = payload.getLevel();
-
-        // 检查权限等级是否为最低（0），若是则抛出权限不足异常
-        if (level == 0) {
-            throw new ServiceException(Code.FORBIDDEN, "权限不足");
         }
 
         // 最终 Token 校验，交由 UserService 处理实际验证逻辑

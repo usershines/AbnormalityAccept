@@ -7,13 +7,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import com.github.pagehelper.PageHelper;
 import com.abnormality.abnormalityaccept.entity.Equipment;
 import com.abnormality.abnormalityaccept.service.EquipmentService;
 import com.abnormality.abnormalityaccept.mapper.EquipmentMapper;
 
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author shanh
@@ -21,12 +23,14 @@ import java.util.Map;
  * {@code @description:}
  * @since 2025-07-13
  */
+
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping("/Equipment")
 @Tag(name = "装备管理")
 public class EquipmentController {
+    private static final Logger logger = LoggerFactory.getLogger(EquipmentController.class);
     private final EquipmentService equipmentService;
 
     @Operation(summary = "分页查询所有装备")
@@ -37,6 +41,7 @@ public class EquipmentController {
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize) {
         PageInfo<Equipment> equipmentList = equipmentService.findAllEquipment(pageNum, pageSize);
+        logger.info("PageInfo: {}", equipmentList);
         return Result.ok(equipmentList);
     }
 

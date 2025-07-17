@@ -32,7 +32,7 @@ public class QuestServiceImpl implements QuestService {
     @Override
     public PageInfo<Quest> findAllQuest(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Quest> questList = questMapper.findAllQuests();
+        List<Quest> questList = questMapper.findAllQuests(pageNum, pageSize);
         return PageInfo.of(questList);
     }
 

@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Notice;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface NoticeMapper {
     /**
      *查询所有公告
      */
-    List<Notice> findAllNotice();
+    List<Notice> findAllNotice(@Param("pageNum") Integer pageNum, @Param("pageSize") Integer pageSize );
     /**
      根据id查询公告
      */

@@ -22,6 +22,7 @@
         SELECT
         <include refid="BaseQuestColumns"/>
         FROM quest
+        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <!-- 根据ID查询任务 -->

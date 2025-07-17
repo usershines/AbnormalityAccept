@@ -18,7 +18,7 @@ import java.util.List;
 public interface AbnormalityMapper extends BaseMapper<Abnormality> {
 
 
-    List<Abnormality> findAllAbnormality();
+    List<Abnormality> findAllAbnormality(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
 
     Abnormality findAbnormalityById(Long id);
 

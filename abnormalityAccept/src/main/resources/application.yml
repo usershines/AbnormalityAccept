@@ -17,7 +17,11 @@ abnormality:
     secret: abnormalityabnormalityabnormality # JWT 签名密钥，用于 Token 的签名与验证
 
 # MyBatis 分页插件 PageHelper 配置
+#pagehelper:
+#  propertyName: propertyValue # 自定义扩展属性名，用于高级配置或测试用途
+#  reasonable: false # 是否启用分页参数合理性校验，false 表示不进行智能调整
+#  defaultCount: true # 是否启用默认 count 查询逻辑，true 表示使用内置 count 查询
 pagehelper:
-  propertyName: propertyValue # 自定义扩展属性名，用于高级配置或测试用途
-  reasonable: false # 是否启用分页参数合理性校验，false 表示不进行智能调整
-  defaultCount: true # 是否启用默认 count 查询逻辑，true 表示使用内置 count 查询
+  helper-dialect: mysql  # 数据库方言，根据实际数据库调整
+  reasonable: true       # 启用合理化，页码<=0 查第一页，页码>总页数查最后一页
+  support-methods-arguments: true  # 支持通过 Mapper 接口参数传递分页参数

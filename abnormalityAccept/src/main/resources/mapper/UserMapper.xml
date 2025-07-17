@@ -25,6 +25,7 @@
         select
         <include refid="Base_User"/>
         from user
+        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <select id="findUserById" resultMap="Base_User_List">

@@ -26,7 +26,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public PageInfo<Notice> findAllNotice(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Notice> noticeList = noticeMapper.findAllNotice();
+        List<Notice> noticeList = noticeMapper.findAllNotice(pageNum, pageSize);
         return PageInfo.of(noticeList);
     }
 

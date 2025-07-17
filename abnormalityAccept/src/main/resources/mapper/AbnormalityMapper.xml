@@ -23,6 +23,7 @@
         select
         <include refid="Base_Abnormality"/>
         from abnormality
+        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <select id="findAbnormalityById" resultMap="Base_Abnormality_List">

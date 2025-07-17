@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
     public boolean updateUser(UpdateUserRequest updateUserRequest, Long editorId) {
         User user = new User();
 
-        User editor = userMapper.findUserById(editorId);
+        User editor = userMapper.selectById(editorId);
         int editorLevel = editor.getLevel();
         if(editorLevel !=5){
             if (editorLevel < updateUserRequest.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "不能更新等级比自己高的用户信息");

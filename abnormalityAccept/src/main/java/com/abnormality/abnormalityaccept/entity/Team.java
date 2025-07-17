@@ -24,4 +24,6 @@ public class Team {
     private Integer level;
     private String description;
     private Long leaderId;
+    private Integer pageNum;
+    private Integer pageSize;
 }

@@ -32,7 +32,7 @@ public class QuestServiceImpl implements QuestService {
     @Override
     public PageInfo<Quest> findAllQuest(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Quest> questList = questMapper.findAllQuests(pageNum, pageSize);
+        List<Quest> questList = questMapper.findAllQuest(pageNum, pageSize);
         return PageInfo.of(questList);
     }
 
@@ -58,6 +58,13 @@ public class QuestServiceImpl implements QuestService {
     @Override
     public boolean deleteQuestById(Long id) {
         return questMapper.deleteQuestById(id);
+    }
+
+    @Override
+    public PageInfo<Quest> findQuestByConditions(Quest quest, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Quest> questList = questMapper.findQuestByConditions(quest);
+        return PageInfo.of(questList);
     }
 
 }

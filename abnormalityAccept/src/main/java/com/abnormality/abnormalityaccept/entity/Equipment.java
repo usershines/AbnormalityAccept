@@ -21,4 +21,6 @@ public class Equipment {
     private String applicationRequirement;
     private Long masterId;
     private String description;
+    private Integer pageNum;
+    private Integer pageSize;
 }

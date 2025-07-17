@@ -84,14 +84,14 @@ public class EquipmentController {
     }
 
     // 拓展接口
-
+    @Operation(summary = "根据装备状态查询装备")
     @GetMapping("/state/{state}")
     public Result<List<Equipment>> findByState(@PathVariable String state) {
         List<Equipment> data = equipmentService.findByState(state);
         return Result.ok(data);
     }
 
-
+    @Operation(summary = "批量更新装备")
     @PutMapping("/batch/state")
     public Result<String> batchUpdateState(
             @RequestParam List<Long> ids,
@@ -99,13 +99,13 @@ public class EquipmentController {
         boolean success = equipmentService.batchUpdateState(ids, state);
         return success ? Result.ok("批量更新成功") : Result.error(500, "批量更新失败");
     }
-
+    @Operation(summary = "批量删除装备")
     @DeleteMapping("/batch")
     public Result<String> batchDelete(@RequestParam List<Long> ids) {
         boolean success = equipmentService.batchDelete(ids);
         return success ? Result.ok("批量删除成功") : Result.error(500, "批量删除失败");
     }
-
+    @Operation(summary = "模糊查询（name）")
     @GetMapping("/search/name")
     public Result<List<Equipment>> searchByName(@RequestParam String name) {
         List<Equipment> list = equipmentService.findByName(name);

@@ -24,7 +24,7 @@ public interface UserService {
      *根据id查询用户
      */
     User findUserById(Long id,Long finderId);
-
+    User findUserByName(String name);
 
     /**
      * 删除数据

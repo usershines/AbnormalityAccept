@@ -1,4 +1,6 @@
 package com.abnormality.abnormalityaccept.controller;
+
+import com.abnormality.abnormalityaccept.annotation.AuthIgnore;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.AuthRequest;
 import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
@@ -14,10 +16,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.*;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.*;
+
 
 
 /**
@@ -38,12 +43,14 @@ public class UserController {
 
     @Operation(summary = "用户注册")
     @PostMapping("/register")
+    @AuthIgnore
     public Result<AuthResponse> register(@RequestBody AuthRequest req) {
         return Result.ok(userService.register(req.getName(), req.getPassword()));
     }
 
     @Operation(summary = "用户注册(优化)")
     @PostMapping("/regist")
+    @AuthIgnore
     public Result<String> regist (@RequestBody RegistRequest req){
         if(userService.regist(req.getUsername(), req.getPassword(), req.getEmail()))
             return Result.ok("注册成功");
@@ -52,6 +59,7 @@ public class UserController {
 
     @Operation(summary = "用户登录")
     @PostMapping("/login")
+    @AuthIgnore
     public Result<AuthResponse> login(@RequestBody AuthRequest req) {
         //return Result.ok(userService.login(name,password));
         return Result.ok(userService.login(req.getName(), req.getPassword()));
@@ -59,6 +67,7 @@ public class UserController {
     
     @Operation(summary = "用户登出")
     @PostMapping("/logout")
+    @AuthIgnore
     public Result<Boolean> logout(@RequestHeader("Authorization") String token) {
         return Result.ok(userService.logout(token));
     }

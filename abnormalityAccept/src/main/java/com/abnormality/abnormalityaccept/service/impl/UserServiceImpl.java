@@ -96,6 +96,11 @@ public class UserServiceImpl implements UserService {
         if(finderLevel<userMapper.selectById(id).getLevel())throw new ServiceException(Code.FORBIDDEN,"无权查看当前用户");
         return userMapper.selectById(id);}
 
+    @Override
+    public User findUserByName(String name) {
+        return userMapper.selectOne(new QueryWrapper<User>().eq("username", name));
+    }
+
     /**
      * 根据用户 ID 删除用户。
      *

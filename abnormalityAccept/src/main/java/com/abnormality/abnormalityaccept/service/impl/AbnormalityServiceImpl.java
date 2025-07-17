@@ -1,7 +1,10 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.abnormality.abnormalityaccept.entity.Abnormality;
 import com.abnormality.abnormalityaccept.entity.User;
+import com.abnormality.abnormalityaccept.enums.Code;
+import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.AbnormalityMapper;
 import com.abnormality.abnormalityaccept.service.AbnormalityService;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -36,7 +39,11 @@ public class AbnormalityServiceImpl implements AbnormalityService {
 
     @Override
     public Abnormality findAbnormalityById(Long id) {
-        return abnormalityMapper.findAbnormalityById(id);
+        Abnormality abnormality = abnormalityMapper.findAbnormalityById(id);
+        if(ObjectUtil.isEmpty(abnormality)){
+            throw new ServiceException(Code.NOT_FOUND,"异想体不存在");
+        }
+        return abnormality;
     }
 
 
@@ -59,5 +66,6 @@ public class AbnormalityServiceImpl implements AbnormalityService {
         List<Abnormality> abnormalityList = abnormalityMapper.findAbnormalityByConditions(abnormality);
         return PageInfo.of(abnormalityList);
     }
+
 
 }

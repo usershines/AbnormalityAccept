@@ -1,5 +1,4 @@
 import request from "@/utils/requests.ts";
-import {User} from "@element-plus/icons-vue";
 
 //用户类型
 interface User {

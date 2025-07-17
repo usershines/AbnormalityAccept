@@ -785,15 +785,27 @@ const submitEdit = () => {
 
 // 添加删除方法
 const handleDelete = (row: any) => {
-  const index = tableData.value.findIndex(item => item.id === row.id);
-  if (index !== -1) {
-    tableData.value.splice(index, 1);
-    ElMessage.warning(`已删除用户: ${row.name}`);
-    // 如果删除的是当前页最后一条且不是第一页，则跳转到上一页
-    if (currentTableData.value.length === 0 && currentPage.value > 1) {
-      currentPage.value -= 1;
-    }
-  }
+  ElMessageBox.confirm(
+      '是否确认删除id为'+row.id+'的用户'+row.username,
+      '警告',
+      {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        ElMessage({
+          type: 'success',
+          message: '删除成功',
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '取消删除',
+        })
+      })
 };
 </script>
 

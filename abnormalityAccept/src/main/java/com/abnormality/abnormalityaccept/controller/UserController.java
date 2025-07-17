@@ -22,6 +22,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -52,7 +53,7 @@ public class UserController {
     @Operation(summary = "用户注册(优化)")
     @PostMapping("/regist")
     @AuthIgnore
-    public Result<String> regist (@RequestBody RegistRequest req){
+    public Result<String> regist (@RequestBody @Validated RegistRequest req){
         if(userService.regist(req.getUsername(), req.getPassword(), req.getEmail()))
             return Result.ok("注册成功");
         else throw new RuntimeException("注册失败");

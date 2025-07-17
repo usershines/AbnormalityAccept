@@ -48,7 +48,7 @@ public class LogAspect {
     }
 
     @Around("log()")
-    public Result<?> controller(ProceedingJoinPoint joinPoint) {
+    public Result<?> controller(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes)
@@ -79,15 +79,16 @@ public class LogAspect {
             // 发布异常日志事件
 
             // 输出日志内容便于调试
-            e.printStackTrace();
+//            e.printStackTrace();
 
             // 返回统一异常响应
-            if (e instanceof BaseException) {
-                return Result.error(((BaseException) e).getCode().getCode(),
-                        ((BaseException) e).getCode().getMsg(), e.getMessage());
-            } else {
-                return Result.error(e.getMessage());
-            }
+//            if (e instanceof BaseException) {
+//                return Result.error(((BaseException) e).getCode().getCode(),
+//                        ((BaseException) e).getCode().getMsg(), e.getMessage());
+//            } else {
+//                return Result.error(e.getMessage());
+//            }
+            throw e;
         } finally {
             // 记录最终执行耗时
             long endTime = System.currentTimeMillis();

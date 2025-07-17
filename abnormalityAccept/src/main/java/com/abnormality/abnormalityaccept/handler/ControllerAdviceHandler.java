@@ -160,8 +160,9 @@ public class ControllerAdviceHandler {
 
         // 根据异常类型返回不同的错误响应
         if (e instanceof BaseException) {
-            return Result.error(((BaseException) e).getCode().getCode(),
-                    ((BaseException) e).getMsg(), ((BaseException) e).getMsgList());
+            BaseException be=(BaseException) e;
+            return Result.error(be.getCode().getCode(),
+                    be.getMsg(), be.getMsgList().get(be.getMsgList().size()-1));
         } else {
             return Result.error(Code.ERROR.getCode(), Code.ERROR.getMsg(), e.getMessage());
         }

@@ -14,7 +14,7 @@ import java.util.Arrays;
  * 该类主要用于存储和管理异常相关的详细信息，包括异常消息、请求URL、HTTP方法、用户代理、IP地址、用户名、请求参数以及堆栈跟踪信息。
  * </p>
  *
- * @author poyuan
+ *
  */
 @Data
 public class ExceptionLog {

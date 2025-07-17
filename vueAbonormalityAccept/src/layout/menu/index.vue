@@ -4,7 +4,7 @@
       <div class="user-info">
         <el-avatar :size="40" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
         <div class="user-details">
-          <span class="user-name">O5-13</span>
+          <span style="color: white;font-size: 20px;font-weight: bold" >Dr.Bright</span>
           <span class="user-level">权限等级: O5</span>
         </div>
       </div>

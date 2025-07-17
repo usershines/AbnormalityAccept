@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.entity;
 
+import cn.hutool.jwt.JWT;
 import lombok.Data;
 
 import java.util.Map;
@@ -14,6 +15,11 @@ public class JwtPayload {
                 "username",username,
                 "level",String.valueOf(level)
         );
+    }
+
+    public static JwtPayload fromToken(String token){
+        JWT jwt = JWT.of(token);
+        return jwt.getPayloads().toBean(JwtPayload.class);
     }
 }
 

@@ -28,4 +28,6 @@ public class Email {
     private String theme;
     private String content;
     private LocalDate sendTime;
+    private Integer pageNum;
+    private Integer pageSize;
 }

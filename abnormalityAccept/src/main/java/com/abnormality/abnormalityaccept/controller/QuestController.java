@@ -30,7 +30,7 @@ public class QuestController {
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
     @GetMapping("/findAll")
-    public Result<PageInfo<Quest>> findAllNotice(
+    public Result<PageInfo<Quest>> findAllQuest(
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize) {
         PageInfo<Quest> questList = questService.findAllQuest(pageNum, pageSize);
@@ -73,5 +73,11 @@ public class QuestController {
             return Result.ok("删除成功");
         }
         return Result.error(500, "删除失败");
+    }
+
+    @Operation(summary = "条件分页查询任务")
+    @PostMapping("/condition")
+    public Result findQuestBycondition  (@RequestBody Quest quest){
+        return Result.ok(questService.findQuestByConditions(quest, quest.getPageNum(), quest.getPageSize()));
     }
 }

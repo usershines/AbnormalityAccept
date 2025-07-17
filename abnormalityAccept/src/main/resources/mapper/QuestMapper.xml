@@ -18,7 +18,7 @@
     </sql>
 
     <!-- 查询所有任务 -->
-    <select id="findAllQuests" resultMap="BaseQuestResultMap">
+    <select id="findAllQuest" resultMap="BaseQuestResultMap">
         SELECT
         <include refid="BaseQuestColumns"/>
         FROM quest
@@ -69,11 +69,13 @@
             <if test="questName != null and questName != ''">
                 AND quest_name LIKE CONCAT('%', #{questName}, '%')
             </if>
+            <if test="questDesciption != null and questDesciption != ''">
+                AND quest_desciption LIKE CONCAT('%', #{questDesciption}, '%')
+            </if>
             <if test="state != null and state != ''">
                 AND state = #{state}
             </if>
         </where>
-        ORDER BY id DESC
     </select>
 
     <!-- 分页查询任务 -->

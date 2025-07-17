@@ -19,6 +19,8 @@ public class Facility {
     private String facilityAddress;
     private Integer level;
     private Long leaderId;
+    private Integer pageNum;
+    private Integer pageSize;
 
     
 }

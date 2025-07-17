@@ -21,7 +21,6 @@
         SELECT
         <include refid="Base_Equipment"/>
         FROM equipment
-        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <select id="findEquipmentById" resultMap="Base_Equipment_List">
@@ -70,7 +69,6 @@
                 AND master_id = #{masterId}
             </if>
         </where>
-        ORDER BY update_time DESC
     </select>
 
 <!--    &lt;!&ndash; 分页查询装备 &ndash;&gt;-->

@@ -18,7 +18,7 @@ import java.util.List;
 public interface AbnormalityMapper extends BaseMapper<Abnormality> {
 
 
-    List<Abnormality> findAllAbnormality(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
+    List<Abnormality> findAllAbnormality(Integer pageNum, Integer pageSize);
 
     Abnormality findAbnormalityById(Long id);
 
@@ -26,12 +26,9 @@ public interface AbnormalityMapper extends BaseMapper<Abnormality> {
 
     boolean updateAbnormality(Abnormality abnormality);
 
-    List<Abnormality> findAbnormalityByConditions(
-            @Param("id") Long id,
-            @Param("name") String name,
-            @Param("level") Integer level,
-            @Param("facilityId") Long facilityId
-    );
+    List<Abnormality> findAbnormalityByConditions(Abnormality abnormality);
+
+
 
 
 

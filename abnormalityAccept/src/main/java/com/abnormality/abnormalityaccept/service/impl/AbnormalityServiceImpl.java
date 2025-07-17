@@ -56,7 +56,7 @@ public class AbnormalityServiceImpl implements AbnormalityService {
     @Override
     public PageInfo<Abnormality> findAbnormalityByConditions(Abnormality abnormality,Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum,pageSize);
-        List<Abnormality> abnormalityList = abnormalityMapper.findAbnormalityByConditions(abnormality.getId(),abnormality.getName(),abnormality.getLevel(),abnormality.getFacilityId());
+        List<Abnormality> abnormalityList = abnormalityMapper.findAbnormalityByConditions(abnormality);
         return PageInfo.of(abnormalityList);
     }
 

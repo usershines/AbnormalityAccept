@@ -20,4 +20,6 @@ public class Notice {
     private String content;
     private Date time;
     private Integer state;
+    private Integer pageNum;
+    private Integer pageSize;
 }

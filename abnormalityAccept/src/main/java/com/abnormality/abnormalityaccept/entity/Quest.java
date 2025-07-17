@@ -18,4 +18,6 @@ public class Quest {
     private String questName;
     private String questDescription;
     private Integer state;
+    private Integer pageNum;
+    private Integer pageSize;
 }

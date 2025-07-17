@@ -1,7 +1,7 @@
 package com.abnormality.abnormalityaccept.handler;
 
 import com.abnormality.abnormalityaccept.dto.Result;
-import com.abnormality.abnormalityaccept.entity.ExceptionLog;
+import com.abnormality.abnormalityaccept.entity.log.ExceptionLog;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.event.ExceptionLogEvent;
 import com.abnormality.abnormalityaccept.exception.BaseException;

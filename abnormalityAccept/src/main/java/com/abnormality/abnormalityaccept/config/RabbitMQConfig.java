@@ -38,8 +38,13 @@ public class RabbitMQConfig {
      * @return 返回一个 Queue 实例，表示名为 "logQueue" 的队列。
      */
     @Bean
-    public Queue logQueue() {
-        return new Queue("logQueue");
+    public Queue exceptionLogQueue() {
+        return new Queue("exceptionLogQueue");
+    }
+
+    @Bean
+    public Queue resultLogQueue() {
+        return new Queue("resultLogQueue");
     }
 
     /**
@@ -50,11 +55,16 @@ public class RabbitMQConfig {
      * </p>
      *
      * @param directExchange 注入的 DirectExchange 实例，代表名为 "myDirectExchange" 的交换机。
-     * @param myQueue        注入的 Queue 实例，代表名为 "logQueue" 的队列。
+     * @param exceptionLogQueue        注入的 Queue 实例，代表名为 "logQueue" 的队列。
      * @return 返回一个 Binding 实例，表示队列和交换机之间的绑定关系。
      */
     @Bean
-    public Binding binding(DirectExchange directExchange, Queue myQueue) {
-        return BindingBuilder.bind(myQueue).to(directExchange).with("log");
+    public Binding binding(DirectExchange directExchange, Queue exceptionLogQueue) {
+        return BindingBuilder.bind(exceptionLogQueue).to(directExchange).with("log.exception");
+    }
+
+    @Bean
+    public Binding binding2(DirectExchange directExchange, Queue resultLogQueue) {
+        return BindingBuilder.bind(resultLogQueue).to(directExchange).with("log.result");
     }
 }

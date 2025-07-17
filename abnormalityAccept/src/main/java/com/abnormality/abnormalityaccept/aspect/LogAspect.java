@@ -89,22 +89,9 @@ public class LogAspect {
             applicationContext.publishEvent(new ResultLogEvent(rlog));
             return result;
         } catch (Throwable e) {
-            // 捕获异常并记录详细日志
+            // 捕获异常
             log.error("请求 URL: {}, 方法: {}, 发生异常: {}", url, methodName, e.getMessage());
-
-
-            // 发布异常日志事件
-
-            // 输出日志内容便于调试
-//            e.printStackTrace();
-
-            // 返回统一异常响应
-//            if (e instanceof BaseException) {
-//                return Result.error(((BaseException) e).getCode().getCode(),
-//                        ((BaseException) e).getCode().getMsg(), e.getMessage());
-//            } else {
-//                return Result.error(e.getMessage());
-//            }
+            //向上层抛到ControllerAdviceHandler处理异常
             throw e;
         } finally {
             // 记录最终执行耗时

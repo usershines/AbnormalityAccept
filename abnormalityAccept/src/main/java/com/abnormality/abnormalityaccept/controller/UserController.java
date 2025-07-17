@@ -80,7 +80,8 @@ public class UserController {
     public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         //return List.of();
         String token = AopUtil.getToken();
-        Long finderId = JwtPayload.fromToken(token).getId();
+        String  username = JwtPayload.fromToken(token).getUsername();
+        Long finderId = userService.findUserByName(username).getId();
         PageInfo<User> userList = userService.findAllUser(pageNum, pageSize,finderId);
         return Result.ok(userList);
     }
@@ -90,7 +91,9 @@ public class UserController {
     @Parameter(name="id",description = "用户id",required = true,example = "1" ,in= ParameterIn.PATH )
     @GetMapping("/{id}")
     public Result<User>  findUserById(@PathVariable Long id ) {
-        Long finderId = JwtPayload.fromToken(AopUtil.getToken()).getId();
+        String token = AopUtil.getToken();
+        String  username = JwtPayload.fromToken(token).getUsername();
+        Long finderId = userService.findUserByName(username).getId();
         User user = userService.findUserById(id,finderId);
         if(user == null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
         return Result.ok("查询成功", user);
@@ -104,7 +107,9 @@ public class UserController {
     //@Parameter(name="id",description = "用户id",required = true,example = "1")
     @DeleteMapping("/{id}")
     public Result<String> deleteUserById(@PathVariable Long id){
-        Long editorId = JwtPayload.fromToken(AopUtil.getToken()).getId();
+        String token = AopUtil.getToken();
+        String  username = JwtPayload.fromToken(token).getUsername();
+        Long editorId = userService.findUserByName(username).getId();
         if(userService.deleteUserById(id,editorId)){
             return Result.ok("删除成功");
         }
@@ -114,7 +119,9 @@ public class UserController {
     @Operation(summary = "邀请用户")
     @PostMapping("/invite")
     public Result<String> inviteUser(@RequestBody InviteRequest inviteRequest){
-        Long inviterId = JwtPayload.fromToken(AopUtil.getToken()).getId();
+        String token = AopUtil.getToken();
+        String  username = JwtPayload.fromToken(token).getUsername();
+        Long inviterId = userService.findUserByName(username).getId();
         if(userService.addUser(inviteRequest,inviterId)){
             return Result.ok("添加成功");
         }
@@ -125,7 +132,9 @@ public class UserController {
     @Operation(summary = "更新用户")
     @PutMapping("/update")
     public Result<String> updateUser(@RequestBody UpdateUserRequest updateUserRequest){
-        Long editorId = JwtPayload.fromToken(AopUtil.getToken()).getId();
+        String token = AopUtil.getToken();
+        String  username = JwtPayload.fromToken(token).getUsername();
+        Long editorId = userService.findUserByName(username).getId();
         if(userService.updateUser(updateUserRequest,editorId)){
             return Result.ok("更新成功");
         }
@@ -151,7 +160,7 @@ public class UserController {
     public Result<String> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest){
         String token = AopUtil.getToken();
         JwtPayload jwtPayload = JwtPayload.fromToken(token);
-        Long userId = jwtPayload.getId();
+        Long userId = userService.findUserByName(jwtPayload.getUsername()).getId();
         if (userService.updatePassword(userId,updatePasswordRequest.getNewPassword()))
             return Result.ok("修改成功");
         else throw new ServiceException(Code.ERROR,"修改失败");

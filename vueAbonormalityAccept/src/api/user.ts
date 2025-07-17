@@ -26,15 +26,15 @@ export function login(form:any) {
 export function getUserList(pageNum: number, pageSize: number){
     return request.get('/user/List', {
         params:{
-            pageNum,
-            pageSize,
+            pageNum: pageNum,
+            pageSize: pageSize,
         }
     })
 }
 
 // 更新用户信息
 export function updateUser(user: any){
-    return request.put('/user/updata',user)
+    return request.put('/user/update',user)
 }
 
 // 新建用户
@@ -53,12 +53,7 @@ export function deleteUser(id:number){
 
 // 用户登出
 export function logout(){
-    const token = localStorage.getItem('token');
-    if(token){
-        return request.post('/user/logout', token)
-    }else {
-        console.log('请先登录')
-    }
+        return request.post('/user/logout')
 }
 
 // 条件查询

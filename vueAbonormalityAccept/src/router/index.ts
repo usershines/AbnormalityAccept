@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/index.vue'
-import EmailView from '../views/email/index.vue'
 import Home from '../views/home/index.vue'
 import WorkPlace from '../views/workPlace/index.vue'
 import User from '../views/workPlace/user/index.vue'
@@ -18,11 +17,6 @@ const router = createRouter({
       name: 'main',
       component: HomeView,
       children:[
-        {
-          path: 'email',
-          name: 'email',
-          component: EmailView,
-        },
         {
           path: 'workPlace',
           name: 'workPlace',

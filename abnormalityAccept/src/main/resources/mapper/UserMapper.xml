@@ -27,7 +27,7 @@
         select
         <include refid="Base_User"/>
         from user
-        where level &lt;= #{level} and isActive = 1
+        where   is_active = 1
 
     </select>
 
@@ -35,7 +35,7 @@
         select
         <include refid="Base_User"/>
         from user
-        where id=#{id} and isActive = 1
+        where id=#{id} and is_active = 1
     </select>
 
 
@@ -52,7 +52,7 @@
             leader_id,
             facility_id,
             introduction,
-            isActive
+            is_active
         )
         VALUES (
                      #{user.username},
@@ -70,7 +70,7 @@
     <!-- 删除用户 -->
     <update id="deleteUserById">
         update user
-        set isActive = 0
+        set is_active = 0
         where id = #{id}
     </update>
     <!-- 修改用户 -->
@@ -81,7 +81,7 @@
             level = #{level},
             facility_id = #{facilityId},
             introduction = #{introduction}
-        where id = #{id} and isActive = 1
+        where id = #{id} and is_active = 1
     </update>
     <!-- 专门修改密码 -->
     <update id="updatePassword">
@@ -98,7 +98,6 @@
             <if test="email != null and email != ''">AND email = #{email}</if>
             <if test="level != null">AND level = #{level}</if>
             <if test="facilityId != null">AND facility_id = #{facilityId}</if>
-            isActive = 1
         </where>
     </select>
 

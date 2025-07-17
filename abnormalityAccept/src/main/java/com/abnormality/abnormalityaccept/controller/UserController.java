@@ -11,6 +11,7 @@ import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.service.UserService;
+import com.abnormality.abnormalityaccept.util.AopUtil;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -68,7 +69,8 @@ public class UserController {
     @Operation(summary = "用户登出")
     @PostMapping("/logout")
     @AuthIgnore
-    public Result<Boolean> logout(@RequestHeader("Authorization") String token) {
+    public Result<Boolean> logout() {
+        String token = AopUtil.getToken();
         return Result.ok(userService.logout(token));
     }
 

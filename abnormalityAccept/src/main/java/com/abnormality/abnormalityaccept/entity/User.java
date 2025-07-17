@@ -24,7 +24,7 @@ public class User  {
     private Long leaderId;
     private Long facilityId;
     private String introduction ;
-    private Integer isActive;
+    private Integer isActive=1;
 
 
 }

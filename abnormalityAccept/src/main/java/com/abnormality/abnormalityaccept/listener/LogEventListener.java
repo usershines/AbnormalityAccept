@@ -1,7 +1,9 @@
 package com.abnormality.abnormalityaccept.listener;
 
-import com.abnormality.abnormalityaccept.entity.ExceptionLog;
+import com.abnormality.abnormalityaccept.entity.log.ExceptionLog;
+import com.abnormality.abnormalityaccept.entity.log.ResultLog;
 import com.abnormality.abnormalityaccept.event.ExceptionLogEvent;
+import com.abnormality.abnormalityaccept.event.ResultLogEvent;
 import com.abnormality.abnormalityaccept.mapper.ExceptionLogMappper;
 import com.abnormality.abnormalityaccept.mq.LogSender;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Component;
  * 并使用 @Async 注解实现异步处理，提升响应性能。</p>
  */
 @Component
-public class AbListener {
+public class LogEventListener {
 
     /**
      * 异常日志数据访问对象，用于将异常日志持久化到数据库。
@@ -49,6 +51,18 @@ public class AbListener {
         // 获取事件源中的异常日志对象，并通过消息队列发送日志数据
         // 此处采用异步方式发送日志，避免阻塞主线程
         logSender.saveLog((ExceptionLog) event.getSource());
+
+    }
+
+    @Async
+    @EventListener(ResultLogEvent.class)
+    public void saveResultLog(ResultLogEvent event) {
+        // 提示信息：用于调试，可删除或保留用于运行时监控
+//        System.out.println("保存结果日志");
+
+        // 获取事件源中的结果日志对象，并通过消息队列发送日志数据
+        // 此处采用异步方式发送日志，避免阻塞主线程
+        logSender.savelog((ResultLog) event.getSource());
 
     }
 }

@@ -1,6 +1,6 @@
 package com.abnormality.abnormalityaccept.mapper;
 
-import com.abnormality.abnormalityaccept.entity.ExceptionLog;
+import com.abnormality.abnormalityaccept.entity.log.ExceptionLog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

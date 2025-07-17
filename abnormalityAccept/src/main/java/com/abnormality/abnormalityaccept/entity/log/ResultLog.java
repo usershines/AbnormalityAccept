@@ -1,4 +1,4 @@
-package com.abnormality.abnormalityaccept.entity;
+package com.abnormality.abnormalityaccept.entity.log;
 
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.baomidou.mybatisplus.annotation.FieldFill;
@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ResultLog {
-    private String id;
+    private Long id;
     private String url;
     private String method;
     private String body;
@@ -17,7 +17,7 @@ public class ResultLog {
     private String userAgent;
     private String ip;
 
-    private Result<?> result;
+    private String result;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

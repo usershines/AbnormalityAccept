@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/Quest")
+@RequestMapping("/quest")
 @Tag(name = "任务管理")
 public class QuestController {
     private final QuestService questService;

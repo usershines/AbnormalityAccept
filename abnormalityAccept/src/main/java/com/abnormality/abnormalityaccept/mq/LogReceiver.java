@@ -1,8 +1,10 @@
 package com.abnormality.abnormalityaccept.mq;
 
 import cn.hutool.json.JSONUtil;
-import com.abnormality.abnormalityaccept.entity.ExceptionLog;
+import com.abnormality.abnormalityaccept.entity.log.ExceptionLog;
+import com.abnormality.abnormalityaccept.entity.log.ResultLog;
 import com.abnormality.abnormalityaccept.mapper.ExceptionLogMappper;
+import com.abnormality.abnormalityaccept.mapper.ResultLogMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,12 @@ import org.springframework.stereotype.Component;
  *
  * <p>该类为 Spring 组件，通过 @RabbitListener 注解监听指定队列（logQueue）中的消息，
  * 接收后将 JSON 格式的消息反序列化为 ExceptionLog 对象，并持久化到数据库。</p>
+ *
+ * <p>
+ *     <strong>
+ *         用于异步写入日志以减轻服务器压力，同时实现日志功能与具体服务器的解耦，方便多机部署。
+ *     </strong>
+ * </p>
  */
 @Slf4j
 @Component
@@ -23,6 +31,9 @@ public class LogReceiver {
      */
     @Autowired
     private ExceptionLogMappper exceptionLogMapper;
+
+    @Autowired
+    private ResultLogMapper resultLogMapper;
 
     /**
      * 接收 RabbitMQ 队列中的日志消息，并进行解析与持久化操作。
@@ -36,8 +47,8 @@ public class LogReceiver {
      *
      * @param message 从队列中接收到的原始日志消息，格式为 JSON 字符串
      */
-    @RabbitListener(queues = "logQueue")
-    public void receive(String message) {
+    @RabbitListener(queues = "exceptionLogQueue")
+    public void receiveExceptionLog(String message) {
         // 记录接收到的消息内容，便于调试和监控
         log.info("接收到日志消息：{}", message);
 
@@ -49,5 +60,19 @@ public class LogReceiver {
 
         // 记录日志保存成功的信息，便于后续排查和审计
         log.info("保存异常日志成功{}", elog);
+    }
+
+    @RabbitListener(queues = "resultLogQueue")
+    public void receiveResultLog(String message) {
+        // 记录接收到的消息内容，便于调试和监控
+        log.info("接收到日志消息：{}", message);
+
+        // 将 JSON 格式的消息字符串转换为 ResultLog 对象
+        ResultLog rlog = JSONUtil.toBean(message, ResultLog.class);
+
+        // 将解析后的结果日志插入数据库
+        resultLogMapper.insert(rlog);
+        // 记录日志保存成功的信息，便于后续排查和审计
+        log.info("保存结果日志成功{}", rlog);
     }
 }

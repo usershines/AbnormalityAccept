@@ -18,7 +18,7 @@ public class User  {
     private String username;
     private String password;
     private String email;
-    private Integer level=1;
+    private Integer level;
     private String teamName;
     private Long inviterId;
     private Long leaderId;

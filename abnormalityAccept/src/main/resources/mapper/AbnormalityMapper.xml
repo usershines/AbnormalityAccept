@@ -13,10 +13,11 @@
         <result property="manageMethod" column="manage_method"/>
         <result property="notes" column="notes"/>
         <result property="facilityId" column="facility_id"/>
+        <result property="imgName" column="img_name"/>
     </resultMap>
 
     <sql id="Base_Abnormality">
-        id,name,level,description,manage_method,notes,facility_id
+        id,name,level,description,manage_method,notes,facility_id,img_name
     </sql>
 
     <select id="findAllAbnormality" resultMap="Base_Abnormality_List">
@@ -33,8 +34,8 @@
     </select>
 
     <insert id="addAbnormality">
-        insert into abnormality(name,level,description,manage_method,notes,facility_id)
-        values(#{name},#{level},#{description},#{manageMethod},#{notes},#{facilityId})
+        insert into abnormality(name,level,description,manage_method,notes,facility_id,img_name)
+        values(#{name},#{level},#{description},#{manageMethod},#{notes},#{facilityId},#{imgName})
     </insert>
 
     <update id="updateAbnormality">
@@ -45,6 +46,7 @@
         manage_method = #{manageMethod},
         notes = #{notes},
         facility_id = #{facilityId}
+        img_name = #{imgName}
         where id = #{id}
     </update>
 

@@ -9,7 +9,7 @@
         <result property="username" column="username"/>
         <result property="password" column="password"/>
         <result property="email" column="email"/>
-        <result property="level" column="levle"/>
+        <result property="level" column="level"/>
         <result property="teamName" column="team_name"/>
         <result property="inviterId" column="inviter_id"/>
         <result property="leaderId" column="leader_id"/>
@@ -44,8 +44,6 @@
             username,
             password,
             email,
-            level,
-            team_name,
             level,
             team_name,
             inviter_id,

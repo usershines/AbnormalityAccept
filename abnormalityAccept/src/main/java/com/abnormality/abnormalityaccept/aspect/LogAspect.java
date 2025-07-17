@@ -1,12 +1,9 @@
 package com.abnormality.abnormalityaccept.aspect;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.abnormality.abnormalityaccept.dto.Result;
-import com.abnormality.abnormalityaccept.entity.ExceptionLog;
-import com.abnormality.abnormalityaccept.enums.Code;
-import com.abnormality.abnormalityaccept.event.ExceptionLogEvent;
-import com.abnormality.abnormalityaccept.exception.BaseException;
-import com.abnormality.abnormalityaccept.handler.AuthHandler;
+import com.abnormality.abnormalityaccept.entity.log.ResultLog;
+import com.abnormality.abnormalityaccept.event.ResultLogEvent;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -20,11 +17,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 
@@ -69,25 +66,32 @@ public class LogAspect {
             Result result = (Result) joinPoint.proceed();
             log.info("请求 URL: {}, 方法: {}, 参数：{}, 耗时: {}ms, 返回值: {}", url, methodName,
                     Arrays.toString(joinPoint.getArgs()), System.currentTimeMillis() - startTime, result);
-            //TODO: 添加返回结果记录
+
+            ResultLog rlog = new ResultLog();
+            String body = "unknown";
+            if (request instanceof ContentCachingRequestWrapper) {
+                body = ((ContentCachingRequestWrapper) request).getContentAsString();
+                log.info("请求体: {}", body);
+            }
+            rlog.setBody(body);
+            rlog.setIp(request.getRemoteAddr());
+            rlog.setMethod(methodName);
+            rlog.setUrl(request.getRequestURI());
+            rlog.setUserAgent(request.getHeader("User-Agent"));
+            String machineId = "";
+            try {
+                machineId = InetAddress.getLocalHost().getHostName();
+            } catch (Exception ex) {
+                machineId = "unknown";
+            }
+            rlog.setMachineId(machineId);
+            rlog.setResult(JSONUtil.toJsonStr(result));
+            applicationContext.publishEvent(new ResultLogEvent(rlog));
             return result;
         } catch (Throwable e) {
-            // 捕获异常并记录详细日志
+            // 捕获异常
             log.error("请求 URL: {}, 方法: {}, 发生异常: {}", url, methodName, e.getMessage());
-
-
-            // 发布异常日志事件
-
-            // 输出日志内容便于调试
-//            e.printStackTrace();
-
-            // 返回统一异常响应
-//            if (e instanceof BaseException) {
-//                return Result.error(((BaseException) e).getCode().getCode(),
-//                        ((BaseException) e).getCode().getMsg(), e.getMessage());
-//            } else {
-//                return Result.error(e.getMessage());
-//            }
+            //向上层抛到ControllerAdviceHandler处理异常
             throw e;
         } finally {
             // 记录最终执行耗时

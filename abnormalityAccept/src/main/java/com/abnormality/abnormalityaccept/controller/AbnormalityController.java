@@ -3,12 +3,17 @@ package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.Abnormality;
 import com.abnormality.abnormalityaccept.service.AbnormalityService;
+import com.abnormality.abnormalityaccept.service.FileService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.synonyms.GetSynonymsSetsAction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author shanh
@@ -22,21 +27,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/abnormality")
 @Tag(name = "异想体管理")
 public class AbnormalityController {
+
+    @Autowired
     private final AbnormalityService abnormalityService;
+
+    @Autowired
+    private FileService fileService;
 
     @Operation(summary = "异想体信息查询")
     @GetMapping("/List")
     public Result<PageInfo<Abnormality>> findAllAbnormality(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         PageInfo<Abnormality> abnormalityList = abnormalityService.findAllAbnormality(pageNum, pageSize);
-        return Result.ok(abnormalityList);
+        List<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList.getList());
+        return Result.ok(PageInfo.of(abnormalityList1));
     }
     @Operation(summary = "根据id查询异想体")
     @GetMapping("/{id}")
     public Result<Abnormality> findAbnormalityById(@PathVariable Long id) {
-        Abnormality abnormality = abnormalityService.findAbnormalityById(id);
-        if (abnormality == null) {
-            return Result.error(500,"异想体不存在");
-        }
+        Abnormality abnormality = completeImageUrl(abnormalityService.findAbnormalityById(id));
         return Result.ok(abnormality);
     }
     @Operation(summary = "添加异想体")
@@ -73,9 +81,23 @@ public class AbnormalityController {
         abnormality.setLevel(level);
         abnormality.setFacilityId(facilityId);
         PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormality, pageNum, pageSize);
-        return Result.ok(abnormalityList);
+        List<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList.getList());
+        return Result.ok(PageInfo.of(abnormalityList1));
 
     }
 
+
+    private Abnormality completeImageUrl(Abnormality abnormality) {
+        abnormality.setImgName(fileService.getPublicUrl(abnormality.getImgName()));
+        return abnormality;
+    }
+
+    private List<Abnormality> completeImageUrl(List<Abnormality> abnormalityList) {
+        List<Abnormality> abnormalityVoList = new ArrayList<>();
+        for(Abnormality abnormality:abnormalityList){
+            abnormalityVoList.add(completeImageUrl(abnormality));
+        }
+        return abnormalityVoList;
+    }
 
 }

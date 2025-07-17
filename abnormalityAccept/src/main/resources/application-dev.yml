@@ -2,6 +2,10 @@
 server:
   port: 8080 # 应用启动的端口号
 
+log:
+  save-exception-log: true
+  save-result-log: true
+
 # Spring 配置
 spring:
   rabbitmq:
@@ -17,7 +21,8 @@ spring:
       port: 6379 # Redis 服务端口
 
   datasource:
-
+    #数据库采用主从数据库，读写分离的设计，减轻数据库压力。
+    #强一致性操作与更新数据操作在主数据库写入数据，在从数据库中读取数据，从数据库通过读取主数据库的二进制日志bin-log实现同步
     dynamic:
       primary: master # 指定默认数据源为 master
       strict: false # 是否启用严格模式，false 表示非严格，允许某些操作失败

@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean addUser(InviteRequest inviteRequest, Long inviterId) {
         User newUser = new User();
-        User inviter = userMapper.findUserById(inviterId);
+        User inviter = userMapper.selectById(inviterId);
         int inviterLevel = inviter.getLevel();
         if (inviterLevel <= 2)
             throw new ServiceException(Code.FORBIDDEN, "用户级别不足以邀请新用户");
@@ -154,6 +154,7 @@ public class UserServiceImpl implements UserService {
         }
         newUser.setUsername(inviteRequest.getUsername());
         newUser.setFacilityId(inviteRequest.getFacilityId());
+        newUser.setLevel(inviteRequest.getLevel());
         newUser.setPassword(encryptPassword(newUser.getUsername() + "888"));
         newUser.setInviterId(inviterId);
         newUser.setLeaderId(inviterId);
@@ -165,7 +166,7 @@ public class UserServiceImpl implements UserService {
     public boolean updateUser(UpdateUserRequest updateUserRequest, Long editorId) {
         User user = new User();
 
-        User editor = userMapper.findUserById(editorId);
+        User editor = userMapper.selectById(editorId);
         int editorLevel = editor.getLevel();
         if(editorLevel !=5){
             if (editorLevel < updateUserRequest.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "不能更新等级比自己高的用户信息");
@@ -234,7 +235,6 @@ public class UserServiceImpl implements UserService {
             throw new BaseException("密码错误");
         }
         authResponse.setName(user.getUsername());
-        user.setLevel(1);
         String token = generateJwt(user);
         redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setToken(token);
@@ -259,8 +259,8 @@ public class UserServiceImpl implements UserService {
         user = new User();
         user.setUsername(username);
         user.setPassword(encryptPassword(password));
-        userMapper.insert(user);
-
+        user.setLevel(1);
+        userMapper.addUser(user);
         String token = generateJwt(user);
         redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setName(user.getUsername());

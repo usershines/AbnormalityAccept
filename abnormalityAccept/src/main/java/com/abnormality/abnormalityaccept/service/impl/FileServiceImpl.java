@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import com.abnormality.abnormalityaccept.entity.Abnormality;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.service.FileService;
 import com.abnormality.abnormalityaccept.util.AFileUtil;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 文件服务实现类，用于处理与 MinIO 对象存储交互的文件上传和 URL 获取操作。
@@ -64,7 +67,7 @@ public class FileServiceImpl implements FileService {
         } catch (Exception e) {
             // 记录日志并抛出异常，避免调用方无法感知错误
             log.error("获取上传文件URL失败：{}", e.getMessage());
-            throw new ServiceException("获取上传文件URL失败");
+            return "";
         }
     }
 
@@ -121,5 +124,54 @@ public class FileServiceImpl implements FileService {
             }
             throw new ServiceException("上传文件失败");
         }
+    }
+
+    @Override
+    public boolean exist(String fileName) {
+        try {
+            // 尝试获取对象的元信息，如果不存在会抛出异常
+            minioClient.statObject(
+                io.minio.StatObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(fileName)
+                    .build()
+            );
+            // 未抛异常，说明文件存在
+            return true;
+        } catch (Exception e) {
+            // 如果是对象不存在的异常，则返回 false
+            if (e.getMessage() != null && e.getMessage().contains("The specified key does not exist")) {
+                return false;
+            }
+            // 其他异常建议记录日志或处理
+            log.warn("检查文件是否存在时发生异常: {}", e.getMessage());
+            return false;
+        }
+    }
+
+
+    @Override
+    public Abnormality completeImageUrl(Abnormality abnormality) {
+        Abnormality abnormalityVo = new Abnormality();
+        abnormalityVo.setId(abnormality.getId());
+        abnormalityVo.setName(abnormality.getName());
+        abnormalityVo.setLevel(abnormality.getLevel());
+        abnormalityVo.setDescription(abnormality.getDescription());
+        abnormalityVo.setManageMethod(abnormality.getManageMethod());
+        abnormalityVo.setNotes(abnormality.getNotes());
+        abnormalityVo.setFacilityId(abnormality.getFacilityId());
+        abnormalityVo.setImgName(getPublicUrl(abnormality.getImgName()));
+        abnormalityVo.setPageNum(abnormality.getPageNum());
+        abnormalityVo.setPageSize(abnormality.getPageSize());
+        return abnormalityVo;
+    }
+
+    @Override
+    public List<Abnormality> completeImageUrl(List<Abnormality> abnormalityList) {
+        List<Abnormality> abnormalityVoList = new ArrayList<>();
+        for(Abnormality abnormality:abnormalityList){
+            abnormalityVoList.add(completeImageUrl(abnormality));
+        }
+        return abnormalityVoList;
     }
 }

@@ -25,7 +25,6 @@ public class User  {
     private Long facilityId;
     private String introduction ;
     private Integer isActive;
-    private Integer pageNum;
-    private Integer pageSize;
+
 
 }

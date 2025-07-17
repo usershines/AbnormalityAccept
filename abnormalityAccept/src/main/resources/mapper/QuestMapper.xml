@@ -22,7 +22,6 @@
         SELECT
         <include refid="BaseQuestColumns"/>
         FROM quest
-        LIMIT #{pageNum},#{pageSize}
     </select>
 
     <!-- 根据ID查询任务 -->
@@ -69,21 +68,13 @@
             <if test="questName != null and questName != ''">
                 AND quest_name LIKE CONCAT('%', #{questName}, '%')
             </if>
-            <if test="questDesciption != null and questDesciption != ''">
-                AND quest_desciption LIKE CONCAT('%', #{questDesciption}, '%')
+            <if test="questDescription != null and questDescription != ''">
+                AND quest_description LIKE CONCAT('%', #{questDescription}, '%')
             </if>
             <if test="state != null and state != ''">
                 AND state = #{state}
             </if>
         </where>
-    </select>
-
-    <!-- 分页查询任务 -->
-    <select id="findQuestByPage" resultMap="BaseQuestResultMap">
-        SELECT
-        <include refid="BaseQuestColumns"/>
-        FROM quest
-        LIMIT #{offset}, #{pageSize}
     </select>
 
     <!-- 根据状态查询任务 -->

@@ -77,7 +77,7 @@ public class QuestController {
 
     @Operation(summary = "条件分页查询任务")
     @PostMapping("/condition")
-    public Result findQuestBycondition  (@RequestBody Quest quest){
-        return Result.ok(questService.findQuestByConditions(quest, quest.getPageNum(), quest.getPageSize()));
+    public Result findQuestBycondition  (@RequestBody Quest quest,@RequestParam Integer pageNum,@RequestParam Integer pageSize) {
+        return Result.ok(questService.findQuestByConditions(quest, pageNum ,pageSize));
     }
 }

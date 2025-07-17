@@ -13,7 +13,7 @@
     </resultMap>
 
     <sql id="Base_Facility">
-        id, level,,leader_id, facility_name, facility_address
+        id, level,leader_id, facility_name, facility_address
     </sql>
 
     <select id="findAllFacility" resultMap="Base_Facility_List">
@@ -38,8 +38,8 @@
         UPDATE facility
         SET id = #{name},
             level = #{level},
-            leader_id = #{leaderId}
-            facility_name = #{facilityName}
+            leader_id = #{leaderId},
+            facility_name = #{facilityName},
             facility_address = #{facilityAddress}
         WHERE id = #{id}
     </update>
@@ -52,7 +52,7 @@
     <select id="findFacilityByCondition" resultMap="Base_Facility_List">
         SELECT
         <include refid="Base_Facility"/>
-        FROM facilities
+        FROM facilitiy
         <where>
             <if test="facilityName != null and facilityName != ''">
                 AND name LIKE CONCAT('%', #{facilityName}, '%')
@@ -68,8 +68,8 @@
     <!-- 10. 模糊查询（按设施名称或地址） -->
     <select id="searchByKeyword" resultType="com.abnormality.abnormalityaccept.entity.Facility">
         SELECT <include refid="Base_Facility"/> FROM facility
-        WHERE facility_name LIKE CONCAT('%', #{facilityName}, '%')
-        OR facility_address LIKE CONCAT('%', #{facilityName}, '%')
+        WHERE facility_name LIKE CONCAT('%', #{keyword}, '%')
+        OR facility_address LIKE CONCAT('%', #{keyword}, '%')
     </select>
 
 </mapper>

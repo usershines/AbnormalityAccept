@@ -28,7 +28,7 @@
         <include refid="Base_User"/>
         from user
         where level &lt;= #{level} and isActive = 1
-        LIMIT #{pageNum},#{pageSize}
+
     </select>
 
     <select id="findUserById" resultMap="Base_User_List">

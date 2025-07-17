@@ -46,8 +46,6 @@
             email,
             level,
             team_name,
-            level,
-            team_name,
             inviter_id,
             leader_id,
             facility_id,

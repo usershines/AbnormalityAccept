@@ -20,42 +20,40 @@
         SELECT
         <include refid="Base_Column_List" />
         FROM email
+        WHERE receiver_id = #{receiverId}
     </select>
+
     <select id="findEmailByTheme" resultMap="Email_Base_Data">
         SELECT
         <include refid="Base_Column_List" />
         FROM email
-        WHERE receiver_id = #{UserId} and theme like concat('%',#{theme},'%')
+        WHERE receiver_id = #{receiverId} and theme like concat('%',#{theme},'%')
     </select>
 
-    <select id="findEmailByReceiverId" resultMap="Email_Base_Data">
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM email
-        WHERE receiver_id = #{receiverId}
-    </select>
     <select id="findEmailBySenderId" resultMap="Email_Base_Data">
         SELECT
         <include refid="Base_Column_List" />
         FROM email
-        WHERE sender_id = #{senderId}
+        WHERE  receiver_id = #{receiverId} AND  sender_id = #{senderId}
     </select>
+
     <select id="findEmailById" resultMap="Email_Base_Data">
         SELECT
         <include refid="Base_Column_List" />
         FROM email
-        WHERE id = #{id}
+        WHERE  receiver_id = #{receiverId} AND  id = #{id}
     </select>
+
     <insert id="addEmail" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO email(state, sender_id, receiver_id, theme, content, send_time) VALUES (#{state}, #{senderId}, #{receiverId}, #{theme}, #{content}, #{sendTime})
+        INSERT INTO email(state, sender_id, receiver_id, theme, content, send_time) VALUES (0, #{senderId}, #{receiverId}, #{theme}, #{content}, #{sendTime})
     </insert>
-    <update id="updateEmail">
-        UPDATE email
-        SET state = #{state}, sender_id = #{senderId}, receiver_id = #{receiverId}, theme = #{theme}, content = #{content}, send_time = #{sendTime}
-        WHERE id = #{id}
-    </update>
+
+
+
+
+
     <delete id="deleteEmailById">
-        DELETE FROM email WHERE id = #{id}
+        DELETE FROM email WHERE id = #{id} AND receiver_id = #{receiverId}
     </delete>
 
 

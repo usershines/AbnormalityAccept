@@ -18,7 +18,7 @@ public class User  {
     private String password;
     private String email;
     private Integer level;
-    private String teamId;
+    private Long teamId;
     private Long inviterId;
     private Long leaderId;
     private Long facilityId;

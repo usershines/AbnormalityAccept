@@ -15,22 +15,19 @@ import java.util.List;
 @Mapper
 public interface EmailMapper {
 
-    List<Email> findAllEmail();
+    List<Email> findAllEmail(Long receiverId);
 
-    Email findEmailById(Long id);
+    Email findEmailById(Long id, Long receiverId);
 
     boolean addEmail(Email email);
 
-    boolean updateEmail(Email email);
+    boolean deleteEmailById(Long id, Long receiverId);
 
-    boolean deleteEmailById(Long id);
+    List< Email> findEmailByTheme(String theme ,Long receiverId);
 
-    List< Email> findEmailByTheme(String theme ,Long UserId);
-    //boolean groupEmailByReceiverId(Long receiverId);
 
-    List<Email> findEmailByReceiverId(Long receiverId);
+    List<Email> findEmailBySenderId(Long senderId, Long receiverId);
 
-    List<Email> findEmailBySenderId(Long senderId);
 
 
 

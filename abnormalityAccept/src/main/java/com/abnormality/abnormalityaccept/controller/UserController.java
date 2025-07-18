@@ -54,7 +54,7 @@ public class UserController {
     public Result<String> regist (@RequestBody @Validated RegistRequest req){
         if(userService.regist(req.getUsername(), req.getPassword(), req.getEmail()))
             return Result.ok("注册成功");
-        else throw new RuntimeException("注册失败");
+        return Result.error("注册失败");
     }
 
     @Operation(summary = "用户登录")
@@ -95,7 +95,7 @@ public class UserController {
         String  username = JwtPayload.fromToken(token).getUsername();
         Long finderId = userService.findUserByName(username).getId();
         User user = userService.findUserById(id,finderId);
-        if(user == null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
+        if(user == null) return Result.error(Code.ERROR.getCode(),"用户不存在");
         return Result.ok("查询成功", user);
     }
 
@@ -113,7 +113,7 @@ public class UserController {
         if(userService.deleteUserById(id,editorId)){
             return Result.ok("删除成功");
         }
-        else throw new ServiceException(Code.ERROR, "删除失败");
+        else return Result.error(Code.ERROR.getCode(),"删除失败");
     }
 
     @Operation(summary = "邀请用户")
@@ -125,7 +125,7 @@ public class UserController {
         if(userService.addUser(inviteRequest,inviterId)){
             return Result.ok("添加成功");
         }
-        else throw new ServiceException(Code.ERROR,"添加失败");
+        else return Result.error(Code.FORBIDDEN.getCode(),Code.FORBIDDEN.getMsg());
     }
 
 

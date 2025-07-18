@@ -1,21 +1,26 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.abnormality.abnormalityaccept.entity.Abnormality;
+import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.service.FileService;
 import com.abnormality.abnormalityaccept.util.AFileUtil;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
-import io.minio.UploadObjectArgs;
+import io.minio.*;
+import io.minio.errors.*;
 import io.minio.http.Method;
+import io.minio.messages.Bucket;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +45,9 @@ public class FileServiceImpl implements FileService {
     @Value("${minio.bucketName}")
     private String bucketName;
 
+    @Value("${minio.endpoint}")
+    private String endpoint;
+
     /**
      * 预签名 URL 的过期时间（单位：秒），默认为 30 分钟。
      */
@@ -56,19 +64,23 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public String getPublicUrl(String filename) {
-        try {
-            // 调用 MinIO API 生成 GET 方法可访问的预签名 URL
-            return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
-                    .bucket(bucketName)
-                    .object(filename)
-                    .method(Method.GET)
-                    .expiry(expSecs)
-                    .build());
-        } catch (Exception e) {
-            // 记录日志并抛出异常，避免调用方无法感知错误
-            log.error("获取上传文件URL失败：{}", e.getMessage());
+//        try {
+//            // 调用 MinIO API 生成 GET 方法可访问的预签名 URL
+//            return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+//                    .bucket(bucketName)
+//                    .object(filename)
+//                    .method(Method.GET)
+//                    .expiry(expSecs)
+//                    .build());
+//        } catch (Exception e) {
+//            // 记录日志并抛出异常，避免调用方无法感知错误
+//            log.error("获取上传文件URL失败：{}", e.getMessage());
+//            return "";
+//        }
+        if(StrUtil.isBlank(filename)){
             return "";
         }
+        return endpoint + "/" + bucketName + "/" + filename;
     }
 
     /**
@@ -173,5 +185,27 @@ public class FileServiceImpl implements FileService {
             abnormalityVoList.add(completeImageUrl(abnormality));
         }
         return abnormalityVoList;
+    }
+
+    @Override
+    public String test() {
+        try{
+            List<String> results=new ArrayList<>();
+//            return JSONUtil.toJsonStr(minioClient.listBuckets());
+            Object result=minioClient.getBucketEncryption(GetBucketEncryptionArgs.builder().bucket(bucketName).build());
+            results.add(JSONUtil.toJsonStr(result));
+            result=minioClient.getBucketPolicy(GetBucketPolicyArgs.builder().bucket(bucketName).build());
+            results.add((String) result);
+            log.info("result:{}",results);
+            List<Bucket> bucketList = minioClient.listBuckets();
+            for (Bucket bucket : bucketList) {
+                log.info(bucket.creationDate() + ", " + bucket.name());
+            }
+            return JSONUtil.toJsonStr(results);
+        } catch (Exception e) {
+
+            throw new ServiceException(Code.ERROR, "获取数据失败",e);
+        }
+
     }
 }

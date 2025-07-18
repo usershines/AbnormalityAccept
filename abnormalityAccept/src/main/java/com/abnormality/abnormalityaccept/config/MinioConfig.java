@@ -1,8 +1,10 @@
 package com.abnormality.abnormalityaccept.config;
 
+import cn.hutool.json.JSONUtil;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
+import io.minio.SetBucketPolicyArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -65,6 +67,8 @@ public class MinioConfig {
                 // 如果存储桶不存在，则创建新的存储桶
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
             }
+            log.info("存储桶已存在");
+            minioClient.setBucketPolicy(SetBucketPolicyArgs.builder().bucket(bucketName).config(getBucketPolicy()).build());
         } catch (Exception e) {
             // 记录初始化失败的日志信息，并退出程序
             log.error("初始化MinIO失败：{}", e.getMessage());
@@ -75,5 +79,34 @@ public class MinioConfig {
         log.info("初始化MinIO成功");
 
         return minioClient;
+    }
+
+    private String getBucketPolicy() {
+//        StringBuilder builder=new StringBuilder();
+//        builder.append("{\n" +
+//                "  \"Version\": \"2012-10-17\",\n" +
+//                "  \"Statement\": [\n" +
+//                "    {\n" +
+//                "      \"Effect\": \"Allow\",\n" +
+//                "      \"Action\": [\n" +
+////                "                \"s3:ListAllMyBuckets\",\n" +
+//                "                \"s3:ListBucket\",\n" +
+//                "                \"s3:GetBucketLocation\",\n" +
+//                "                \"s3:GetObject\",\n" +
+////                "                \"s3:PutObject\",\n" +
+////                "                \"s3:DeleteObject\"\n" +
+//                "      ],\n" +
+//                "      \"Principal\":\"*\",\n" +
+//                "      \"Resource\": [\n" +
+//                "        \"arn:aws:s3:::"+bucketName+"/*\"\n" +
+//                "      ]\n" +
+//                "    }\n" +
+//                "  ]\n" +
+//                "}");
+            MinIoBucketPolicy policy=MinIoBucketPolicy.readOnly(bucketName);
+//            log.info("bucketPolicy:{}",JSONUtil.toJsonStr(policy));
+//            return JSONUtil.toJsonStr(policy);
+        log.info("bucketPolicy:{}",policy.toString());
+        return policy.toString();
     }
 }

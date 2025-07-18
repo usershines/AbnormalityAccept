@@ -50,51 +50,28 @@
       </el-menu-item>
 
       <!-- 任务管理 -->
-      <el-sub-menu index="4">
+      <el-menu-item index="/workPlace/quest">
         <template #title>
           <el-icon><Tickets /></el-icon>
           <span>任务管理</span>
         </template>
-        <el-menu-item index="mission-list">
-          <el-icon><List /></el-icon>
-          <span>任务列表</span>
-        </el-menu-item>
-        <el-menu-item index="create-mission">
-          <el-icon><CirclePlus /></el-icon>
-          <span>新建任务</span>
-        </el-menu-item>
-        <el-menu-item index="mission-progress">
-          <el-icon><TrendCharts /></el-icon>
-          <span>任务进度</span>
-        </el-menu-item>
-      </el-sub-menu>
-
-      <!-- 绩效管理 -->
-      <el-sub-menu index="6">
-        <template #title>
-          <el-icon><DataAnalysis /></el-icon>
-          <span>绩效管理</span>
-        </template>
-        <el-menu-item index="performance">
-          <el-icon><Histogram /></el-icon>
-          <span>绩效统计</span>
-        </el-menu-item>
-        <el-menu-item index="evaluation">
-          <el-icon><DocumentChecked /></el-icon>
-          <span>人员评估</span>
-        </el-menu-item>
-        <el-menu-item index="reports">
-          <el-icon><Document /></el-icon>
-          <span>绩效报告</span>
-        </el-menu-item>
-      </el-sub-menu>
-
-      <!-- 其他功能 -->
-      <el-menu-item index="profile">
-        <el-icon><UserFilled /></el-icon>
-        <span>个人主页</span>
       </el-menu-item>
 
+      <!-- 装备管理 -->
+      <el-menu-item index="/workPlace/equipment">
+        <template #title>
+          <el-icon><SuitcaseLine /></el-icon>
+          <span>装备管理</span>
+        </template>
+      </el-menu-item>
+
+      <!-- 设施管理 -->
+      <el-menu-item index="/workPlace/facility">
+        <el-icon><OfficeBuilding /></el-icon>
+        <span>设施管理</span>
+      </el-menu-item>
+
+      <!-- 其他功能 -->
       <el-menu-item index="settings">
         <el-icon><Setting /></el-icon>
         <span>系统设置</span>
@@ -125,9 +102,8 @@
 
 <script setup lang="ts">
 import {
-  HomeFilled, User, List, CirclePlus, MagicStick, Search, Plus,
-  EditPen, Warning, Position, Aim, DataLine, Tickets, TrendCharts,
-  DataAnalysis, Histogram, DocumentChecked, Document, UserFilled, Setting, BellFilled
+  HomeFilled, User, MagicStick, SuitcaseLine,
+  Position, Tickets, UserFilled, Setting, BellFilled
 } from '@element-plus/icons-vue'
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";

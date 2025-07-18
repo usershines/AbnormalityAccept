@@ -6,8 +6,9 @@ interface abnormality {
     level: number;
     description: string;
     manageMethod: string;
-    notes: number;
+    notes: string;
     facilityId: number;
+    imageName: string;
 }
 
 // 添加异想体

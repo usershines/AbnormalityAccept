@@ -3,6 +3,7 @@ package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.Email;
 import com.abnormality.abnormalityaccept.service.EmailService;
+import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,11 +22,13 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/email")
+@RequestMapping("/user/email")
 @Tag(name = "邮件管理")
 public class EmailController {
 
     private final EmailService emailService;
+
+    private final UserService userService;
 
     @Operation(summary = "邮件查询")
     @GetMapping("/list")
@@ -69,9 +72,18 @@ public class EmailController {
         return Result.ok(emailList);
     }
     @Operation(summary = "根据接收者id查询邮件")
-    @GetMapping("/receiver/{receiverId}")
-    public Result<PageInfo<Email>> findEmailByReceiverId(@PathVariable Long receiverId,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+    @GetMapping("/receiver/")
+    public Result<PageInfo<Email>> findEmailByReceiverId(@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+        Long receiverId = userService.getUserIdByToken();
         PageInfo<Email> emailList = emailService.findEmailByReceiverId(receiverId,pageNum,pageSize);
+        return Result.ok(emailList);
+    }
+
+    @Operation(summary = "根据主题查询邮件")
+    @GetMapping("/receiver/theme")
+    public Result<PageInfo<Email>> findEmailByTheme(@RequestParam String theme, @RequestParam Integer pageNum, @RequestParam Integer pageSize){
+        Long userId = userService.getUserIdByToken();
+        PageInfo<Email> emailList = emailService.findEmailByTheme(theme,userId,pageNum,pageSize);
         return Result.ok(emailList);
     }
 

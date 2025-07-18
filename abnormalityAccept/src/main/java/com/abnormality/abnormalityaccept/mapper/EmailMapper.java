@@ -25,6 +25,7 @@ public interface EmailMapper {
 
     boolean deleteEmailById(Long id);
 
+    List< Email> findEmailByTheme(String theme ,Long UserId);
     //boolean groupEmailByReceiverId(Long receiverId);
 
     List<Email> findEmailByReceiverId(Long receiverId);

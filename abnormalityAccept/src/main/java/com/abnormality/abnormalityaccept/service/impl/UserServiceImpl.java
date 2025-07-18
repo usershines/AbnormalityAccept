@@ -20,6 +20,7 @@ import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.service.RedisService;
 import com.abnormality.abnormalityaccept.service.UserService;
+import com.abnormality.abnormalityaccept.util.AopUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -418,16 +419,28 @@ public class UserServiceImpl implements UserService {
         return username;
     }
 
+//    /**
+//     * 解析 JWT Token 获取负载信息。
+//     *
+//     * @param token 待解析的 JWT Token
+//     * @return 解析得到的 JwtPayload 对象
+//     */
+//    private JwtPayload getJwtPayload(String token) {
+//        JWT jwt = JWT.of(token);
+//        return jwt.getPayloads().toBean(JwtPayload.class);
+//    }
+
     /**
-     * 解析 JWT Token 获取负载信息。
      *
-     * @param token 待解析的 JWT Token
-     * @return 解析得到的 JwtPayload 对象
+     * 封装从前端获取用户ID的方法。
+     * @return 用户ID
      */
-    private JwtPayload getJwtPayload(String token) {
-        JWT jwt = JWT.of(token);
-        return jwt.getPayloads().toBean(JwtPayload.class);
+    public Long getUserIdByToken(){
+        String token = AopUtil.getToken();
+        String username = JwtPayload.fromToken(token).getUsername();
+        return userMapper.selectOne(new QueryWrapper<User>().eq("username",username)).getId();
     }
+
 }
 
 

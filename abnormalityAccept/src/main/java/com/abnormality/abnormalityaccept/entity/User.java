@@ -14,7 +14,6 @@ import java.util.Collection;
 public class User  {
     @TableId(type = IdType.AUTO)
     private Long id;
-
     private String username;
     private String password;
     private String email;
@@ -25,7 +24,5 @@ public class User  {
     private Long facilityId;
     private String introduction ;
     private Integer isActive=1;
-
-    private String role;
 
 }

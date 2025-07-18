@@ -17,9 +17,9 @@ import java.util.Date;
 @NoArgsConstructor
 public class Notice {
     private Long id;
+    private String theme;
     private String content;
     private Date time;
     private Integer state;
-    private Integer pageNum;
-    private Integer pageSize;
+
 }

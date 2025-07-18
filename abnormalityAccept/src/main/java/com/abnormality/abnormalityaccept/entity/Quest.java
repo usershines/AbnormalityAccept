@@ -20,4 +20,5 @@ public class Quest {
     private String questDescription;
     private Integer state;
 
+
 }

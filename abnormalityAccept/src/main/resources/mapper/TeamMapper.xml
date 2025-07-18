@@ -13,18 +13,19 @@
         <result property="level" column="level"/>
         <result property="description" column="description"/>
         <result property="leaderId" column="leader_id"/>
+        <result property="isActive" column="is_active"/>
     </resultMap>
 
     <!-- 基础字段SQL片段（复用查询字段） -->
     <sql id="Base_Team">
-        id, name, status, resolving_quest_id, level, description, leader_id
+        id, name, status, resolving_quest_id, level, description, leader_id, is_active
     </sql>
 
     <!-- 1. 查询所有团队 -->
     <select id="findAllTeam" resultMap="Base_Team_List">
         SELECT
         <include refid="Base_Team"/>
-        FROM team
+        FROM team and is_active = 1
     </select>
 
     <!-- 2. 根据ID查询团队 -->
@@ -32,13 +33,21 @@
         SELECT
         <include refid="Base_Team"/>
         FROM team
-        WHERE id = #{id}
+        WHERE id = #{id} and is_active = 1
+    </select>
+
+    <!-- 3. 根据名称查询团队 -->
+    <select id="findTeamByName" resultMap="Base_Team_List">
+        SELECT
+        <include refid="Base_Team"/>
+        FROM team
+        WHERE name = #{name} and is_active = 1
     </select>
 
     <!-- 3. 添加团队 -->
     <insert id="addTeam">
-        INSERT INTO team(name, status, resolving_quest_id, level, description, leader_id)
-        VALUES(#{name}, #{status}, #{resolvingQuestId}, #{level}, #{description}, #{leaderId})
+        INSERT INTO team(name, status, resolving_quest_id, level, description, leader_id,is_active)
+        VALUES(#{name}, #{status}, #{resolvingQuestId}, #{level}, #{description}, #{leaderId},1)
     </insert>
 
     <!-- 4. 更新团队 -->
@@ -53,11 +62,12 @@
         WHERE id = #{id}
     </update>
 
-    <!-- 5. 根据ID删除团队 -->
-    <delete id="deleteTeamById">
-        DELETE FROM team
+    <!-- 5. 根据ID删除团队,逻辑删除 -->
+    <update id="deleteTeamById">
+        UPDATE team
+        SET is_active = 0
         WHERE id = #{id}
-    </delete>
+    </update>
 
     <!-- ============== 拓展方法实现 ============== -->
 
@@ -84,10 +94,7 @@
             </if>
         </where>
     </select>
-    <!-- 校验名称唯一性 -->
-    <select id="countByName" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM team WHERE name = #{name}
-    </select>
+
 
     <!-- 更新团队任务ID -->
     <update id="updateQuestId">

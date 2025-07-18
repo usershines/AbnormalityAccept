@@ -22,7 +22,7 @@ public interface AbnormalityService {
     boolean addAbnormality(Abnormality abnormality);
 
     // 更新异想体信息
-    boolean updateAbnormality( Abnormality updatedData);
+    boolean updateAbnormality( Abnormality updatedData,Long editorId);
 
     // 查询异想体（多条件）
     PageInfo<Abnormality> findAbnormalityByConditions(Abnormality abnormality,Integer pageNum, Integer pageSize);

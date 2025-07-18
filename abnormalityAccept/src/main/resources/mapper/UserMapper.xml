@@ -38,6 +38,13 @@
         where id=#{id} and is_active = 1
     </select>
 
+    <select id="findUserBelongNotTeam" resultMap="Base_User_List">
+        select
+        <include refid="Base_User"/>
+        from user
+        where id not in (select user_id from team_member) and is_active = 1
+    </select>
+
 
     <insert id="addUser" parameterType="com.abnormality.abnormalityaccept.entity.User">
         INSERT INTO user (

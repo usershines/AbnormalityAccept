@@ -71,6 +71,8 @@ public interface UserService {
      */
     boolean verify(String token);
 
+    Long getUserIdByToken();
+
 //
 //
 

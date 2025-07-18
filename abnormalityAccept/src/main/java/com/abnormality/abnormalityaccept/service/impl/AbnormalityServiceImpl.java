@@ -6,6 +6,7 @@ import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.AbnormalityMapper;
+import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.service.AbnormalityService;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.github.pagehelper.PageHelper;
@@ -29,6 +30,8 @@ public class AbnormalityServiceImpl implements AbnormalityService {
     @Autowired
     private AbnormalityMapper abnormalityMapper;
 
+    private  final UserMapper userMapper;
+
     @Override
     @DS("slave")
     public PageInfo<Abnormality> findAllAbnormality(Integer pageNum, Integer pageSize) {
@@ -39,6 +42,7 @@ public class AbnormalityServiceImpl implements AbnormalityService {
 
     @Override
     public Abnormality findAbnormalityById(Long id) {
+
         Abnormality abnormality = abnormalityMapper.findAbnormalityById(id);
         if(ObjectUtil.isEmpty(abnormality)){
             throw new ServiceException(Code.NOT_FOUND,"异想体不存在");
@@ -56,7 +60,10 @@ public class AbnormalityServiceImpl implements AbnormalityService {
 
     //根据用户等级获取相应的修改权限
     @Override
-    public boolean updateAbnormality( Abnormality updatedData) {
+    public boolean updateAbnormality( Abnormality updatedData,Long editorId) {
+        User editor = userMapper.findUserById(editorId);
+        if(updatedData.getLevel()>editor.getLevel())
+            throw new ServiceException(Code.BAD_REQUEST, "不能修改等级比自己高的异想体信息");
         return  abnormalityMapper.updateAbnormality(updatedData);
     }
 

@@ -23,4 +23,6 @@ public interface EmailService {
     PageInfo<Email> findEmailBySenderId(Long senderId, Integer pageNum, Integer pageSize);
 
     PageInfo<Email> findEmailByReceiverId(Long receiverId, Integer pageNum, Integer pageSize);
+
+    PageInfo<Email> findEmailByTheme(String theme ,Long UserId , Integer pageNum, Integer pageSize);
 }

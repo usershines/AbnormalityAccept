@@ -14,18 +14,15 @@ import java.util.Collection;
 public class User  {
     @TableId(type = IdType.AUTO)
     private Long id;
-
     private String username;
     private String password;
     private String email;
     private Integer level;
-    private String teamName;
+    private String teamId;
     private Long inviterId;
     private Long leaderId;
     private Long facilityId;
     private String introduction ;
     private Integer isActive=1;
-
-    private String role;
 
 }

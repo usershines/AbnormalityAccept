@@ -21,12 +21,18 @@
         <include refid="Base_Column_List" />
         FROM email
     </select>
+    <select id="findEmailByTheme" resultMap="Email_Base_Data">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM email
+        WHERE receiver_id = #{UserId} and theme like concat('%',#{theme},'%')
+    </select>
 
     <select id="findEmailByReceiverId" resultMap="Email_Base_Data">
         SELECT
         <include refid="Base_Column_List" />
         FROM email
-        WHERE sender_id = #{senderId}
+        WHERE receiver_id = #{receiverId}
     </select>
     <select id="findEmailBySenderId" resultMap="Email_Base_Data">
         SELECT

@@ -4,6 +4,7 @@ import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.Abnormality;
 import com.abnormality.abnormalityaccept.service.AbnormalityService;
 import com.abnormality.abnormalityaccept.service.FileService;
+import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,6 +35,9 @@ public class AbnormalityController {
     @Autowired
     private FileService fileService;
 
+    @Autowired
+    private UserService userService;
+
     @Operation(summary = "异想体信息查询")
     @GetMapping("/List")
     public Result<PageInfo<Abnormality>> findAllAbnormality(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
@@ -59,7 +63,8 @@ public class AbnormalityController {
     @Operation(summary = "更新异想体")
     @PutMapping("/update")
     public Result<String> updateAbnormality(@RequestBody Abnormality abnormality) {
-        if (abnormalityService.updateAbnormality(abnormality)) {
+        Long editorId = userService.getUserIdByToken();
+        if (abnormalityService.updateAbnormality(abnormality, editorId)) {
             return Result.ok("更新成功");
         } else {
             return Result.error(500,"更新失败");

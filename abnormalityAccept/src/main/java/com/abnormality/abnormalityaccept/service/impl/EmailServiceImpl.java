@@ -59,4 +59,11 @@ public class EmailServiceImpl implements EmailService {
         return PageInfo.of(emailList);
     }
 
+    @Override
+    public PageInfo<Email> findEmailByTheme(String theme, Long UserId, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Email> emailList = emailMapper.findEmailByTheme(theme, UserId);
+        return PageInfo.of(emailList);
+    }
+
 }

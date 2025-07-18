@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service;
 
+import com.abnormality.abnormalityaccept.dto.request.EmailAddRequest;
 import com.abnormality.abnormalityaccept.entity.Email;
 import com.github.pagehelper.PageInfo;
 
@@ -10,19 +11,20 @@ import com.github.pagehelper.PageInfo;
  * @since 2025-07-13
  */
 public interface EmailService {
-    PageInfo<Email> findAllEmail( Integer pageNum, Integer pageSize);
+    PageInfo<Email> findAllEmail( Integer pageNum, Integer pageSize ,Long receiverId);
 
-    Email findEmailById(Long id);
+    Email findEmailById(Long id, Long receiverId);
 
-    boolean addEmail(Email email);
+    //发送邮件
+    boolean sendEmail(EmailAddRequest emailAddRequest, Long userId);
 
-    boolean updateEmail(Email email);
 
-    boolean deleteEmailById(Long id);
+    boolean deleteEmailById(Long id, Long receiverId);
 
-    PageInfo<Email> findEmailBySenderId(Long senderId, Integer pageNum, Integer pageSize);
+    PageInfo<Email> findEmailBySenderId(Long senderId, Integer pageNum, Integer pageSize, Long receiverId);
 
-    PageInfo<Email> findEmailByReceiverId(Long receiverId, Integer pageNum, Integer pageSize);
 
-    PageInfo<Email> findEmailByTheme(String theme ,Long UserId , Integer pageNum, Integer pageSize);
+    PageInfo<Email> findEmailByTheme(String theme  , Integer pageNum, Integer pageSize, Long receiverId);
+
+    boolean updateEmailState(Long id, Integer state, Long receiverId);
 }

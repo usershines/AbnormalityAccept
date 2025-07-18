@@ -24,9 +24,17 @@ public interface UserMapper extends BaseMapper<User> {
      *根据id查询用户
      */
     User findUserById(Long id);
-    
-    List< User> findUserBelongNotTeam(@Param("teamId") Long teamId);
 
+
+    /**
+     *查询暂无归属小队的用户列表
+     */
+    List< User> findUserBelongNotTeam();
+
+    /**
+     * 根据id查询无归属小队的用户
+     */
+     User findUserBelongNotTeamById(Long id);
 
     /**
      * 新增数据

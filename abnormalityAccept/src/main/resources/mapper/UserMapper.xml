@@ -10,7 +10,7 @@
         <result property="password" column="password"/>
         <result property="email" column="email"/>
         <result property="level" column="level"/>
-        <result property="teamName" column="team_name"/>
+        <result property="teamId" column="team_id"/>
         <result property="inviterId" column="inviter_id"/>
         <result property="leaderId" column="leader_id"/>
         <result property="facilityId" column="facility_id"/>
@@ -20,7 +20,7 @@
     </resultMap>
 
     <sql id="Base_User">
-        id,username,password,email,level,team_name,inviter_id,leader_id,facility_id,introduction,is_active
+        id,username,password,email,level,team_id,inviter_id,leader_id,facility_id,introduction,is_active
     </sql>
 
     <select id="findAllUser" resultMap="Base_User_List">
@@ -38,11 +38,20 @@
         where id=#{id} and is_active = 1
     </select>
 
+
+
     <select id="findUserBelongNotTeam" resultMap="Base_User_List">
         select
         <include refid="Base_User"/>
         from user
-        where id not in (select user_id from team_member) and is_active = 1
+        where team_id is null and is_active = 1
+    </select>
+
+    <select id="findUserBelongNotTeamById" resultMap="Base_User_List">
+        select
+        <include refid="Base_User"/>
+        from user
+        where team_id is null and id = #{id} and is_active = 1
     </select>
 
 
@@ -52,7 +61,7 @@
             password,
             email,
             level,
-            team_name,
+            team_id,
             inviter_id,
             leader_id,
             facility_id,
@@ -64,7 +73,7 @@
                      #{user.password},
                      #{user.email},
                      #{user.level},
-                     #{user.teamName},
+                     #{user.teamId},
                      #{user.inviterId},
                      #{user.leaderId},
                      #{user.facilityId},

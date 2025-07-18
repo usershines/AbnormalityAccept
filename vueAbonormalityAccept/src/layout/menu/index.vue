@@ -166,7 +166,6 @@ const handleClose = (key: string, keyPath: string[]) => {
 <style scoped>
 .sidebar-container {
   background: linear-gradient(135deg, #0c1427 0%, #0d1830 100%);
-  height: 100vh;
   border-right: 1px solid rgba(93, 139, 244, 0.2);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
   display: flex;

@@ -8,6 +8,10 @@ import Team from '../views/workPlace/team/index.vue'
 import Login from "../views/login/LoginViews.vue"
 import NotFound from "../views/notfound/index.vue"
 import Abnormality from "../views/workPlace/abnormality/index.vue"
+import EmailMain from "../views/email/index.vue"
+import EmailInbox from "../views/email/components/inbox.vue"
+import EmailSent from "../views/email/components/sent.vue"
+import EmailDrafts from "../views/email/components/drafts.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +60,25 @@ const router = createRouter({
           name: '',
           component: Home,
         },
+        {
+          path: 'email',
+          name: '/email',
+          component: EmailMain,
+          children:[
+            {
+              path: 'inbox',
+              component:  EmailInbox,
+            },
+            {
+              path: 'drafts',
+              component:  EmailDrafts,
+            },
+            {
+              path: 'sent',
+              component: EmailSent,
+            },
+          ]
+        }
       ]
     },
     {

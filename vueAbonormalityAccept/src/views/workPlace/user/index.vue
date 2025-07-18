@@ -402,7 +402,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
+import {reactive, ref, computed, onMounted} from 'vue';
 import {getUserList, updateUser, addUser, deleteUser, findUser} from "@/api/user.ts";
 import {ElMessage} from "element-plus";
 
@@ -452,7 +452,7 @@ const submitCreate = () => {
           console.log("新建用户成功:", newUser);
           ElMessage.success('新建用户成功');
           createDialogVisible.value = false;
-          catchData(currentPage.value,pageSize.value)
+          catchData()
           // 重置表单
           createFormRef.value.resetFields();
         }
@@ -637,8 +637,8 @@ const pageSize = ref(10);
 const total = ref(0);
 
 // 获取数据
-const catchData = (currentPage: number, pageSize: number) => {
-  getUserList(currentPage, pageSize).then((response) => {
+const catchData = () => {
+  getUserList(currentPage.value, pageSize.value).then((response) => {
     if(response.code === 200) {
       tableData.value = response.data.list;
       total.value = response.data.total;
@@ -653,8 +653,6 @@ const catchData = (currentPage: number, pageSize: number) => {
       }
   )
 }
-
-catchData(currentPage.value,pageSize.value)
 
 // 详情弹窗相关
 const detailDialogVisible = ref(false);
@@ -727,18 +725,19 @@ const handleReset = () => {
   searchForm.level = '';
   searchForm.facilityId = null;
   searchForm.id = null;
-  catchData(currentPage.value,pageSize.value)
+  catchData()
 };
 
 // 每页条数改变
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
-  currentPage.value = 1;
+  catchData()
 };
 
 // 当前页改变
 const handleCurrentChange = (val: number) => {
   currentPage.value = val;
+  catchData()
 };
 
 // 查看详情方法
@@ -813,6 +812,13 @@ const handleDelete = (row: any) => {
         })
       })
 };
+
+// 生命周期钩子
+onMounted(() =>{
+  // 初始化表单
+  catchData()
+
+})
 </script>
 
 <style scoped>

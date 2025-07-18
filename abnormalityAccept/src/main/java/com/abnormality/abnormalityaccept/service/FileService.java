@@ -1,7 +1,11 @@
 package com.abnormality.abnormalityaccept.service;
 
 import com.abnormality.abnormalityaccept.entity.Abnormality;
+import io.minio.errors.*;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public interface FileService {
@@ -10,4 +14,6 @@ public interface FileService {
     boolean exist(String fileName);
     Abnormality completeImageUrl(Abnormality abnormality);
     List<Abnormality> completeImageUrl(List<Abnormality> abnormalityList);
+
+    String test();
 }

@@ -14,7 +14,7 @@
     </resultMap>
 
     <sql id="Base_Equipment">
-        id, name, state, application_requirement, master_id, description
+        id, name, type, state, application_requirement, master_id, description
     </sql>
 
     <select id="findAllEquipment" resultMap="Base_Equipment_List">
@@ -31,13 +31,14 @@
     </select>
 
     <insert id="addEquipment">
-        INSERT INTO equipment(name, state, application_requirement, master_id, description)
-        VALUES(#{name}, #{state}, #{applicationRequirement}, #{masterId}, #{description})
+        INSERT INTO equipment(name, type,state, application_requirement, master_id, description)
+        VALUES(#{name}, #{type},#{state}, #{applicationRequirement}, #{masterId}, #{description})
     </insert>
 
     <update id="updateEquipment">
         UPDATE equipment
         SET name = #{name},
+            type = #{type},
             state = #{state},
             application_requirement = #{applicationRequirement},
             master_id = #{masterId},

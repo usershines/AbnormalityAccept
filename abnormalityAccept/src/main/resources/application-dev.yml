@@ -28,9 +28,9 @@ spring:
       strict: false # 是否启用严格模式，false 表示非严格，允许某些操作失败
       datasource:
         master:
-          url: jdbc:mysql://localhost:3306/abnormality?useSSL=false&serverTimezone=UTC # 主数据库连接地址
-          username: root # 主数据库用户名
-          password:  # 主数据库密码
+          url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC # 主数据库连接地址
+          username: abnormality # 主数据库用户名
+          password: abnormality # 主数据库密码
           driver-class-name: com.mysql.cj.jdbc.Driver # 主数据库驱动类
 
 #        slave:
@@ -83,7 +83,7 @@ pagehelper:
   support-methods-arguments: true  # 支持通过 Mapper 接口参数传递分页参数
 # MinIO 对象存储配置
 minio:
-  endpoint: http://localhost:9000 # MinIO 服务端点地址
+  endpoint: http://poyuan.kmdns.net:19000 # MinIO 服务端点地址
   username: minioadmin # MinIO 登录用户名
   password: minioadmin # MinIO 登录密码
   bucketName: abnormality # 默认使用的存储桶名称

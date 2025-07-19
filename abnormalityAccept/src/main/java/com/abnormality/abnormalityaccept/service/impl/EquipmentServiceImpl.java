@@ -50,8 +50,10 @@ public class EquipmentServiceImpl implements EquipmentService {
      */
     @Override
     public boolean updateEquipment(Equipment equipment){
-        return equipmentMapper.updateEquipment(equipment)>0;
+//        return equipmentMapper.updateEquipment(equipment)>0;
+        return equipmentMapper.insertOrUpdate( equipment);
     }
+
     /**
      *删除学生
      */

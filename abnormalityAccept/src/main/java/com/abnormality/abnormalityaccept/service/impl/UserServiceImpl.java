@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPassword(encryptPassword(newPassword));
-        int result = userMapper.updatePassword( user.getId());
+        int result = userMapper.updateById( user);
         return result > 0;
     }
 

@@ -76,6 +76,10 @@
         <el-icon><Setting /></el-icon>
         <span>系统设置</span>
       </el-menu-item>
+      <el-menu-item index="/workPlace/personal">
+        <el-icon><OfficeBuilding /></el-icon>
+        <span>个人主页</span>
+      </el-menu-item>
 
       <el-menu-item index="emergency">
         <el-icon><BellFilled /></el-icon>

@@ -128,7 +128,7 @@ public class UserController {
 
 
     @Operation(summary = "更新用户本人信息")
-    @PutMapping("/update")
+    @PostMapping("/update")
     public Result<String> updateUser(@RequestBody UpdateUserOneSelfRequest updateUserOneSelfRequest){
         String token = AopUtil.getToken();
         String  username = JwtPayload.fromToken(token).getUsername();
@@ -169,6 +169,12 @@ public class UserController {
         if (userService.updatePassword(userId,updatePasswordRequest.getNewPassword()))
             return Result.ok("修改成功");
         else throw new ServiceException(Code.ERROR,"修改失败");
+    }
+
+    @Operation(summary = "根据名称查找")
+    @GetMapping("/findByName")
+    public Result<User> findUserByName(@RequestParam String name) {
+        return Result.ok(userService.findUserByName(name));
     }
 
 

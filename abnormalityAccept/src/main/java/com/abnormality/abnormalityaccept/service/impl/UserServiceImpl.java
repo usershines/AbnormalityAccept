@@ -148,7 +148,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean addUser(InviteRequest inviteRequest, Long inviterId) {
-        if(inviteRequest.getUsername()== null) throw new ServiceException(Code.ERROR,"用户名不能为空");
+        if(inviteRequest.getUsername()== null || inviteRequest.getUsername().isEmpty()) throw new ServiceException(Code.ERROR,"用户名不能为空");
         User newUser = new User();
         User inviter = userMapper.selectById(inviterId);
 
@@ -173,7 +173,7 @@ public class UserServiceImpl implements UserService {
         newUser.setInviterName(userMapper.selectById(inviterId).getUsername());
         newUser.setLeaderId(inviterId);
         newUser.setLeaderName(userMapper.selectById(inviterId).getUsername());
-        return userMapper.addUser(newUser) > 0;
+        return userMapper.insert(newUser)>0;
     }
 
 

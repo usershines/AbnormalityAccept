@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/Team")
+@RequestMapping("/team")
 @Tag(name = "机动小队管理", description = "包含小队创建、更新、任务指派等接口")
 @RequiredArgsConstructor
 public class TeamController {

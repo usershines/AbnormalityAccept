@@ -98,7 +98,7 @@
         )
         VALUES (
                      #{username},
-                      #{password},
+                     #{password},
                      #{email},
                      #{level},
                      #{teamId},

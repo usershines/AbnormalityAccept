@@ -24,7 +24,7 @@ export function login(form:any) {
 
 // 分页获取用户信息
 export function getUserList(pageNum: number, pageSize: number){
-    return request.get('/user/List', {
+    return request.get('/user/list', {
         params:{
             pageNum: pageNum,
             pageSize: pageSize,
@@ -57,6 +57,11 @@ export function logout(){
 }
 
 // 条件查询
-export function findUser(user: any){
-    return request.post('/user/findUserByCondition', user)
+export function findUser(user: any, pageNum: number, pageSize: number){
+    return request.post('/user/findUserByCondition', user, {
+        params:{
+            pageNum: pageNum,
+            pageSize: pageSize,
+        }
+    })
 }

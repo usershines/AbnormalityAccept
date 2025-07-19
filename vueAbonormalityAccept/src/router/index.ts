@@ -1,13 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Login from "../views/login/LoginViews.vue"
 import HomeView from '../views/index.vue'
 import Home from '../views/home/index.vue'
 import WorkPlace from '../views/workPlace/index.vue'
-import User from '../views/workPlace/user/index.vue'
 import WorkPlaceMain from '../views/workPlace/main/index.vue'
+import User from '../views/workPlace/user/index.vue'
+import Quest from "../views/workPlace/quest/index.vue"
+import Equipment from "../views/workPlace/equipment/index.vue"
+import Facility from "../views/workPlace/facility/index.vue"
 import Team from '../views/workPlace/team/index.vue'
-import Login from "../views/login/LoginViews.vue"
-import NotFound from "../views/notfound/index.vue"
 import Abnormality from "../views/workPlace/abnormality/index.vue"
+import EmailMain from "../views/email/index.vue"
+import EmailInbox from "../views/email/components/inbox.vue"
+import EmailSent from "../views/email/components/sent.vue"
+import EmailDrafts from "../views/email/components/drafts.vue"
+import NotFound from "../views/notfound/index.vue"
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +50,18 @@ const router = createRouter({
             {
               path: 'abnormality',
               component: Abnormality,
+            },
+            {
+              path: 'quest',
+              component: Quest,
+            },
+            {
+              path: 'facility',
+              component: Facility,
+            },
+            {
+              path: 'equipment',
+              component: Equipment,
             }
 
           ]
@@ -56,6 +76,25 @@ const router = createRouter({
           name: '',
           component: Home,
         },
+        {
+          path: 'email',
+          name: '/email',
+          component: EmailMain,
+          children:[
+            {
+              path: 'inbox',
+              component:  EmailInbox,
+            },
+            {
+              path: 'drafts',
+              component:  EmailDrafts,
+            },
+            {
+              path: 'sent',
+              component: EmailSent,
+            },
+          ]
+        }
       ]
     },
     {

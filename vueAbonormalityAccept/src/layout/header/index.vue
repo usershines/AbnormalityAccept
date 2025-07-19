@@ -21,7 +21,7 @@
         >
           <el-menu-item index="/start" @click="goToHome" >首页</el-menu-item>
           <el-menu-item index="/workPlace">工作区</el-menu-item>
-          <el-menu-item index="/email">邮箱</el-menu-item>
+          <el-menu-item index="/email/inbox">邮箱</el-menu-item>
           <el-menu-item index="order">Orders</el-menu-item>
         </el-menu>
         <el-avatar  :size="80" :src="userAvatar" />
@@ -48,7 +48,7 @@ const updateDefaultActive = () => {
     defaultActive.value = '/workPlace';
   } else {
     if (route.path.startsWith('/email')) {
-      defaultActive.value = '/email';
+      defaultActive.value = '/email/inbox';
     }else {
       defaultActive.value = route.name;
     }
@@ -95,11 +95,14 @@ onBeforeUnmount(() => {
 
 // 登出
 const Logout = () => {
+  ElMessage.info('正在登出')
   logout().then((res) => {
     if(res.code === 200){
       router.push("/login")
+      localStorage.clear()
     }
   }).catch(e => {
+    ElMessage.error(e.msg)
     console.log(e)
   }
   )

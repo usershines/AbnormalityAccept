@@ -9,6 +9,7 @@
       </div>
     </div>
 
+<!--
     <el-row :gutter="20" class="mb-20">
       <el-col :span="6">
         <el-card shadow="hover" class="stat-card">
@@ -43,6 +44,7 @@
         </el-card>
       </el-col>
     </el-row>
+-->
 
     <!-- 搜索表单区域 -->
     <el-form :inline="true" :model="filterForm" class="search-form">
@@ -82,7 +84,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" @click="searchAbnormalities" class="search-button">
+        <el-button type="primary" @click="handleSearch" class="search-button">
           <i class="iconfont icon-search"></i> 搜索
         </el-button>
         <el-button @click="resetFilter" class="reset-button">
@@ -93,19 +95,12 @@
 
     <!-- 数据表格区域 -->
     <el-table
-      :data="filteredAbnormalityList"
+      :data="tableData"
       border
       style="width: 100%"
       class="containment-table"
       :header-cell-style="tableHeaderStyle"
-      :row-style="tableRowStyle"
     >
-      <el-table-column prop="number" label="SCP编号" width="120">
-        <template #header>
-          <span><i class="iconfont icon-id"></i> SCP编号</span>
-        </template>
-      </el-table-column>
-
       <el-table-column prop="name" label="名称" width="200">
         <template #header>
           <span><i class="iconfont icon-user"></i> 名称</span>
@@ -165,7 +160,7 @@
           <el-button
             type="text"
             class="delete-btn"
-            @click="deleteAbnormality(scope.row)"
+            @click="handleDeleteAbnormality(scope.row)"
           >
             <i class="iconfont icon-delete"></i> 删除
           </el-button>
@@ -177,11 +172,11 @@
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :current-page="pagination.currentPage"
+      :current-page="pageNum"
       :page-sizes="[10, 20, 30]"
-      :page-size="pagination.pageSize"
+      :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="pagination.total"
+      :total="total"
       prev-text="上一页"
       next-text="下一页"
       class="containment-pagination"
@@ -189,58 +184,58 @@
 
     <!-- 新建/编辑对话框 -->
     <el-dialog
-      v-model="dialogVisible"
-      :title="dialogTitle"
+      v-model="creatDialogVisible"
+      title= "新建异想体"
       width="50%"
       class="containment-dialog"
     >
       <el-form
-        :model="abnormalityForm"
+        :model="newAbnormalityForm"
         ref="abnormalityFormRef"
         label-width="120px"
         :rules="rules"
         label-position="left"
       >
-        <el-form-item label="SCP编号" prop="number">
-          <el-input v-model="abnormalityForm.number" placeholder="SCP-XXX" />
-        </el-form-item>
         <el-form-item label="名称" prop="name">
-          <el-input v-model="abnormalityForm.name" placeholder="异想体名称" />
+          <el-input v-model="newAbnormalityForm.name" placeholder="异想体名称" />
         </el-form-item>
         <el-form-item label="危险等级" prop="level">
-          <el-select v-model="abnormalityForm.level" placeholder="请选择危险等级">
-            <el-option label="Keter" value="Keter" />
-            <el-option label="Euclid" value="Euclid" />
-            <el-option label="Safe" value="Safe" />
-            <el-option label="Thaumiel" value="Thaumiel" />
-            <el-option label="Neutralized" value="Neutralized" />
+          <el-select v-model="newAbnormalityForm.level" placeholder="请选择危险等级">
+            <el-option label="灭世" value="3" />
+            <el-option label="未解明" value="2" />
+            <el-option label="安全" value="1" />
+            <el-option label="机密" value="4" />
+            <el-option label="无效化" value="5" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="异想体图片">
+          <el-upload
+              class="avatar-uploader"
+              action="http://localhost:8080/file/upload"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+              :headers="headers"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+          </el-upload>
         </el-form-item>
         <el-form-item label="特性" prop="characteristics">
-          <el-input v-model="abnormalityForm.characteristics" type="textarea" :rows="3" />
+          <el-input v-model="newAbnormalityForm.description" type="textarea" :rows="3" />
         </el-form-item>
         <el-form-item label="管理措施" prop="managementMeasures">
-          <el-input v-model="abnormalityForm.managementMeasures" type="textarea" :rows="3" />
-        </el-form-item>
-        <el-form-item label="特殊事项" prop="specialNotes">
-          <el-input v-model="abnormalityForm.specialNotes" type="textarea" :rows="3" />
+          <el-input v-model="newAbnormalityForm.manageMethod" type="textarea" :rows="3" />
         </el-form-item>
         <el-form-item label="备注" prop="remarks">
-          <el-input v-model="abnormalityForm.remarks" type="textarea" :rows="2" />
+          <el-input v-model="newAbnormalityForm.notes" type="textarea" :rows="2" />
         </el-form-item>
         <el-form-item label="所在设施" prop="facility">
-          <el-input v-model="abnormalityForm.facility" />
-        </el-form-item>
-        <el-form-item label="收容状态" prop="status">
-          <el-select v-model="abnormalityForm.status" placeholder="请选择收容状态">
-            <el-option label="稳定" value="稳定" />
-            <el-option label="异常" value="异常" />
-            <el-option label="收容失效" value="收容失效" />
-          </el-select>
+          <el-input v-model="newAbnormalityForm.facilityId" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false" class="dialog-button">取消</el-button>
+        <el-button @click="creatDialogVisible = false" class="dialog-button">取消</el-button>
         <el-button type="primary" @click="submitAbnormality" class="dialog-button">确认</el-button>
       </template>
     </el-dialog>
@@ -248,7 +243,7 @@
     <!-- 详情对话框 -->
     <el-dialog
       v-model="detailDialogVisible"
-      :title="`${currentAbnormality.number} - ${currentAbnormality.name}`"
+      :title="currentAbnormality.name"
       width="60%"
       class="containment-dialog"
     >
@@ -256,7 +251,7 @@
         <div class="security-stamp">
           <div class="stamp-content">
             <div class="stamp-title">SCP FOUNDATION</div>
-            <div class="stamp-level">机密等级: {{ getClearanceLevel(currentAbnormality.level) }}</div>
+            <div class="stamp-level">机密等级: {{ getClearLevel(currentAbnormality.level) }}</div>
           </div>
         </div>
 
@@ -264,7 +259,7 @@
           <div class="header-info">
             <h2 class="abnormality-name">{{ currentAbnormality.name }}</h2>
             <div class="info-row">
-              <span class="info-item"><i class="iconfont icon-id"></i> SCP编号：<strong>{{ currentAbnormality.number }}</strong></span>
+              <span class="info-item"><i class="iconfont icon-id"></i> 异想体名称：<strong>{{ currentAbnormality.name }}</strong></span>
               <span class="info-item"><i class="iconfont icon-security"></i> 危险等级：
                 <el-tag :type="getLevelType(currentAbnormality.level)" effect="dark" class="clearance-tag">
                   {{ currentAbnormality.level }}
@@ -272,12 +267,7 @@
               </span>
             </div>
             <div class="info-row">
-              <span class="info-item"><i class="iconfont icon-status"></i> 收容状态：
-                <el-tag :type="currentAbnormality.status === '稳定' ? 'success' : 'danger'" class="status-tag">
-                  {{ currentAbnormality.status }}
-                </el-tag>
-              </span>
-              <span class="info-item"><i class="iconfont icon-location"></i> 所在设施：<strong>{{ currentAbnormality.facility }}</strong></span>
+              <span class="info-item"><i class="iconfont icon-location"></i> 所在设施：<strong>{{ currentAbnormality.facilityId }}</strong></span>
             </div>
           </div>
         </div>
@@ -285,28 +275,21 @@
         <div class="detail-section">
           <h3 class="section-title"><i class="iconfont icon-character"></i> 特性描述</h3>
           <div class="info-card">
-            <div class="info-value">{{ currentAbnormality.characteristics }}</div>
+            <div class="info-value">{{ currentAbnormality.description }}</div>
           </div>
         </div>
 
         <div class="detail-section">
           <h3 class="section-title"><i class="iconfont icon-measure"></i> 管理措施</h3>
           <div class="info-card">
-            <div class="info-value">{{ currentAbnormality.managementMeasures }}</div>
-          </div>
-        </div>
-
-        <div class="detail-section">
-          <h3 class="section-title"><i class="iconfont icon-note"></i> 特殊事项</h3>
-          <div class="info-card">
-            <div class="info-value">{{ currentAbnormality.specialNotes }}</div>
+            <div class="info-value">{{ currentAbnormality.manageMethod }}</div>
           </div>
         </div>
 
         <div class="detail-section">
           <h3 class="section-title"><i class="iconfont icon-remark"></i> 备注</h3>
           <div class="info-card">
-            <div class="info-value">{{ currentAbnormality.remarks }}</div>
+            <div class="info-value">{{ currentAbnormality.notes }}</div>
           </div>
         </div>
 
@@ -315,12 +298,9 @@
           <div class="security-info">
             <div class="info-card">
               <div class="info-label"><i class="iconfont icon-clearance"></i> 访问权限：</div>
-              <div class="info-value">{{ getAccessLevel(currentAbnormality.level) }}</div>
+              <div class="info-value">{{currentAbnormality.level}}</div>
             </div>
-            <div class="info-card">
-              <div class="info-label"><i class="iconfont icon-date"></i> 收容日期：</div>
-              <div class="info-value">2023-08-15</div>
-            </div>
+
             <div class="info-card">
               <div class="info-label"><i class="iconfont icon-update"></i> 最后更新：</div>
               <div class="info-value">2023-10-20 14:32:18</div>
@@ -341,194 +321,238 @@
   </el-main>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
+import {getAbnormalityList, getAbnormalityById, addAbnormality, deleteAbnormality, updateAbnormality} from "@/api/abnormality.ts";
 
-// 模拟数据
-const abnormalityData = ref([
+// 表格数据表单
+const tableData = ref<abnormality[]>([
   {
     id: 1,
-    number: 'SCP-173',
-    name: '雕像 - "The Sculpture"',
-    level: 'Euclid',
-    characteristics: '由混凝土和钢筋建造的雕像，当不被直接注视时会以极快速度移动并折断观察者的颈部。',
-    managementMeasures: '必须时刻保持至少两名人员同时注视SCP-173，清洁时需在至少三名人员的监督下进行。',
-    specialNotes: '任何情况下不得单独与SCP-173处于同一空间。',
-    remarks: '最初在Site-19发现',
-    facility: 'Site-19 收容区',
-    status: '稳定'
+    name: "设备过热",
+    level: 3,
+    description: "设备温度超过正常范围",
+    manageMethod: "立即停机检查",
+    notes: "检查散热系统",
+    facilityId: 1001,
+    imageName: "overheat.jpg"
   },
   {
     id: 2,
-    number: 'SCP-682',
-    name: '不灭孽蜥',
-    level: 'Keter',
-    characteristics: '一只巨大、起源未知的爬行动物，表现出极高的智能和近乎无法摧毁的特性，对所有生命形式怀有极端的敌意。',
-    managementMeasures: 'SCP-682必须被持续浸泡在盐酸池中，任何情况下不得将其移出收容。',
-    specialNotes: '已记录到SCP-682能够适应并抵抗多种消灭手段。',
-    remarks: '与SCP-053、SCP-999等有特殊互动记录',
-    facility: 'Site-19 酸性池',
-    status: '异常'
+    name: "电压波动",
+    level: 2,
+    description: "电压值不稳定",
+    manageMethod: "调整电源供应",
+    notes: "检查线路连接",
+    facilityId: 1002,
+    imageName: "voltage.jpg"
   },
   {
     id: 3,
-    number: 'SCP-049',
-    name: '瘟疫医生',
-    level: 'Euclid',
-    characteristics: '人形实体，身着中世纪瘟疫医生服装，认为人类感染了"瘟疫"，试图通过外科手术"治愈"他们。',
-    managementMeasures: '收容于标准人形收容单元，每周提供一次D级人员作为"病人"。',
-    specialNotes: '被049"治愈"的个体会转化为SCP-049-2实例。',
-    remarks: '在法国乡村发现',
-    facility: 'Site-19 医疗区',
-    status: '稳定'
+    name: "传感器故障",
+    level: 1,
+    description: "传感器读数异常",
+    manageMethod: "更换传感器",
+    notes: "型号XYZ-200",
+    facilityId: 1003,
+    imageName: "sensor.jpg"
   },
   {
     id: 4,
-    number: 'SCP-999',
-    name: '痒痒怪',
-    level: 'Safe',
-    characteristics: '橙色粘稠胶状物，具有愉快的气味和温暖的触感，能引发幸福感并中和有害情绪。',
-    managementMeasures: '收容于10m×10m的强化玻璃容器中，每天提供糖类食物。',
-    specialNotes: '对酸性物质敏感，需保持pH值中性环境。',
-    remarks: '已知最友好的SCP之一',
-    facility: 'Site-19 安全区',
-    status: '稳定'
+    name: "电机异响",
+    level: 3,
+    description: "电机运行时有异常噪音",
+    manageMethod: "停机检修",
+    notes: "检查轴承和联轴器",
+    facilityId: 1004,
+    imageName: "motor.jpg"
   },
   {
     id: 5,
-    number: 'SCP-106',
-    name: '恐怖老人',
-    level: 'Keter',
-    characteristics: '人形实体，外观为严重腐烂的老人，能腐蚀任何接触的表面并穿越固体物质。',
-    managementMeasures: '使用特殊设计的"少女之盒"收容装置，每24小时更换一次诱饵。',
-    specialNotes: '受害者会被拖入106的"口袋次元"，无法生还。',
-    remarks: '收容失效频率最高的Keter级实体之一',
-    facility: 'Site-19 高危区',
-    status: '稳定'
+    name: "管道泄漏",
+    level: 2,
+    description: "液体管道有泄漏现象",
+    manageMethod: "修复泄漏点",
+    notes: "使用密封胶",
+    facilityId: 1005,
+    imageName: "leak.jpg"
+  },
+  {
+    id: 6,
+    name: "控制系统故障",
+    level: 3,
+    description: "控制系统无法正常工作",
+    manageMethod: "重启系统",
+    notes: "检查程序是否崩溃",
+    facilityId: 1006,
+    imageName: "control.jpg"
+  },
+  {
+    id: 7,
+    name: "传送带打滑",
+    level: 1,
+    description: "传送带运行不稳定",
+    manageMethod: "调整张紧度",
+    notes: "清洁传送带表面",
+    facilityId: 1007,
+    imageName: "conveyor.jpg"
+  },
+  {
+    id: 8,
+    name: "温度传感器异常",
+    level: 2,
+    description: "温度传感器读数波动大",
+    manageMethod: "校准传感器",
+    notes: "使用标准温度源",
+    facilityId: 1008,
+    imageName: "temp-sensor.jpg"
+  },
+  {
+    id: 9,
+    name: "气压不足",
+    level: 2,
+    description: "气压低于设定值",
+    manageMethod: "检查气压系统",
+    notes: "检查压缩机",
+    facilityId: 1009,
+    imageName: "pressure.jpg"
+  },
+  {
+    id: 10,
+    name: "阀门堵塞",
+    level: 1,
+    description: "阀门无法正常开启或关闭",
+    manageMethod: "清理阀门",
+    notes: "使用专用清洁剂",
+    facilityId: 1010,
+    imageName: "valve.jpg"
+  },
+  {
+    id: 11,
+    name: "电流过载",
+    level: 3,
+    description: "电路电流超过额定值",
+    manageMethod: "切断电源",
+    notes: "检查负载和线路",
+    facilityId: 1011,
+    imageName: "current.jpg"
+  },
+  {
+    id: 12,
+    name: "液位异常",
+    level: 2,
+    description: "液体液位超出正常范围",
+    manageMethod: "调整液位",
+    notes: "检查进出液管道",
+    facilityId: 1012,
+    imageName: "liquid-level.jpg"
+  },
+  {
+    id: 13,
+    name: "振动异常",
+    level: 3,
+    description: "设备振动幅度超出标准",
+    manageMethod: "停机检查",
+    notes: "检查基础和固定螺栓",
+    facilityId: 1013,
+    imageName: "vibration.jpg"
+  },
+  {
+    id: 14,
+    name: "信号干扰",
+    level: 1,
+    description: "通信信号受到干扰",
+    manageMethod: "检查屏蔽层",
+    notes: "更换信号线",
+    facilityId: 1014,
+    imageName: "signal.jpg"
+  },
+  {
+    id: 15,
+    name: "轴承磨损",
+    level: 2,
+    description: "轴承运转时有异常摩擦",
+    manageMethod: "更换轴承",
+    notes: "型号ABC-500",
+    facilityId: 1015,
+    imageName: "bearing.jpg"
   }
-])
+]);
 
+//页面数据
+const pageNum = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+const creatDialogVisible = ref(false)
+const detailDialogVisible = ref(false)
+const dialogTitle = ref('新建异想体')
+const currentAbnormality = {
+  id: 0,
+  name: '',
+  level: 0,
+  description: '',
+  manageMethod: '',
+  notes: '',
+  facilityId: 0,
+  imageName: "",
+}
+const abnormalityFormRef = ref(null)
+
+
+// 筛选条件表单
 const filterForm = ref({
-  number: '',
+  number: 0,
   name: '',
   level: ''
 })
 
-const abnormalityForm = ref({
-  id: null,
-  number: '',
+// 定义异想体
+interface abnormality {
+  id: number;
+  name: string;
+  level: number;
+  description: string;
+  manageMethod: string;
+  notes: string;
+  facilityId: number;
+  imageName: string;
+}
+
+// 新异想体表单
+const newAbnormalityForm  = ref({
+  id: 0,
   name: '',
-  level: '',
-  characteristics: '',
-  managementMeasures: '',
-  specialNotes: '',
-  remarks: '',
-  facility: '',
-  status: '稳定'
+  level: 0,
+  description: '',
+  manageMethod: '',
+  notes: '',
+  facilityId: 0,
+  imageName: "",
 })
 
+// 异想体表单规则
 const rules = {
-  number: [{ required: true, message: '请输入SCP编号', trigger: 'blur' }],
   name: [{ required: true, message: '请输入异想体名称', trigger: 'blur' }],
   level: [{ required: true, message: '请选择危险等级', trigger: 'change' }],
-  characteristics: [{ required: true, message: '请输入特性描述', trigger: 'blur' }],
-  managementMeasures: [{ required: true, message: '请输入管理措施', trigger: 'blur' }],
-  facility: [{ required: true, message: '请输入所在设施', trigger: 'blur' }],
-  status: [{ required: true, message: '请选择收容状态', trigger: 'change' }]
+  description: [{ required: true, message: '请输入特性描述', trigger: 'blur' }],
+  managementMethod: [{ required: true, message: '请输入管理措施', trigger: 'blur' }],
 }
 
-const pagination = ref({
-  currentPage: 1,
-  pageSize: 10,
-  total: 0
-})
-
-const dialogVisible = ref(false)
-const detailDialogVisible = ref(false)
-const dialogTitle = ref('新建异想体')
-const currentAbnormality = ref({})
-const abnormalityFormRef = ref(null)
-
-// 计算属性
-const filteredAbnormalityList = computed(() => {
-  let result = [...abnormalityData.value]
-
-  if (filterForm.value.number) {
-    result = result.filter(item =>
-      item.number.toLowerCase().includes(filterForm.value.number.toLowerCase()))
-  }
-
-  if (filterForm.value.name) {
-    result = result.filter(item =>
-      item.name.toLowerCase().includes(filterForm.value.name.toLowerCase()))
-  }
-
-  if (filterForm.value.level) {
-    result = result.filter(item => item.level === filterForm.value.level)
-  }
-
-  // 更新分页总数
-  pagination.value.total = result.length
-
-  // 分页处理
-  const start = (pagination.value.currentPage - 1) * pagination.value.pageSize
-  const end = start + pagination.value.pageSize
-  return result.slice(start, end)
-})
-
-const levelCounts = computed(() => {
-  const counts = {
-    Keter: 0,
-    Euclid: 0,
-    Safe: 0,
-    Thaumiel: 0,
-    Neutralized: 0
-  }
-
-  abnormalityData.value.forEach(item => {
-    if (counts.hasOwnProperty(item.level)) {
-      counts[item.level]++
+// 获取数据 刷新
+const catchData = () =>{
+  ElMessage.info('正在获取数据')
+  getAbnormalityList(pageNum.value,pageSize.value).then((res)=>{
+    console.log(res)
+    if(res.code===200){
+      tableData.value =  res.data.list
+      total.value = res.data.total
+      ElMessage.success('更新成功')
     }
+  }).catch((err)=>{
+    console.log(err)
+    ElMessage.error(err.msg)
   })
-
-  return counts
-})
-
-// 方法
-const getLevelType = (level) => {
-  const levelMap = {
-    'Keter': 'danger',
-    'Euclid': 'warning',
-    'Safe': 'success',
-    'Thaumiel': 'primary',
-    'Neutralized': 'info'
-  }
-  return levelMap[level] || 'info'
-}
-
-// 获取机密等级
-const getClearanceLevel = (level) => {
-  const clearanceMap = {
-    'Keter': '5级',
-    'Euclid': '4级',
-    'Safe': '3级',
-    'Thaumiel': '6级',
-    'Neutralized': '1级'
-  }
-  return clearanceMap[level] || '未知'
-}
-
-// 获取访问权限
-const getAccessLevel = (level) => {
-  const accessMap = {
-    'Keter': 'O5议会及指定人员',
-    'Euclid': '4级及以上人员',
-    'Safe': '2级及以上人员',
-    'Thaumiel': '仅O5议会',
-    'Neutralized': '所有人员'
-  }
-  return accessMap[level] || '未定义'
 }
 
 // 表格头部样式
@@ -541,48 +565,23 @@ const tableHeaderStyle = () => {
   }
 }
 
-// 表格行样式
-const tableRowStyle = ({ rowIndex }) => {
-  return {
-    background: rowIndex % 2 === 0 ? 'rgba(10, 20, 41, 0.3)' : 'rgba(15, 30, 61, 0.3)',
-    color: '#e0f0ff'
-  }
-}
-
-const searchAbnormalities = () => {
-  pagination.value.currentPage = 1
-}
-
 const resetFilter = () => {
   filterForm.value = {
     number: '',
     name: '',
     level: ''
   }
-  searchAbnormalities()
+  catchData()
 }
 
 const showCreateDialog = () => {
-  dialogTitle.value = '新建异想体'
-  abnormalityForm.value = {
-    id: null,
-    number: '',
-    name: '',
-    level: '',
-    characteristics: '',
-    managementMeasures: '',
-    specialNotes: '',
-    remarks: '',
-    facility: '',
-    status: '稳定'
-  }
-  dialogVisible.value = true
+  creatDialogVisible.value = true
 }
 
 const editAbnormality = (item) => {
   dialogTitle.value = '编辑异想体'
-  abnormalityForm.value = { ...item }
-  dialogVisible.value = true
+  newAbnormalityForm.value = { ...item }
+  creatDialogVisible.value = true
 }
 
 const viewDetail = (item) => {
@@ -590,67 +589,112 @@ const viewDetail = (item) => {
   detailDialogVisible.value = true
 }
 
-const deleteAbnormality = (item) => {
-  ElMessageBox.confirm(`确定要删除异想体 ${item.number} - ${item.name} 吗?`, '警告', {
+const handleDeleteAbnormality = (item) => {
+  ElMessageBox.confirm(`确定要删除异想体 ${item.name} 吗?`, '警告', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
     center: true,
     customClass: 'delete-confirm-box'
   }).then(() => {
-    const index = abnormalityData.value.findIndex(ab => ab.id === item.id)
-    if (index !== -1) {
-      abnormalityData.value.splice(index, 1)
-      ElMessage.success('删除成功')
-      // 如果删除的是当前页最后一条且不是第一页，则跳转到上一页
-      if (filteredAbnormalityList.value.length === 0 && pagination.value.currentPage > 1) {
-        pagination.value.currentPage -= 1
+    deleteAbnormality(item.id).then((res)=>{
+      if(res.code === 200){
+        ElMessage.success('删除成功')
+        catchData()
+      }else{
+        ElMessage.error('发生错误'+res.msg)
       }
-    }
-  }).catch(() => {
-    ElMessage.info('已取消删除')
-  })
-}
+    }).catch(() => {
+      ElMessage.info('已取消删除')
+    })
+})}
 
 const submitAbnormality = () => {
-  abnormalityFormRef.value.validate(valid => {
-    if (valid) {
-      if (abnormalityForm.value.id) {
-        // 编辑
-        const index = abnormalityData.value.findIndex(item => item.id === abnormalityForm.value.id)
-        if (index !== -1) {
-          abnormalityData.value[index] = { ...abnormalityForm.value }
-          ElMessage.success('更新成功')
-        }
-      } else {
-        // 新建
-        const newId = abnormalityData.value.length > 0
-          ? Math.max(...abnormalityData.value.map(item => item.id)) + 1
-          : 1
-        abnormalityData.value.push({
-          ...abnormalityForm.value,
-          id: newId
-        })
-        ElMessage.success('创建成功')
-      }
-      dialogVisible.value = false
-    }
-  })
+  console.log(newAbnormalityForm.value)
 }
 
-const handleSizeChange = (val) => {
-  pagination.value.pageSize = val
-  pagination.value.currentPage = 1
+const handleSizeChange = (val: number) => {
+  pageSize.value = val
 }
 
-const handleCurrentChange = (val) => {
-  pagination.value.currentPage = val
+const handleCurrentChange = (val: number) => {
+  pageNum.value = val
+}
+
+const getClearLevel = (value: number) => {
+  switch (value) {
+    case 0: return '无效化';
+    case 1: return '安全';
+    case 2: return '未解明';
+    case 3: return '灭世';
+    case 4: return '机密';
+
+  }
 }
 
 // 初始化
 onMounted(() => {
-  pagination.value.total = abnormalityData.value.length
+  catchData()
 })
+
+
+// 上传图片
+const imageUrl = ref('')
+
+const handleAvatarSuccess: UploadProps['onSuccess'] = (
+    response,
+    uploadFile
+) => {
+  imageUrl.value = URL.createObjectURL(uploadFile.raw!)
+  console.log(response)
+  if(response.code === 200) {
+    newAbnormalityForm.value.imageName = response.data
+    ElMessage.success("图片上传成功")
+  }else{
+    ElMessage.error(response.msg)
+  }
+}
+
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg') {
+    ElMessage.error('Avatar picture must be JPG format!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('Avatar picture size can not exceed 2MB!')
+    return false
+  }
+  return true
+}
+
+const headers = ref({
+  Authorization: 'Bearer ' + localStorage.getItem('token')
+})
+
+// 级别tag
+const getLevelType = (value) => {
+  switch (value) {
+    case 0: return 'primary'
+    case 1: return 'success'
+    case 2: return 'warning'
+    case 3: return 'error'
+    case 4: return 'error'
+  }
+}
+
+// 搜索
+const handleSearch = () => {
+  getAbnormalityById(filterForm.value.number).then((res)=>{
+    if(res.code === 200){
+      tableData.value =  res.data.list
+      ElMessage.success('搜索结果更新成功')
+    }else {
+      ElMessage.error(res.msg)
+    }
+  }).catch((err)=>{
+    console.log(err)
+    ElMessage.error(err.msg)
+  })
+}
 </script>
 
 <style scoped>
@@ -1030,4 +1074,32 @@ onMounted(() => {
   gap: 15px;
 }
 
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>
+
+<style>
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
 </style>

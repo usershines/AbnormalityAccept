@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import Aside from '../../layout/menu/index.vue'
+import Aside from '@/views/workPlace/menu/index.vue'
 </script>
 
 

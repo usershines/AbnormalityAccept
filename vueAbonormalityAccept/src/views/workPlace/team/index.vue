@@ -25,11 +25,11 @@
               clearable
               class="search-select"
           >
-            <el-option label="O5议会" value="O5"></el-option>
-            <el-option label="A级" value="A"></el-option>
-            <el-option label="B级" value="B"></el-option>
-            <el-option label="C级" value="C"></el-option>
-            <el-option label="D级" value="D"></el-option>
+            <el-option label="O5议会" value="5"></el-option>
+            <el-option label="A级" value="4"></el-option>
+            <el-option label="B级" value="3"></el-option>
+            <el-option label="C级" value="2"></el-option>
+            <el-option label="D级" value="1"></el-option>
           </el-select>
         </el-form-item>
 
@@ -49,10 +49,10 @@
               clearable
               class="search-select"
           >
-            <el-option label="空闲" value="空闲"></el-option>
-            <el-option label="任务中" value="任务中"></el-option>
-            <el-option label="无法活动" value="无法活动"></el-option>
-            <el-option label="未知" value="未知"></el-option>
+            <el-option label="空闲" value="0"></el-option>
+            <el-option label="任务中" value="1"></el-option>
+            <el-option label="无法活动" value="2"></el-option>
+            <el-option label="未知" value="3"></el-option>
           </el-select>
         </el-form-item>
 
@@ -429,9 +429,9 @@ interface Team {
 // 搜索表单数据
 const searchForm = reactive({
   name: '',
-  level: '',
+  level: 0 || null,
   location: '',
-  status: ''
+  status: 0 || null,
 });
 
 // 原始表格数据（模拟数据库获取）

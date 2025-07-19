@@ -9,7 +9,7 @@
       >
         <el-form-item label="姓名" class="search-item">
           <el-input
-              v-model="searchForm.name"
+              v-model="searchForm.username"
               clearable
               class="search-input"
               prefix-icon="el-icon-user"
@@ -23,11 +23,11 @@
               class="search-select"
               style="width: 80px"
           >
-            <el-option label="O5议会" value="O5"></el-option>
-            <el-option label="A级" value="A"></el-option>
-            <el-option label="B级" value="B"></el-option>
-            <el-option label="C级" value="C"></el-option>
-            <el-option label="D级" value="D"></el-option>
+            <el-option label="O5议会" value="5"></el-option>
+            <el-option label="A级" value="4"></el-option>
+            <el-option label="B级" value="3"></el-option>
+            <el-option label="C级" value="2"></el-option>
+            <el-option label="D级" value="1"></el-option>
           </el-select>
         </el-form-item>
 
@@ -81,7 +81,7 @@
     <!-- 数据表格区域 - 收容单元风格 -->
     <template #default>
       <el-table
-          :data="currentTableData"
+          :data="tableData"
           border
           style="width: 100%;margin-top: -10px"
           max-height="600px"
@@ -95,9 +95,9 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="name" label="名称" width="150">
+        <el-table-column prop="username" label="名称" width="150">
           <template #default="scope">
-            <span class="user-name">{{ scope.row.name }}</span>
+            <span class="user-name">{{ scope.row.username }}</span>
           </template>
         </el-table-column>
 
@@ -117,7 +117,7 @@
             <span><i class="iconfont icon-status"></i> 状态</span>
           </template>
           <template #default="scope">
-            <el-tag :type="scope.row.status ? 'success' : 'danger'" class="status-tag">
+            <el-tag :type="scope.row.isActive ? 'success' : 'danger'" class="status-tag">
               {{ scope.row.status ? '启用' : '停用' }}
             </el-tag>
           </template>
@@ -181,7 +181,7 @@
           :page-sizes="[10, 20, 30]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="filteredData.length"
+          :total=total
           prev-text="上一页"
           next-text="下一页"
           class="containment-pagination"
@@ -190,7 +190,7 @@
     </template>
   </el-card>
 
-  <!-- 用户详情弹窗 -->
+  <!-- 新建用户弹窗 -->
   <el-dialog
       v-model="createDialogVisible"
       title="新建用户"
@@ -204,17 +204,17 @@
         label-position="left"
         :rules="createRules"
     >
-      <el-form-item label="姓名" prop="name">
-        <el-input v-model="createForm.name" placeholder="请输入姓名"></el-input>
+      <el-form-item label="姓名" prop="username">
+        <el-input v-model="createForm.username" placeholder="请输入姓名"></el-input>
       </el-form-item>
 
       <el-form-item label="权限等级" prop="level">
         <el-select v-model="createForm.level" placeholder="请选择权限等级">
-          <el-option label="O5议会" value="0"></el-option>
-          <el-option label="A级" value="1"></el-option>
-          <el-option label="B级" value="2"></el-option>
-          <el-option label="C级" value="3"></el-option>
-          <el-option label="D级" value="4"></el-option>
+          <el-option label="O5议会" value="5"></el-option>
+          <el-option label="A级" value="4"></el-option>
+          <el-option label="B级" value="3"></el-option>
+          <el-option label="C级" value="2"></el-option>
+          <el-option label="D级" value="1"></el-option>
         </el-select>
       </el-form-item>
 
@@ -259,7 +259,7 @@
   <!-- 编辑用户信息 -->
   <el-dialog
       v-model="editFormVisable"
-      title="新建用户"
+      title="编辑用户"
       width="40%"
       class="containment-dialog"
   >
@@ -270,17 +270,17 @@
         label-position="left"
         :rules="createRules"
     >
-      <el-form-item label="姓名" prop="name">
-        <el-input v-model="editForm.name" placeholder="请输入姓名"></el-input>
+      <el-form-item label="姓名" prop="username">
+        <el-input v-model="editForm.username" placeholder="请输入姓名"></el-input>
       </el-form-item>
 
       <el-form-item label="权限等级" prop="level">
         <el-select v-model="editForm.level" placeholder="请选择权限等级">
-          <el-option label="O5议会" value="0"></el-option>
-          <el-option label="A级" value="1"></el-option>
-          <el-option label="B级" value="2"></el-option>
-          <el-option label="C级" value="3"></el-option>
-          <el-option label="D级" value="4"></el-option>
+          <el-option label="O5议会" value="5"></el-option>
+          <el-option label="A级" value="4"></el-option>
+          <el-option label="B级" value="3"></el-option>
+          <el-option label="C级" value="2"></el-option>
+          <el-option label="D级" value="1"></el-option>
         </el-select>
       </el-form-item>
 
@@ -324,7 +324,7 @@
 
   <el-dialog
       v-model="detailDialogVisible"
-      :title="`${selectedUser?.name} - 人员档案`"
+      :title="`${selectedUser?.username} - 人员档案`"
       width="50%"
       class="containment-dialog"
   >
@@ -338,7 +338,7 @@
 
       <div class="detail-header">
         <div class="header-info">
-          <h2 class="user-name">{{ selectedUser.name }}</h2>
+          <h2 class="user-name">{{ selectedUser.username }}</h2>
           <div class="info-row">
             <span class="info-item"><i class="iconfont icon-id"></i> ID：<strong>{{ selectedUser.id }}</strong></span>
             <span class="info-item"><i class="iconfont icon-security"></i> 权限等级：
@@ -402,7 +402,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
+import {reactive, ref, computed, onMounted} from 'vue';
 import {getUserList, updateUser, addUser, deleteUser, findUser} from "@/api/user.ts";
 import {ElMessage} from "element-plus";
 
@@ -411,7 +411,7 @@ const createDialogVisible = ref(false);
 const createFormRef = ref<FormInstance>();
 const createForm = reactive({
   id: 0,
-  name: '',
+  username: '',
   level: '',
   email: '',
   facilityId: 0,
@@ -422,7 +422,7 @@ const createForm = reactive({
 
 // 新建用户表单验证规则
 const createRules = reactive<FormRules>({
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  username: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   level: [{ required: true, message: '请选择权限等级', trigger: 'change' }],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -452,7 +452,7 @@ const submitCreate = () => {
           console.log("新建用户成功:", newUser);
           ElMessage.success('新建用户成功');
           createDialogVisible.value = false;
-          catchData(currentPage.value,pageSize.value)
+          catchData()
           // 重置表单
           createFormRef.value.resetFields();
         }
@@ -466,10 +466,14 @@ const submitCreate = () => {
 
 // 搜索表单数据
 const searchForm = reactive({
-  name: '',
+  id: 0 || null,
+  username: '',
   level: '',
-  facilityId: '',
-  id: ''
+  email: '',
+  facilityId: 0 || null,
+  leaderId: 0 || null,
+  isActive: 1 || null,
+  introduction: ''
 });
 
 // 原始表格数据（静态）
@@ -616,7 +620,7 @@ const tableData = ref([
   },
   {
     id: 15,
-    name: 'MTF Gamma-5',
+    username: 'MTF Gamma-5',
     level: 'B',
     email: 'gamma5@scp-foundation.org',
     location: '机动部署',
@@ -626,15 +630,18 @@ const tableData = ref([
   }
 ]);
 
+
 // 分页相关数据
 const currentPage = ref(1);
 const pageSize = ref(10);
+const total = ref(0);
 
 // 获取数据
-const catchData = (currentPage: number, pageSize: number) => {
-  getUserList(currentPage, pageSize).then((response) => {
+const catchData = () => {
+  getUserList(currentPage.value, pageSize.value).then((response) => {
     if(response.code === 200) {
       tableData.value = response.data.list;
+      total.value = response.data.total;
       ElMessage.success('数据更新成功')
       console.log('获取数据',response)
     }else{
@@ -647,62 +654,57 @@ const catchData = (currentPage: number, pageSize: number) => {
   )
 }
 
-catchData(currentPage.value,pageSize.value)
-
 // 详情弹窗相关
 const detailDialogVisible = ref(false);
 const selectedUser = ref<any>(null);
 
 // 实现搜索过滤功能
-const filteredData = computed(() => {
-  return tableData.value.filter(item => {
-    const nameMatch = searchForm.name ? item.name.includes(searchForm.name) : true;
-    const levelMatch = searchForm.level ? item.level === searchForm.level : true;
-    const idMatch = searchForm.id ? item.id === parseInt(searchForm.id) : true;
-    const locationMatch = searchForm.facilityId ? item.location.includes(searchForm.facilityId) : true;
-    return nameMatch && levelMatch && idMatch && locationMatch;
-  });
-});
-
-// 计算当前页显示的数据
-const currentTableData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredData.value.slice(start, end);
-});
+const handleSearch = () => {
+  console.log('搜索表单',searchForm);
+  findUser(searchForm, currentPage.value,pageSize.value).then((response) => {
+    if(response.code === 200) {
+      tableData.value = response.data.list;
+      total.value = response.data.total;
+      ElMessage.success('搜索成功')
+    }
+  }).catch((e) => {
+    console.log('error', e)
+    ElMessage.error('服务器错误',e.msg);
+  })
+}
 
 // 获取权限等级对应的标签类型
-const getLevelTagType = (level: string) => {
-  const types: Record<string, string> = {
-    'O5': 'danger',
-    'A': 'warning',
-    'B': 'primary',
-    'C': 'success',
-    'D': 'info'
+const getLevelTagType = (level: number) => {
+  const types: Record<number, string> = {
+    5: 'danger',
+    4: 'warning',
+    3: 'primary',
+    2: 'success',
+    1: 'info'
   };
   return types[level] || '';
 };
 
 // 根据权限等级获取安全许可
-const getSecurityClearance = (level: string) => {
-  const clearance: Record<string, string> = {
-    'O5': '最高机密 (Top Secret)',
-    'A': '机密 (Secret)',
-    'B': '受限 (Restricted)',
-    'C': '内部 (Internal)',
-    'D': '公开 (Public)'
+const getSecurityClearance = (level: number) => {
+  const clearance: Record<number, string> = {
+    5: '最高机密 (Top Secret)',
+    4: '机密 (Secret)',
+    3: '受限 (Restricted)',
+    2: '内部 (Internal)',
+    1: '公开 (Public)'
   };
   return clearance[level] || '未定义';
 };
 
 // 根据权限等级获取访问权限
-const getAccessLevel = (level: string) => {
-  const access: Record<string, string> = {
-    'O5': '所有区域',
-    'A': 'Keter级及以下',
-    'B': 'Euclid级及以下',
-    'C': 'Safe级',
-    'D': '仅指定区域'
+const getAccessLevel = (level: number) => {
+  const access: Record<number, string> = {
+    5: '所有区域',
+    4: 'Keter级及以下',
+    2: 'Euclid级及以下',
+    3: 'Safe级',
+    1: '仅指定区域'
   };
   return access[level] || '未定义';
 };
@@ -717,39 +719,25 @@ const tableHeaderStyle = () => {
   };
 };
 
-// 搜索方法
-const handleSearch = () => {
-  findUser(searchForm).then(response => {
-    if(response.code === 200) {
-      catchData(currentPage.value,pageSize.value)
-      ElMessage.success('搜索请求成功')
-    }else {
-      ElMessage.error('搜索失败'+response.message);
-    }
-  }).catch(e => {
-    ElMessage.error(e.message);
-    console.log('搜索失败', e)
-  })
-};
-
 // 重置方法
 const handleReset = () => {
-  searchForm.name = '';
+  searchForm.username = '';
   searchForm.level = '';
-  searchForm.facilityId = '';
-  searchForm.id = '';
-  catchData(currentPage.value,pageSize.value)
+  searchForm.facilityId = null;
+  searchForm.id = null;
+  catchData()
 };
 
 // 每页条数改变
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
-  currentPage.value = 1;
+  catchData()
 };
 
 // 当前页改变
 const handleCurrentChange = (val: number) => {
   currentPage.value = val;
+  catchData()
 };
 
 // 查看详情方法
@@ -762,7 +750,7 @@ const handleDetail = (row: any) => {
 const editFormVisable = ref(false);
 const editForm = ref({
   id: 0,
-  name: '',
+  username: '',
   level: '',
   email: '',
   facilityId: 0,
@@ -824,6 +812,13 @@ const handleDelete = (row: any) => {
         })
       })
 };
+
+// 生命周期钩子
+onMounted(() =>{
+  // 初始化表单
+  catchData()
+
+})
 </script>
 
 <style scoped>

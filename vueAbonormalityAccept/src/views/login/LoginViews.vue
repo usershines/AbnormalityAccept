@@ -22,7 +22,7 @@ const onSubmit = () => {
   login(toRaw(form)).then((res)=>{
     if(res.code === 200){
       localStorage.setItem('token',res.data.token);
-      localStorage.setItem('username',form.name);
+      localStorage.setItem('username',res.data.name);
       ElMessage.success("认证成功! 正在进入系统...")
       router.push("/start")
     }

@@ -145,8 +145,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive,  shallowRef } from 'vue';
+import { ref, reactive,  shallowRef, onMounted } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+import * as userApi from '@/api/user';
+import router from '@/router';
+
+
+
+
 interface User {
   id: number;
   username: string;
@@ -161,16 +167,16 @@ interface User {
 }
 // 模拟用户数据（实际应从接口获取）
 const user = ref<User>({
-  id: 10086,
-  username: 'Dr.Shaw',
-  password: '123456', // 模拟密码
-  email: 'shaw@scp-foundation.org',
-  level: 3,
-  teamId: 7,
-  inviterId: 1001,
-  leaderId: 1000,
-  facilityId: 81,
-  introduction: '初级研究员，主要负责对异想体的初步研究和数据收集工作。在长期的研究中，积累了丰富的经验，对各类异想体的特性有一定的了解。',
+  id: 0,
+  username: '',
+  password: '',
+  email: '',
+  level: 0,
+  teamId: null,
+  inviterId: null,
+  leaderId: null,
+  facilityId: null,
+  introduction: ''
 });
 
 // 弹窗状态
@@ -180,10 +186,10 @@ const dialogPasswordVisible = ref(false); // 修改密码弹窗
 // 编辑相关状态
 const editFormRef = shallowRef<FormInstance>(); // 表单引用
 const passwordFormRef = shallowRef<FormInstance>(); // 密码表单引用
-const editUser = reactive<User>({ ...user.value }); // 编辑用的临时数据
+const editUser = ref<User>({ ...user.value }); // 编辑用的临时数据
 
 // 修改密码表单数据
-const changePwdForm = reactive({
+const changePwdForm = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: ''
@@ -222,6 +228,21 @@ const pwdRules: FormRules = {
   ]
 };
 
+const initData=async()=>{
+  const name=localStorage.getItem('username')
+  if(name == null){
+    return
+  }
+  const response = await userApi.findByName(name);
+  if (response.code === 200){
+    user.value = response.data
+  }
+}
+
+onMounted(()=>{
+  initData()
+})
+
 
 
 // 取消编辑
@@ -237,14 +258,20 @@ const handleSave = async () => {
   if (!valid) return;
 
   // 模拟API请求保存（实际项目中替换为真实接口）
-  try {
+
     // 更新原始用户数据
-    Object.assign(user.value, editUser);
-    ElMessage.success('信息修改成功');
-    dialogFormVisible.value = false;
-  } catch (error) {
-    ElMessage.error('修改失败，请重试');
-  }
+    const res=await userApi.updateUser(editUser.value)
+    console.log(res)
+    if(res.code==200){
+      ElMessage.success('信息修改成功');
+      initData()
+      dialogFormVisible.value = false;
+    }else{
+      ElMessage.error('修改失败，请重试');
+
+    }
+    
+
 };
 
 // 保存密码修改
@@ -254,21 +281,22 @@ const handleSavePassword = async () => {
   if (!valid) return;
 
   // 验证原密码是否正确（模拟）
-  if (changePwdForm.oldPassword !== user.value.password) {
-    ElMessage.error('原密码输入错误');
-    return;
-  }
-
-  try {
-    // 模拟更新密码（实际项目中应发送API请求）
-    user.value.password = changePwdForm.newPassword;
-    ElMessage.success('密码修改成功');
-
-    // 清空表单并关闭弹窗
-    passwordFormRef.value?.resetFields();
+  const body = {
+    oldPassword: changePwdForm.value.oldPassword,
+    newPassword: changePwdForm.value.newPassword,
+    confirmPassword: changePwdForm.value.confirmPassword,
+  };
+  const res=await userApi.updatePassword(body);
+  if (res.code === 200) { 
+    ElMessage.success("修改密码成功！");
+    userApi.logout();
     dialogPasswordVisible.value = false;
-  } catch (error) {
-    ElMessage.error('密码修改失败');
+    router.push("/");
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    
+  }else{
+    ElMessage.error(res.msg);
   }
 };
 </script>

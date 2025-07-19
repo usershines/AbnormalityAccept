@@ -152,7 +152,7 @@ public class UserController {
 
 
     @Operation(summary = "多条件查询")
-    @PostMapping("/findUserByConditions")
+    @GetMapping("/conditions")
     public Result<PageInfo<User>> findUserByConditions(UserParamRequest userParamRequest) {
 
         PageInfo<User> userList = userService.findUserByConditions(userParamRequest);

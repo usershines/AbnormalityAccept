@@ -100,7 +100,7 @@ public class EquipmentController {
     }
 
     @Operation(summary = "分页多条件查询")
-    @PostMapping("/conditions")
+    @GetMapping("/conditions")
     public Result<PageInfo<Equipment>> findEquipmentByConditions(EquipmentParam equipmentParam) {
         PageInfo<Equipment> equipmentList = equipmentService.findEquipmentByConditions(equipmentParam);
         if(equipmentList == null || equipmentList.getList().isEmpty()) {

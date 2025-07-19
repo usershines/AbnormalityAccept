@@ -72,7 +72,7 @@ public class AbnormalityController {
         }
     }
     @Operation(summary = "分页条件查询异想体信息")
-    @PostMapping("/conditions")
+    @GetMapping("/conditions")
     public Result<PageInfo<Abnormality>> findAbnormalityByConditions(AbnormalityParam abnormalityParam){
 
         PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormalityParam);

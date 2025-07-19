@@ -173,8 +173,8 @@ public class FileServiceImpl implements FileService {
         abnormalityVo.setNotes(abnormality.getNotes());
         abnormalityVo.setFacilityId(abnormality.getFacilityId());
         abnormalityVo.setImgName(getPublicUrl(abnormality.getImgName()));
-        abnormalityVo.setPageNum(abnormality.getPageNum());
-        abnormalityVo.setPageSize(abnormality.getPageSize());
+//        abnormalityVo.setPageNum(abnormality.getPageNum());
+//        abnormalityVo.setPageSize(abnormality.getPageSize());
         return abnormalityVo;
     }
 

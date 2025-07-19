@@ -1,6 +1,6 @@
 package com.abnormality.abnormalityaccept.service.impl;
 import com.abnormality.abnormalityaccept.entity.Equipment;
-import com.abnormality.abnormalityaccept.entity.EquipmentParam;
+import com.abnormality.abnormalityaccept.entity.param.EquipmentParam;
 import com.abnormality.abnormalityaccept.service.EquipmentService;
 import com.abnormality.abnormalityaccept.mapper.EquipmentMapper;
 
@@ -79,8 +79,8 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public PageInfo<Equipment> findEquipmentByConditions(EquipmentParam equipmentParam, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
+    public PageInfo<Equipment> findEquipmentByConditions(EquipmentParam equipmentParam) {
+        PageHelper.startPage(equipmentParam.getPageNUm(),equipmentParam.getPageSize());
         List<Equipment> EquipmentList = equipmentMapper.findEquipmentByConditions(equipmentParam);
         return new PageInfo<>(EquipmentList);
     }

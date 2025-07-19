@@ -53,7 +53,7 @@ public interface UserService {
 
 
     /** 多条件查询用户（分页） */
-    PageInfo<User> findUserByConditions(UserParamRequest userParamRequest, Integer pageNum, Integer pageSize);
+    PageInfo<User> findUserByConditions(UserParamRequest userParamRequest);
 
 
 

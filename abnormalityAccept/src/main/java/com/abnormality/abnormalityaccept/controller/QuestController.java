@@ -3,6 +3,7 @@ package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.Notice;
 import com.abnormality.abnormalityaccept.entity.Quest;
+import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.NoticeService;
 import com.abnormality.abnormalityaccept.service.QuestService;
@@ -78,7 +79,9 @@ public class QuestController {
 
     @Operation(summary = "条件分页查询任务")
     @PostMapping("/condition")
-    public Result findQuestBycondition  (@RequestBody Quest quest,@RequestParam Integer pageNum,@RequestParam Integer pageSize) {
-        return Result.ok(questService.findQuestByConditions(quest, pageNum ,pageSize));
+    public Result<PageInfo<Quest>> findQuestByCondition  (QuestParam questParam) {
+        PageInfo<Quest> questList = questService.findQuestByConditions(questParam);
+        if(questList.getList()== null || questList.getList().isEmpty()) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关任务信息");
+        return Result.ok(questList);
     }
 }

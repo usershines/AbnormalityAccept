@@ -1,4 +1,4 @@
-package com.abnormality.abnormalityaccept.entity;
+package com.abnormality.abnormalityaccept.entity.param;
 
 import lombok.Data;
 
@@ -23,5 +23,8 @@ public class EquipmentParam {
     //多值查询参数
     private List<Integer> stateList;
     private List<Integer> typeList;
+
+    private Integer pageNUm;
+    private Integer pageSize;
 
 }

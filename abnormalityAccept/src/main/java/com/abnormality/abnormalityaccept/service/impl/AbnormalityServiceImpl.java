@@ -2,7 +2,7 @@ package com.abnormality.abnormalityaccept.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.abnormality.abnormalityaccept.entity.Abnormality;
-import com.abnormality.abnormalityaccept.entity.AbnormalityParam;
+import com.abnormality.abnormalityaccept.entity.param.AbnormalityParam;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
@@ -69,8 +69,8 @@ public class AbnormalityServiceImpl implements AbnormalityService {
     }
 
     @Override
-    public PageInfo<Abnormality> findAbnormalityByConditions(AbnormalityParam abnormalityParam, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum,pageSize);
+    public PageInfo<Abnormality> findAbnormalityByConditions(AbnormalityParam abnormalityParam) {
+        PageHelper.startPage(abnormalityParam.getPageNUm(),abnormalityParam.getPageSize());
         List<Abnormality> abnormalityList = abnormalityMapper.findAbnormalityByConditions(abnormalityParam);
         return PageInfo.of(abnormalityList);
     }

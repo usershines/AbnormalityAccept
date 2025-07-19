@@ -1,4 +1,4 @@
-package com.abnormality.abnormalityaccept.entity;
+package com.abnormality.abnormalityaccept.entity.param;
 
 import lombok.Data;
 
@@ -26,6 +26,8 @@ public class TeamParam {
     private Integer maxLevel;
 
     //多值查询参数
-
     private List<Integer> statusList;
+
+    private Integer pageNum;
+    private Integer pageSize;
 }

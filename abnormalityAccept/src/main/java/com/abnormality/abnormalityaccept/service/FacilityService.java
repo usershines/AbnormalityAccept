@@ -1,10 +1,7 @@
 package com.abnormality.abnormalityaccept.service;
-import com.abnormality.abnormalityaccept.dto.Result;
-import com.abnormality.abnormalityaccept.entity.Equipment;
 import com.abnormality.abnormalityaccept.entity.Facility;
+import com.abnormality.abnormalityaccept.entity.param.FacilityParam;
 import com.github.pagehelper.PageInfo;
-
-import java.util.List;
 
 /**
  * @author shanh
@@ -18,8 +15,7 @@ public interface FacilityService {
     boolean addFacility(Facility facility);
     boolean updateFacility(Facility facility);
     boolean deleteFacilityById(Long id);
-    // 拓展功能：按等级查询设施
-    Result<List<Facility>> findByLevel(Integer level);
-    // 拓展功能：搜索设施（按名称或地址模糊查询）
-    Result<List<Facility>> search(String keyword);
+
+    PageInfo<Facility> findFacilityByConditions(FacilityParam facilityParam);
+
 }

@@ -1,9 +1,8 @@
 package com.abnormality.abnormalityaccept.mapper;
 
 import com.abnormality.abnormalityaccept.entity.Team;
-import com.abnormality.abnormalityaccept.entity.TeamParam;
+import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import org.apache.ibatis.annotations.Mapper;
-import com.abnormality.abnormalityaccept.entity.TeamMember;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 

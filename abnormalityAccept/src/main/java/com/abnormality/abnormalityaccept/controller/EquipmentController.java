@@ -1,6 +1,6 @@
 package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
-import com.abnormality.abnormalityaccept.entity.EquipmentParam;
+import com.abnormality.abnormalityaccept.entity.param.EquipmentParam;
 import com.abnormality.abnormalityaccept.enums.Code;
 import org.springframework.web.bind.annotation.RestController;
 import com.github.pagehelper.PageInfo;
@@ -9,10 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import com.github.pagehelper.PageHelper;
 import com.abnormality.abnormalityaccept.entity.Equipment;
 import com.abnormality.abnormalityaccept.service.EquipmentService;
-import com.abnormality.abnormalityaccept.mapper.EquipmentMapper;
 
 
 import java.util.List;
@@ -103,11 +101,8 @@ public class EquipmentController {
 
     @Operation(summary = "分页多条件查询")
     @PostMapping("/conditions")
-    public Result<PageInfo<Equipment>> findEquipmentByConditions(
-            @RequestBody EquipmentParam equipmentParam,
-            @RequestParam Integer pageNum,
-            @RequestParam Integer pageSize) {
-        PageInfo<Equipment> equipmentList = equipmentService.findEquipmentByConditions(equipmentParam, pageNum, pageSize);
+    public Result<PageInfo<Equipment>> findEquipmentByConditions(EquipmentParam equipmentParam) {
+        PageInfo<Equipment> equipmentList = equipmentService.findEquipmentByConditions(equipmentParam);
         if(equipmentList == null || equipmentList.getList().isEmpty()) {
             return Result.error(Code.NOT_FOUND.getCode(), "未查询到相关装备");
         }

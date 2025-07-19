@@ -1,19 +1,17 @@
-package com.abnormality.abnormalityaccept.entity;
+package com.abnormality.abnormalityaccept.entity.param;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author shanh
  * @version 1.0
  * {@code @description:}
- * @since 2025-07-13
+ * @since 2025-07-19
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Quest {
+public class QuestParam {
     private Long id;
     private String questCode;
     private String questName;
@@ -22,5 +20,9 @@ public class Quest {
     private String questDescription;
     private Integer state;
 
+    //多值查询
+    private List<Integer> stateList;
 
+    private Integer pageNum;
+    private Integer pageSize;
 }

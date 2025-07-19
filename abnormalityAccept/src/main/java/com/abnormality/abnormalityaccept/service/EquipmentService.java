@@ -1,6 +1,6 @@
 package com.abnormality.abnormalityaccept.service;
 import com.abnormality.abnormalityaccept.entity.Equipment;
-import com.abnormality.abnormalityaccept.entity.EquipmentParam;
+import com.abnormality.abnormalityaccept.entity.param.EquipmentParam;
 import com.github.pagehelper.PageInfo;
 /**
  * @author shanh
@@ -21,5 +21,5 @@ public interface EquipmentService {
     boolean batchUpdateState(List<Long> ids, String state);
     boolean batchDelete(List<Long> ids);
 
-    PageInfo<Equipment> findEquipmentByConditions (EquipmentParam equipmentParam, Integer pageNum, Integer pageSize);
+    PageInfo<Equipment> findEquipmentByConditions (EquipmentParam equipmentParam);
 }

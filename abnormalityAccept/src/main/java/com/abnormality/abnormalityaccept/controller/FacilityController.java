@@ -1,5 +1,7 @@
 package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.entity.param.FacilityParam;
+import com.abnormality.abnormalityaccept.enums.Code;
 import org.springframework.web.bind.annotation.RestController;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,9 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import com.abnormality.abnormalityaccept.entity.Facility;
 import com.abnormality.abnormalityaccept.service.FacilityService;
-import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
-
-import java.util.List;
 
 /**
  * @author shanh
@@ -75,16 +74,13 @@ public class FacilityController {
         }
         return Result.error(500, "删除失败");
     }
-    // 拓展按等级查询设施
-    @Operation(summary = "按等级查询设施信息")
-    @GetMapping("/byLevel")
-    public Result<List<Facility>> findByLevel(@Parameter(description = "设施等级") @RequestParam Integer level) {
-        return facilityService.findByLevel(level);
+
+    @Operation(summary = "多条件查询设施")
+    @GetMapping("/conditions")
+    public Result<PageInfo<Facility>> findFacilityByConditions(FacilityParam facilityParam){
+        PageInfo<Facility> facilityList = facilityService.findFacilityByConditions(facilityParam);
+        if(facilityList.getList() == null || facilityList.getList().isEmpty()) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关设施");
+        return Result.ok(facilityList);
     }
-    // 拓展搜索设施（按名称或地址模糊查询）
-    @Operation(summary = "搜索设施（按名称或地址模糊匹配）")
-    @GetMapping("/search")
-    public Result<List<Facility>> search(@Parameter(description = "搜索关键词") @RequestParam String keyword) {
-        return facilityService.search(keyword);
-    }
+
 }

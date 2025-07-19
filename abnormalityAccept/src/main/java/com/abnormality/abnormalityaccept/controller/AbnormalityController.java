@@ -2,7 +2,7 @@ package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.Abnormality;
-import com.abnormality.abnormalityaccept.entity.AbnormalityParam;
+import com.abnormality.abnormalityaccept.entity.param.AbnormalityParam;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.AbnormalityService;
 import com.abnormality.abnormalityaccept.service.FileService;
@@ -11,7 +11,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.elasticsearch.action.synonyms.GetSynonymsSetsAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,12 +73,9 @@ public class AbnormalityController {
     }
     @Operation(summary = "分页条件查询异想体信息")
     @PostMapping("/conditions")
-    public Result<PageInfo<Abnormality>> findAbnormalityByConditions(
-            @RequestBody AbnormalityParam abnormalityParam,
-            @RequestParam Integer pageNum,
-            @RequestParam Integer pageSize){
+    public Result<PageInfo<Abnormality>> findAbnormalityByConditions(AbnormalityParam abnormalityParam){
 
-        PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormalityParam, pageNum, pageSize);
+        PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormalityParam);
         List<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList.getList());
         if (abnormalityList.getList()==null || abnormalityList.getList().isEmpty())
             return Result.error(Code.NOT_FOUND.getCode(), "未查询到符合条件的异想体数据");

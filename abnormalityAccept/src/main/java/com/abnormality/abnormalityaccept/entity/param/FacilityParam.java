@@ -1,4 +1,4 @@
-package com.abnormality.abnormalityaccept.entity;
+package com.abnormality.abnormalityaccept.entity.param;
 
 import lombok.Data;
 
@@ -9,17 +9,17 @@ import lombok.Data;
  * @since 2025-07-19
  */
 @Data
-public class AbnormalityParam {
+public class FacilityParam {
     private Long id;
-    private String name;
+    private String facilityName;
+    private String facilityAddress;
     private Integer level;
-    private String description;
-    private String manageMethod;
-    private String notes;
-    private Long facilityId;
+    private Long managerId;
 
     //范围查询参数
     private Integer minLevel;
     private Integer maxLevel;
 
+    private Integer pageNum;
+    private Integer pageSize;
 }

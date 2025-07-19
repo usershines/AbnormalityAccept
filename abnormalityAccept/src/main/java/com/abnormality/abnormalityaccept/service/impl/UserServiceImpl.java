@@ -212,13 +212,11 @@ public class UserServiceImpl implements UserService {
      * 根据条件分页查询用户信息。
      *
      * @param userParamRequest      查询条件封装的对象
-     * @param pageNum   当前页码
-     * @param pageSize 每页显示条数
      * @return 包含符合条件用户的 PageInfo 对象
      */
     @Override
-    public PageInfo<User> findUserByConditions(UserParamRequest userParamRequest , Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
+    public PageInfo<User> findUserByConditions(UserParamRequest userParamRequest ) {
+        PageHelper.startPage(userParamRequest.getPageNUm(),userParamRequest.getPageSize());
         List<User> userList = userMapper.findUserByConditions(userParamRequest);
         return PageInfo.of(userList);
     }
@@ -440,8 +438,7 @@ public class UserServiceImpl implements UserService {
      */
     private String getTokenKey(String token) {
         JWT jwt = JWT.of(token);
-        String username = jwt.getPayload("username").toString();
-        return username;
+        return jwt.getPayload("username").toString();
     }
 
 //    /**

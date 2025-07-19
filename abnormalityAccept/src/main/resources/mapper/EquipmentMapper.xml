@@ -70,7 +70,7 @@
             <!-- 多值查询 -->
             <if test="stateList != null and stateList.size()>0"> AND state IN
                 <foreach collection="stateList" item="state" open="(" separator="," close=")">
-                    #{sex}
+                    #{state}
                 </foreach>
             </if>
             <if test="typeList != null and typeList.size()>0"> AND type IN

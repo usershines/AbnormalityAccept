@@ -20,6 +20,7 @@
         SELECT
         <include refid="Base_Notice"/>
         FROM notice
+        where state != 0
     </select>
 
     <select id="findNoticeById" resultMap="Base_Notice_List">

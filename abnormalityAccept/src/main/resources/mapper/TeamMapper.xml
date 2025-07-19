@@ -70,8 +70,6 @@
     </update>
 
     <!-- ============== 拓展方法实现 ============== -->
-
-
     <!-- 更新团队任务ID -->
     <update id="updateQuestId">
         UPDATE team SET resolving_quest_id = #{questId} WHERE id = #{teamId}
@@ -121,10 +119,8 @@
             <if test="maxLevel != null">
                 AND level &lt;= #{maxLevel}
             </if>
-            <if test="isActive != null">
-                AND is_active = 1
-            </if>
 
+           AND is_actice = 1;
         </where>
     </select>
 

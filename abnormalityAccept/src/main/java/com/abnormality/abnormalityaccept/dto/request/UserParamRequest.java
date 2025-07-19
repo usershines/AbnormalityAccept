@@ -29,4 +29,7 @@ public class UserParamRequest {
     //范围查询
     private  Integer minLevel;
     private  Integer maxLevel;
+
+    private Integer pageNUm;
+    private Integer pageSize;
 }

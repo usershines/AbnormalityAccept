@@ -1,7 +1,7 @@
 import request from "@/utils/requests.ts";
 
 // 装备类型
-interface Equipment {
+export interface Equipment {
   id: number;
   type: number;
   name: string;

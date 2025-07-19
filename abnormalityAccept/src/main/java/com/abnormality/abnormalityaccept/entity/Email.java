@@ -24,7 +24,9 @@ public class Email {
     private Long id;
     private Integer state;
     private Long senderId;
+    private String senderName;
     private Long receiverId;
+    private String receiverName;
     private String theme;
     private String content;
     private LocalDate sendTime;

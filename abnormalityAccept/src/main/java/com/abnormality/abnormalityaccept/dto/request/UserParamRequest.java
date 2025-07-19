@@ -16,4 +16,8 @@ public class UserParamRequest {
     private  String email;
     private  Integer level;
     private  Long facilityId;
+    private  Long teamId;
+    private  Long inviterId;
+    private  Long leaderId;
+    private  String introduction;
 }

@@ -1,14 +1,17 @@
 package com.abnormality.abnormalityaccept.service;
 
 import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.dto.request.EditSubordinateRequest;
 import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
-import com.abnormality.abnormalityaccept.dto.request.UpdateUserRequest;
+import com.abnormality.abnormalityaccept.dto.request.UpdateUserOneSelfRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
 //import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author shanh
@@ -28,6 +31,7 @@ public interface UserService {
     User findUserById(Long id,Long finderId);
     User findUserByName(String name);
 
+
     /**
      * 删除数据
      */
@@ -42,7 +46,9 @@ public interface UserService {
     /**
      * 修改数据
      */
-    boolean updateUser(UpdateUserRequest updateUserRequest, Long editorId);
+    boolean editSubordinate(EditSubordinateRequest editSubordinateRequest, Long editorId);
+
+    boolean updateUser(UpdateUserOneSelfRequest updateUserOneSelfRequest, Long editorId);
 
 
     /** 多条件查询用户（分页） */

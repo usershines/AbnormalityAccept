@@ -66,9 +66,10 @@ public class EmailController {
         boolean delete = emailService.deleteEmailById(id,receiverId);
         return delete ? Result.ok("删除成功") : Result.error(Code.ERROR.getCode(),"删除失败");
     }
-    @Operation(summary = "根据发送者id查询邮件")
-    @GetMapping("/sender/{senderId}")
-    public Result<PageInfo<Email>> findEmailBySenderId(@PathVariable Long senderId,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+    @Operation(summary = "根据发送者名称查询邮件")
+    @GetMapping("/sender/")
+    public Result<PageInfo<Email>> findEmailBySenderId(@RequestParam String senderName,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+        Long senderId =  userService.findUserByName(senderName).getId();
         Long receiverId =  userService.getUserIdByToken();
         PageInfo<Email> emailList = emailService.findEmailBySenderId(senderId,pageNum,pageSize,receiverId);
         return Result.ok(emailList);
@@ -77,6 +78,7 @@ public class EmailController {
     @Operation(summary = "根据主题查询邮件")
     @GetMapping("/receiver/theme")
     public Result<PageInfo<Email>> findEmailByTheme(@RequestParam String theme, @RequestParam Integer pageNum, @RequestParam Integer pageSize){
+
         Long receiverId = userService.getUserIdByToken();
         PageInfo<Email> emailList = emailService.findEmailByTheme(theme,pageNum,pageSize,receiverId);
         return Result.ok(emailList);

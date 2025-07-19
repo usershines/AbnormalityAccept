@@ -9,8 +9,10 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTUtil;
 import cn.hutool.jwt.JWTValidator;
+import com.abnormality.abnormalityaccept.annotation.Level;
+import com.abnormality.abnormalityaccept.dto.request.EditSubordinateRequest;
 import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
-import com.abnormality.abnormalityaccept.dto.request.UpdateUserRequest;
+import com.abnormality.abnormalityaccept.dto.request.UpdateUserOneSelfRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.entity.User;
@@ -80,7 +82,7 @@ public class UserServiceImpl implements UserService {
         // 开启分页
         PageHelper.startPage(pageNum, pageSize);
         // 查询用户列表
-        List<User> userList = userMapper.findAllUser(pageNum, pageSize, finderLevel);
+        List<User> userList = userMapper.findAllUser();
         // 封装分页结果
         return PageInfo.of(userList);
     }
@@ -94,6 +96,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findUserById(Long id , Long finderId) {
         User finder = userMapper.selectById(finderId);
+        if(userMapper.selectById( id)== null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
         int finderLevel = finder.getLevel();
         if(finderLevel<userMapper.selectById(id).getLevel())throw new ServiceException(Code.FORBIDDEN,"无权查看当前用户");
         return userMapper.selectById(id);}
@@ -125,7 +128,7 @@ public class UserServiceImpl implements UserService {
      * <ul>
      *   <li>邀请者等级不足 3 级时，不能邀请新用户。</li>
      *   <li>用户名已存在时抛出异常。</li>
-     *   <li>邀请者为 3 级用户时，新用户级别必须低于 3 且不能分配设施。</li>
+     *   <li>邀请者为 3 级用户时，新用户级别必须低于 3 。</li>
      *   <li>邀请者为 4 级用户时，新用户级别必须低于 4。</li>
      * </ul>
      *
@@ -136,8 +139,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean addUser(InviteRequest inviteRequest, Long inviterId) {
+        if(inviteRequest.getUsername()== null) throw new ServiceException(Code.ERROR,"用户名不能为空");
         User newUser = new User();
         User inviter = userMapper.selectById(inviterId);
+
         int inviterLevel = inviter.getLevel();
         if (inviterLevel <= 2)
             throw new ServiceException(Code.FORBIDDEN, "用户级别不足以邀请新用户");
@@ -146,41 +151,60 @@ public class UserServiceImpl implements UserService {
         if (inviterLevel == 3) {
             if (inviteRequest.getLevel() >= 3)
                 throw new ServiceException(Code.FORBIDDEN, "只能设置比自己等级低的级别");
-            if (inviteRequest.getFacilityId() != null)
-                throw new ServiceException(Code.FORBIDDEN, "只有A级以上用户可以分配工作设施");
         }
         if (inviterLevel == 4) {
             if (inviteRequest.getLevel() >= 4)
                 throw new ServiceException(Code.FORBIDDEN, "只能设置比自己等级低的级别");
         }
         newUser.setUsername(inviteRequest.getUsername());
-        newUser.setFacilityId(inviteRequest.getFacilityId());
+        newUser.setFacilityId(null);
         newUser.setLevel(inviteRequest.getLevel());
         newUser.setPassword(encryptPassword(newUser.getUsername() + "888"));
         newUser.setInviterId(inviterId);
+        newUser.setInviterName(userMapper.selectById(inviterId).getUsername());
         newUser.setLeaderId(inviterId);
+        newUser.setLeaderName(userMapper.selectById(inviterId).getUsername());
         return userMapper.addUser(newUser) > 0;
     }
 
 
     @Override
-    public boolean updateUser(UpdateUserRequest updateUserRequest, Long editorId) {
-        User user = new User();
+    public boolean updateUser(UpdateUserOneSelfRequest updateUserOneSelfRequest, Long UserId) {
 
-        User editor = userMapper.selectById(editorId);
-        int editorLevel = editor.getLevel();
-        if(editorLevel !=5){
-            if (editorLevel < updateUserRequest.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "不能更新等级比自己高的用户信息");
-            if (editorLevel == updateUserRequest.getLevel())
-                if (editorId != updateUserRequest.getId()) throw new ServiceException(Code.BAD_REQUEST, "不能更新等级相同的用户信息");
-            return userMapper.updateUser(user)>0;
+        if(updateUserOneSelfRequest.getUsername() == null) throw new ServiceException(Code.ERROR,"用户名不能为空");
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", updateUserOneSelfRequest.getUsername() ));
+        if(ObjectUtil.isNotEmpty(user)) throw new ServiceException(Code.ERROR,"用户名已存在");
+
+        User editor = userMapper.selectById(UserId);
+        editor.setUsername(updateUserOneSelfRequest.getUsername());
+        editor.setEmail(updateUserOneSelfRequest.getEmail());
+        editor.setIntroduction(updateUserOneSelfRequest.getIntroduction());
+        List<User> users = userMapper.findUserByLeaderId(editor.getId());
+        for (User BelongUser : users) {
+            BelongUser.setLeaderName(editor.getUsername());
+            BelongUser.setInviterName(editor.getUsername());
+            userMapper.updateUserAll(BelongUser);
         }
-        user.setUsername(updateUserRequest.getUsername());
-        user.setEmail(updateUserRequest.getEmail());
-        user.setLevel(updateUserRequest.getLevel());
-        user.setFacilityId(updateUserRequest.getFacilityId());
-        user.setIntroduction(updateUserRequest.getIntroduction());
-        return userMapper.updateUser(user) > 0;
+        return userMapper.updateUser(editor) > 0;
+    }
+
+    @Override
+    @Level(allowLevel = {2,3,4,5})
+    public boolean editSubordinate(EditSubordinateRequest editSubordinateRequest, Long editorId) {
+        Integer subordinateLevel = editSubordinateRequest.getLevel();
+        String leaderName = editSubordinateRequest.getLeaderName();
+        if(subordinateLevel == null) throw new ServiceException(Code.ERROR,"等级不能为空");
+        if(leaderName == null) throw new ServiceException(Code.ERROR,"上级领导不能为空");
+        if(subordinateLevel<1 || subordinateLevel>5) throw new ServiceException(Code.BAD_REQUEST, "非法参数");
+        User editedUser = userMapper.selectById(editSubordinateRequest.getSubordinateId());
+        User editor = userMapper.selectById(editorId);
+        if(editedUser == null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
+        if(editedUser.getLevel()>=editor.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "不能修改等级比自己高的用户信息");
+        editedUser.setLevel(subordinateLevel);
+        editedUser.setLeaderName(leaderName);
+        User leader = userMapper.selectOne(new QueryWrapper<User>().eq("username",leaderName));
+        editedUser.setLeaderId(leader.getId());
+        return userMapper.editSubordinate(editedUser)>0;
     }
 
     /**
@@ -261,7 +285,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(username);
         user.setPassword(encryptPassword(password));
         user.setLevel(1);
-        userMapper.addUser(user);
+        userMapper. insert(user);
         String token = generateJwt(user);
         redisService.setEx(getTokenKey(token), token, 12 * 60 * 60);
         authResponse.setName(user.getUsername());

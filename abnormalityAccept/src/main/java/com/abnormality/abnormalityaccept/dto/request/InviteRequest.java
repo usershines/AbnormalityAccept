@@ -18,7 +18,6 @@ public class InviteRequest {
     @NotBlank(message = "用户名不能为空")
     private String username;
 
-    private Long facilityId;
 
     @NotNull(message = "用户等级不能为空")
     @Min(value = 1, message = "等级必须大于0")

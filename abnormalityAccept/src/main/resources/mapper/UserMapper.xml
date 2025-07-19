@@ -12,15 +12,18 @@
         <result property="level" column="level"/>
         <result property="teamId" column="team_id"/>
         <result property="inviterId" column="inviter_id"/>
+        <result property="inviterName" column="inviter_name"/>
         <result property="leaderId" column="leader_id"/>
+        <result property="leaderName" column="leader_name"/>
         <result property="facilityId" column="facility_id"/>
+        <result property="facilityName" column="facility_name"/>
         <result property="introduction" column="introduction"/>
         <result property="isActive" column="is_active"/>
 
     </resultMap>
 
     <sql id="Base_User">
-        id,username,password,email,level,team_id,inviter_id,leader_id,facility_id,introduction,is_active
+        id,username,password,email,level,team_id,inviter_id, inviter_name,leader_id, leader_name,facility_id, facility_name,introduction,is_active
     </sql>
 
     <select id="findAllUser" resultMap="Base_User_List">
@@ -38,6 +41,28 @@
         where id=#{id} and is_active = 1
     </select>
 
+    <select id="findUserByTeamId" resultMap="Base_User_List">
+        select
+        <include refid="Base_User"/>
+        from user
+        where team_id=#{teamId} and is_active = 1
+    </select>
+
+    <!-- 根据上级id查询用户 -->
+    <select id="findUserByLeaderId" resultMap="Base_User_List">
+        select
+        <include refid="Base_User"/>
+        from user
+        where leader_id= #{leaderId} and is_active = 1
+    </select>
+
+    <!-- 根据邀请者id查询用户 -->
+    <select id="findUserByInviterId" resultMap="Base_User_List">
+        select
+        <include refid="Base_User"/>
+        from user
+        where inviter_id= #{inviterId}  and is_active = 1
+    </select>
 
 
     <select id="findUserBelongNotTeam" resultMap="Base_User_List">
@@ -63,21 +88,27 @@
             level,
             team_id,
             inviter_id,
+            inviter_name,
             leader_id,
+            leader_name,
             facility_id,
+            facility_name,
             introduction,
             is_active
         )
         VALUES (
-                     #{user.username},
-                     #{user.password},
-                     #{user.email},
-                     #{user.level},
-                     #{user.teamId},
-                     #{user.inviterId},
-                     #{user.leaderId},
-                     #{user.facilityId},
-                     #{user.introduction},
+                     #{username},
+                      #{password},
+                     #{email},
+                     #{level},
+                     #{teamId},
+                     #{inviterId},
+                     #{inviterName},
+                     #{leaderId},
+                     #{leaderName},
+                     #{facilityId},
+                     #{facilityName},
+                     #{introduction},
                      1
                  )
     </insert>
@@ -87,16 +118,83 @@
         set is_active = 0
         where id = #{id}
     </update>
-    <!-- 修改用户 -->
+    <!-- 修改用户自己 -->
     <update id="updateUser">
+        UPDATE user
+        <set>
+                <if test="user.username != null">
+                    username = #{user.username},
+                </if>
+                <if test="user.email != null">
+                    email = #{user.email},
+                </if>
+                <if test="user.password != null">
+                    introduction = #{user.introduction},
+                </if>
+        </set>
+        WHERE id = #{user.id}
+
+    </update>
+
+    <update id="updateUserAll">
+        UPDATE user
+        <set>
+            <if test="user.username != null">
+                username = #{user.username},
+            </if>
+            <if test="user.email != null">
+                email = #{user.email},
+            </if>
+            <if test="user.password != null">
+                password = #{user.password},
+            </if>
+
+            <if test="user.level != null">
+                level = #{user.level},
+            </if>
+            <if test="user.teamId != null">
+                team_id = #{user.teamId},
+            </if>
+            <if test="user.inviterId != null">
+                inviter_id = #{user.inviterId},
+            </if>
+            <if test="user.inviterName != null">
+                inviter_name = #{user.inviterName},
+            </if>
+            <if test="user.leaderId != null">
+                leader_id = #{user.leaderId},
+            </if>
+            <if test="user.leaderName != null">
+                leader_name = #{user.leaderName},
+            </if>
+            <if test="user.facilityId != null">
+                facility_id = #{user.facilityId},
+            </if>
+            <if test="user.facilityName != null">
+                facility_name = #{user.facilityName},
+            </if>
+            <if test="user.introduction != null">
+                introduction = #{user.introduction},
+            </if>
+            <if test="user.isActive != null">
+                is_active = #{user.isActive},
+            </if>
+        </set>
+        WHERE id = #{user.id}
+    </update>
+
+    <!-- 上级修改下属 -->
+    <update id="editSubordinate">
         update user
-            set username = #{username},
-            email = #{email},
-            level = #{level},
-            facility_id = #{facilityId},
-            introduction = #{introduction}
+            set level = #{user.level},
+                team_id = #{user.teamId},
+                facility_id = #{user.facilityId},
+                facility_name = #{user.facilityName},
+                leader_id = #{user.leaderId},
+                leader_name = #{user.leaderName},
         where id = #{id} and is_active = 1
     </update>
+
     <!-- 专门修改密码 -->
     <update id="updatePassword">
         update user
@@ -107,11 +205,16 @@
     <select id="findUserByConditions" resultType="com.abnormality.abnormalityaccept.entity.User">
         SELECT * FROM user
         <where>
-            <if test="id != null">AND id = #{id}</if>
+            <if test="id != null">AND id LIKE CONCAT('%', #{id}, '%')</if>
             <if test="username != null and username != ''">AND username LIKE CONCAT('%', #{username}, '%')</if>
-            <if test="email != null and email != ''">AND email = #{email}</if>
+            <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
             <if test="level != null">AND level = #{level}</if>
-            <if test="facilityId != null">AND facility_id = #{facilityId}</if>
+            <if test="facilityId != null">AND facility_id LIKE CONCAT('%', #{facilityId}, '%')</if>
+            <if test="teamId != null">AND team_id LIKE CONCAT('%', #{teamId}, '%')</if>
+            <if test="inviterId != null">AND inviter_id LIKE CONCAT('%', #{inviterId}, '%')</if>
+            <if test="leaderId != null">AND leader_id LIKE CONCAT('%', #{leaderId}, '%')</if>
+            <if test="introduction != null and introduction != ''">AND introduction LIKE CONCAT('%', #{introduction}, '%')</if>
+            <if test="isActive != null">AND is_active =  1</if>
         </where>
     </select>
 

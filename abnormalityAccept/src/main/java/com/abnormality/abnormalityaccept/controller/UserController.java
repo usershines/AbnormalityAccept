@@ -79,9 +79,7 @@ public class UserController {
     @GetMapping("/list")
     public Result<PageInfo<User>> findAllUser(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         //return List.of();
-        String token = AopUtil.getToken();
-        String  username = JwtPayload.fromToken(token).getUsername();
-        Long finderId = userService.findUserByName(username).getId();
+        Long finderId = userService.getUserIdByToken();
         PageInfo<User> userList = userService.findAllUser(pageNum, pageSize,finderId);
         return Result.ok(userList);
     }
@@ -129,17 +127,29 @@ public class UserController {
     }
 
 
-    @Operation(summary = "更新用户")
+    @Operation(summary = "更新用户本人信息")
     @PutMapping("/update")
-    public Result<String> updateUser(@RequestBody UpdateUserRequest updateUserRequest){
+    public Result<String> updateUser(@RequestBody UpdateUserOneSelfRequest updateUserOneSelfRequest){
         String token = AopUtil.getToken();
         String  username = JwtPayload.fromToken(token).getUsername();
         Long editorId = userService.findUserByName(username).getId();
-        if(userService.updateUser(updateUserRequest,editorId)){
+        if(userService.updateUser(updateUserOneSelfRequest,editorId)){
             return Result.ok("更新成功");
         }
-        else throw new ServiceException(Code.ERROR,"更新失败");
+        return Result.error(Code.ERROR.getCode(),"更新失败");
     }
+
+    @Operation(summary = "编辑下属信息")
+    @PostMapping("/editSubordinate/{id}")
+    public Result<String> editSubordinate(@PathVariable Long id, @RequestBody EditSubordinateRequest editSubordinateRequest){
+        editSubordinateRequest.setSubordinateId(id);
+        Long editorId = userService.getUserIdByToken();
+        if(userService.editSubordinate(editSubordinateRequest,editorId)){
+            return Result.ok("编辑成功");
+        }
+        return Result.error(Code.ERROR.getCode(),"编辑失败");
+    }
+
 
     @Operation(summary = "多条件查询")
     @PostMapping("/findUserByConditions")

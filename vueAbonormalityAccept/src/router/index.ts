@@ -15,7 +15,7 @@ import EmailInbox from "../views/email/components/inbox.vue"
 import EmailSent from "../views/email/components/sent.vue"
 import EmailDrafts from "../views/email/components/drafts.vue"
 import NotFound from "../views/notfound/index.vue"
-import PersonalPage from "../views/workPlace/personal-page/PersonalPage.vue"
+import PersonalPage from "@/views/personal-page/PersonalPage.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,10 +63,6 @@ const router = createRouter({
               path: 'equipment',
               component: Equipment,
             },
-            {
-              path:'personal',
-              component:PersonalPage ,
-            }
 
           ]
         },
@@ -98,6 +94,11 @@ const router = createRouter({
               component: EmailSent,
             },
           ]
+        },
+        {
+          path:'personal',
+          name: 'personal',
+          component:PersonalPage ,
         }
       ]
     },

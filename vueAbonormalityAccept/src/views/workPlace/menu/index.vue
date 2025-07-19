@@ -71,19 +71,9 @@
         <span>设施管理</span>
       </el-menu-item>
 
-      <!-- 其他功能 -->
-      <el-menu-item index="settings">
-        <el-icon><Setting /></el-icon>
-        <span>系统设置</span>
-      </el-menu-item>
       <el-menu-item index="/workPlace/personal">
         <el-icon><OfficeBuilding /></el-icon>
         <span>个人主页</span>
-      </el-menu-item>
-
-      <el-menu-item index="emergency">
-        <el-icon><BellFilled /></el-icon>
-        <span class="emergency-btn">紧急按钮</span>
       </el-menu-item>
     </el-menu>
 

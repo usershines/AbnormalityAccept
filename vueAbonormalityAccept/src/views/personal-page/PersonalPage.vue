@@ -147,7 +147,7 @@
 <script setup lang="ts">
 import { ref, reactive,  shallowRef, onMounted } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
-import * as userApi from '@/api/user';
+import * as userApi from '@/api/user.ts';
 import router from '@/router';
 
 

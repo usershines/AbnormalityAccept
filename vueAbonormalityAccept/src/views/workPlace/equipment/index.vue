@@ -319,11 +319,12 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 const createDialogVisible = ref(false);
 const createFormRef = ref<FormInstance>();
 const createForm = reactive({
+  id: 0,
   name: '',
-  type: '',
-  state: '',
+  type: 0,
+  state: 0,
   applicationRequirement: '',
-  masterId: '',
+  masterId: 0,
   description: ''
 });
 

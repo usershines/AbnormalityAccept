@@ -103,7 +103,7 @@
 <script setup lang="ts">
 import {
   HomeFilled, User, MagicStick, SuitcaseLine,
-  Position, Tickets, UserFilled, Setting, BellFilled
+  Position, Tickets, OfficeBuilding, Setting, BellFilled
 } from '@element-plus/icons-vue'
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";

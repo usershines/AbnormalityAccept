@@ -1,0 +1,750 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "AbnormalityAccess",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/Equipment/findAllEquipment": {
+      "get": {
+        "summary": "分页查询所有装备",
+        "deprecated": false,
+        "description": "分页查询所有装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": true,
+            "example": 10,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageInfoEquipment"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": {
+                    "total": 0,
+                    "list": [
+                      {
+                        "id": 0,
+                        "type": 0,
+                        "name": "",
+                        "state": 0,
+                        "applicationRequirement": "",
+                        "masterId": 0,
+                        "description": ""
+                      }
+                    ],
+                    "pageNum": 0,
+                    "pageSize": 0,
+                    "size": 0,
+                    "startRow": 0,
+                    "endRow": 0,
+                    "pages": 0,
+                    "prePage": 0,
+                    "nextPage": 0,
+                    "isFirstPage": false,
+                    "isLastPage": false,
+                    "hasPreviousPage": false,
+                    "hasNextPage": false,
+                    "navigatePages": 0,
+                    "navigatepageNums": [
+                      0
+                    ],
+                    "navigateFirstPage": 0,
+                    "navigateLastPage": 0
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/Equipment/{id}": {
+      "get": {
+        "summary": "根据ID查询装备",
+        "deprecated": false,
+        "description": "根据ID查询装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "装备ID",
+            "required": true,
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "装备ID",
+            "required": true,
+            "example": "1",
+            "schema": {
+              "type": ""
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultEquipment"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": {
+                    "id": 0,
+                    "type": 0,
+                    "name": "",
+                    "state": 0,
+                    "applicationRequirement": "",
+                    "masterId": 0,
+                    "description": ""
+                  }
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "删除装备",
+        "deprecated": false,
+        "description": "删除装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": 0,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultString"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/Equipment/add": {
+      "post": {
+        "summary": "添加装备",
+        "deprecated": false,
+        "description": "添加装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Equipment",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultString"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/Equipment/update": {
+      "put": {
+        "summary": "更新装备",
+        "deprecated": false,
+        "description": "更新装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Equipment",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultString"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/Equipment/state/{state}": {
+      "get": {
+        "summary": "根据装备状态查询装备",
+        "deprecated": false,
+        "description": "根据装备状态查询装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "state",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListEquipment"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": [
+                    {
+                      "id": 0,
+                      "type": 0,
+                      "name": "",
+                      "state": 0,
+                      "applicationRequirement": "",
+                      "masterId": 0,
+                      "description": ""
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/Equipment/batch/state": {
+      "put": {
+        "summary": "批量更新装备",
+        "deprecated": false,
+        "description": "批量更新装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultString"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/Equipment/batch": {
+      "delete": {
+        "summary": "批量删除装备",
+        "deprecated": false,
+        "description": "批量删除装备",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultString"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": ""
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    },
+    "/Equipment/search/name": {
+      "get": {
+        "summary": "模糊查询（name）",
+        "deprecated": false,
+        "description": "模糊查询（name）",
+        "tags": [],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "",
+            "example": "{{token}}",
+            "schema": {
+              "type": "string",
+              "default": "{{token}}"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListEquipment"
+                },
+                "example": {
+                  "code": 0,
+                  "msg": "",
+                  "data": [
+                    {
+                      "id": 0,
+                      "type": 0,
+                      "name": "",
+                      "state": 0,
+                      "applicationRequirement": "",
+                      "masterId": 0,
+                      "description": ""
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResultString": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "msg": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "Equipment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "type": {
+            "type": "integer",
+            "description": ""
+          },
+          "name": {
+            "type": "string",
+            "description": ""
+          },
+          "state": {
+            "type": "integer",
+            "description": ""
+          },
+          "applicationRequirement": {
+            "type": "string",
+            "description": ""
+          },
+          "masterId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "description": {
+            "type": "string",
+            "description": ""
+          },
+          "pageNum": {
+            "type": "integer",
+            "description": ""
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": ""
+          }
+        }
+      },
+      "PageInfoEquipment": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "list": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Equipment",
+              "description": ""
+            },
+            "description": ""
+          },
+          "pageNum": {
+            "type": "integer",
+            "description": ""
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": ""
+          },
+          "size": {
+            "type": "integer",
+            "description": ""
+          },
+          "startRow": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "endRow": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "pages": {
+            "type": "integer",
+            "description": ""
+          },
+          "prePage": {
+            "type": "integer",
+            "description": ""
+          },
+          "nextPage": {
+            "type": "integer",
+            "description": ""
+          },
+          "isFirstPage": {
+            "type": "boolean",
+            "description": ""
+          },
+          "isLastPage": {
+            "type": "boolean",
+            "description": ""
+          },
+          "hasPreviousPage": {
+            "type": "boolean",
+            "description": ""
+          },
+          "hasNextPage": {
+            "type": "boolean",
+            "description": ""
+          },
+          "navigatePages": {
+            "type": "integer",
+            "description": ""
+          },
+          "navigatepageNums": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": ""
+          },
+          "navigateFirstPage": {
+            "type": "integer",
+            "description": ""
+          },
+          "navigateLastPage": {
+            "type": "integer",
+            "description": ""
+          }
+        }
+      },
+      "ResultPageInfoEquipment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "msg": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageInfoEquipment",
+            "description": ""
+          }
+        }
+      },
+      "ResultEquipment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "msg": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/Equipment",
+            "description": ""
+          }
+        }
+      },
+      "ResultListEquipment": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "msg": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Equipment",
+              "description": ""
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [],
+  "security": []
+}

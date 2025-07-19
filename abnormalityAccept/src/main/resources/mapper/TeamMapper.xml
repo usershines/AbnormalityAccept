@@ -70,32 +70,6 @@
     </update>
 
     <!-- ============== 拓展方法实现 ============== -->
-
-    <!-- 6. 条件查询团队（动态SQL） -->
-    <select id="findTeamByCondition" resultMap="Base_Team_List">
-        SELECT
-        <include refid="Base_Team"/>
-        FROM team
-        <where>
-            <if test="name != null and name != ''">
-                AND name LIKE CONCAT('%', #{name}, '%')
-            </if>
-            <if test="status != null">
-                AND status = #{status}
-            </if>
-            <if test="level != null">
-                AND level = #{level}
-            </if>
-            <if test="resolvingQuestId != null">
-                AND resolving_quest_id = #{resolvingQuestId}
-            </if>
-            <if test="leaderId != null">
-                AND leader_id = #{leaderId}
-            </if>
-        </where>
-    </select>
-
-
     <!-- 更新团队任务ID -->
     <update id="updateQuestId">
         UPDATE team SET resolving_quest_id = #{questId} WHERE id = #{teamId}
@@ -106,25 +80,56 @@
         UPDATE team SET status = #{status} WHERE id = #{teamId}
     </update>
 
-    <!-- 添加成员到团队（关联表） -->
-    <insert id="insertMember">
-        INSERT INTO team_member (team_id, user_id) VALUES (#{teamMember.teamId}, #{teamMember.userId})
-    </insert>
+    <select id="findTeamByConditions" resultMap="Base_Team_List">
+        SELECT
+        <include refid="Base_Team"/>
+        FROM team
+        <where>
+            <if test="id!=null and id !=''">
+                AND id LIKE CONCAT('%',#{id},'%')
+            </if>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="level != null">
+                AND level = #{level}
+            </if>
+            <if test="resolvingQuestId != null">
+                AND resolving_quest_id LIKE CONCAT('%', #{resolving_quest_id}, '%')
+            </if>
+            <if test="leaderId != null">
+                AND leader_id = #{leaderId}
+            </if>
+            <if test="description != null">
+                AND description LIKE CONCAT('%', #{description}, '%')
+            </if>
 
-    <!-- 移除团队成员 -->
-    <delete id="deleteMember">
-        DELETE FROM team_member WHERE team_id = #{teamId} AND user_id = #{userId}
-    </delete>
+            <!-- 多值查询 -->
+            <if test="stateList != null">
+                AND state IN
+                <foreach item="state" collection="stateList" separator="," open="(" close=")" index="">
+                    #{state}
+                </foreach>
+            </if>
 
-    <!-- 校验成员是否在团队中 -->
-    <select id="checkMemberExists" resultType="java.lang.Boolean">
-        SELECT COUNT(*) > 0 FROM team_member WHERE team_id = #{teamId} AND user_id = #{userId}
+            <!-- 范围查询 -->
+            <if test="minLevel != null">
+                AND level >= #{minLevel}
+            </if>
+            <if test="maxLevel != null">
+                AND level &lt;= #{maxLevel}
+            </if>
+
+           AND is_actice = 1;
+        </where>
     </select>
 
-    <!-- 查询团队成员 -->
-    <select id="findMembersByTeamId" resultType="com.abnormality.abnormalityaccept.entity.User">
-        SELECT u.* FROM user u
-                            JOIN team_member tm ON u.id = tm.user_id
-        WHERE tm.team_id = #{teamId}
-    </select>
+
+
+
+
+
+
+
+
 </mapper>

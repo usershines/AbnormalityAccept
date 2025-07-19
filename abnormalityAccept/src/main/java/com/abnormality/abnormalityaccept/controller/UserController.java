@@ -152,16 +152,11 @@ public class UserController {
 
 
     @Operation(summary = "多条件查询")
-    @PostMapping("/findUserByConditions")
-    public Result<PageInfo<User>> findUserByConditions(@RequestBody UserParamRequest userParamRequest, @RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+    @GetMapping("/conditions")
+    public Result<PageInfo<User>> findUserByConditions(UserParamRequest userParamRequest) {
 
-        User user = new User();
-        user.setId(userParamRequest.getId());
-        user.setUsername(userParamRequest.getUsername());
-        user.setEmail(userParamRequest.getEmail());
-        user.setLevel(userParamRequest.getLevel());
-        user.setFacilityId(userParamRequest.getFacilityId());
-        PageInfo<User> userList = userService.findUserByConditions(user,pageNum, pageSize);
+        PageInfo<User> userList = userService.findUserByConditions(userParamRequest);
+
         return Result.ok(userList);
     }
 

@@ -59,7 +59,6 @@ public class LogAspect {
         }
         String methodName = method.getName();
 
-        // 获取请求头中的 Token 并进行鉴权，排除 login 和 register 方法
 
         // 执行目标方法并记录响应结果
         try {

@@ -1,5 +1,7 @@
 package com.abnormality.abnormalityaccept.controller;
 import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.entity.param.EquipmentParam;
+import com.abnormality.abnormalityaccept.enums.Code;
 import org.springframework.web.bind.annotation.RestController;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -7,10 +9,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import com.github.pagehelper.PageHelper;
 import com.abnormality.abnormalityaccept.entity.Equipment;
 import com.abnormality.abnormalityaccept.service.EquipmentService;
-import com.abnormality.abnormalityaccept.mapper.EquipmentMapper;
 
 
 import java.util.List;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/Equipment")
+@RequestMapping("/equipment")
 @Tag(name = "装备管理")
 public class EquipmentController {
     private static final Logger logger = LoggerFactory.getLogger(EquipmentController.class);
@@ -36,7 +36,7 @@ public class EquipmentController {
     @Operation(summary = "分页查询所有装备")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    @GetMapping("/findAllEquipment")
+    @GetMapping("/list")
     public Result<PageInfo<Equipment>> findAllEquipment(
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize) {
@@ -51,7 +51,7 @@ public class EquipmentController {
     public Result<Equipment> findEquipmentById(@PathVariable Long id) {
         Equipment equipment = equipmentService.findEquipmentById(id);
         if (equipment == null) {
-            return Result.error(500, "装备不存在");
+            return Result.error(Code.NOT_FOUND.getCode(), "未查询到该装备");
         }
         return Result.ok(equipment);
     }
@@ -62,7 +62,7 @@ public class EquipmentController {
         if (equipmentService.addEquipment(equipment)) {
             return Result.ok("添加成功");
         }
-        return Result.error(500, "添加失败");
+        return Result.error(Code.ERROR.getCode(), "添加失败");
     }
 
     @Operation(summary = "更新装备")
@@ -71,7 +71,7 @@ public class EquipmentController {
         if (equipmentService.updateEquipment(equipment)) {
             return Result.ok("更新成功");
         }
-        return Result.error(500, "更新失败");
+        return Result.error(Code.ERROR.getCode(), "更新失败");
     }
 
     @Operation(summary = "删除装备")
@@ -80,36 +80,34 @@ public class EquipmentController {
         if (equipmentService.deleteEquipmentById(id)) {
             return Result.ok("删除成功");
         }
-        return Result.error(500, "删除失败");
+        return Result.error(Code.ERROR.getCode(), "删除失败");
     }
 
     // 拓展接口
-    @Operation(summary = "根据装备状态查询装备")
-    @GetMapping("/state/{state}")
-    public Result<List<Equipment>> findByState(@PathVariable String state) {
-        List<Equipment> data = equipmentService.findByState(state);
-        return Result.ok(data);
-    }
-
     @Operation(summary = "批量更新装备")
     @PutMapping("/batch/state")
     public Result<String> batchUpdateState(
             @RequestParam List<Long> ids,
             @RequestParam String state) {
         boolean success = equipmentService.batchUpdateState(ids, state);
-        return success ? Result.ok("批量更新成功") : Result.error(500, "批量更新失败");
+        return success ? Result.ok("批量更新成功") : Result.error(Code.ERROR.getCode(), "批量更新失败");
     }
     @Operation(summary = "批量删除装备")
     @DeleteMapping("/batch")
     public Result<String> batchDelete(@RequestParam List<Long> ids) {
         boolean success = equipmentService.batchDelete(ids);
-        return success ? Result.ok("批量删除成功") : Result.error(500, "批量删除失败");
+        return success ? Result.ok("批量删除成功") : Result.error(Code.ERROR.getCode(), "批量删除失败");
     }
-    @Operation(summary = "模糊查询（name）")
-    @GetMapping("/search/name")
-    public Result<List<Equipment>> searchByName(@RequestParam String name) {
-        List<Equipment> list = equipmentService.findByName(name);
-        return Result.ok(list);
+
+    @Operation(summary = "分页多条件查询")
+    @GetMapping("/conditions")
+    public Result<PageInfo<Equipment>> findEquipmentByConditions(EquipmentParam equipmentParam) {
+        PageInfo<Equipment> equipmentList = equipmentService.findEquipmentByConditions(equipmentParam);
+        if(equipmentList == null || equipmentList.getList().isEmpty()) {
+            return Result.error(Code.NOT_FOUND.getCode(), "未查询到相关装备");
+        }
+
+        return Result.ok(equipmentList);
     }
 
 }

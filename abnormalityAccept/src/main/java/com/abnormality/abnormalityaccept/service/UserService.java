@@ -4,6 +4,7 @@ import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.EditSubordinateRequest;
 import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
 import com.abnormality.abnormalityaccept.dto.request.UpdateUserOneSelfRequest;
+import com.abnormality.abnormalityaccept.dto.request.UserParamRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
@@ -52,7 +53,7 @@ public interface UserService {
 
 
     /** 多条件查询用户（分页） */
-    PageInfo<User> findUserByConditions(User user, Integer pageNum, Integer pageSize);
+    PageInfo<User> findUserByConditions(UserParamRequest userParamRequest);
 
 
 

@@ -1,10 +1,8 @@
 package com.abnormality.abnormalityaccept.service;
 
 import com.abnormality.abnormalityaccept.entity.Abnormality;
-import com.abnormality.abnormalityaccept.entity.User;
+import com.abnormality.abnormalityaccept.entity.param.AbnormalityParam;
 import com.github.pagehelper.PageInfo;
-
-import java.util.List;
 
 /**
  * @author shanh
@@ -25,7 +23,7 @@ public interface AbnormalityService {
     boolean updateAbnormality( Abnormality updatedData,Long editorId);
 
     // 查询异想体（多条件）
-    PageInfo<Abnormality> findAbnormalityByConditions(Abnormality abnormality,Integer pageNum, Integer pageSize);
+    PageInfo<Abnormality> findAbnormalityByConditions(AbnormalityParam abnormalityParam);
 
 //    // 获取异想体详情
 //    Abnormality getAbnormalityDetails(Long id);

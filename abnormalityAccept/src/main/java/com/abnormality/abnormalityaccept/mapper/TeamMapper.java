@@ -1,8 +1,8 @@
 package com.abnormality.abnormalityaccept.mapper;
 
 import com.abnormality.abnormalityaccept.entity.Team;
+import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import org.apache.ibatis.annotations.Mapper;
-import com.abnormality.abnormalityaccept.entity.TeamMember;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
@@ -32,5 +32,7 @@ public interface TeamMapper {
     int updateQuestId(@Param("teamId") Long teamId, @Param("questId") Long questId); // 更新任务ID
 
     int updateStatus(@Param("teamId") Long teamId, @Param("status") String status); // 更新状态
+
+    List<Team> findTeamByConditions(TeamParam teamParam);
 
 }

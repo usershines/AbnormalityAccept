@@ -210,10 +210,18 @@
             <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
             <if test="level != null">AND level = #{level}</if>
             <if test="facilityId != null">AND facility_id LIKE CONCAT('%', #{facilityId}, '%')</if>
+            <if test="facilityName != null"> AND facilityName LIKE CONCAT('%', #{facilityName}, '%')</if>
             <if test="teamId != null">AND team_id LIKE CONCAT('%', #{teamId}, '%')</if>
             <if test="inviterId != null">AND inviter_id LIKE CONCAT('%', #{inviterId}, '%')</if>
+            <if test="inviterName != null"> AND inviter_name LIKE CONCAT('%', #{inviterName}, '%') </if>
             <if test="leaderId != null">AND leader_id LIKE CONCAT('%', #{leaderId}, '%')</if>
+            <if test="leaderName != null"> AND leader_name LIKE CONCAT('%', #{leaderName}, '%') </if>
             <if test="introduction != null and introduction != ''">AND introduction LIKE CONCAT('%', #{introduction}, '%')</if>
+
+            <!-- 范围查询 -->
+            <if test="minLevel != null"> AND level >= #{minLevel}</if>
+            <if test="maxLevel != null"> AND level  &lt;= #{maxLevel}</if>
+
             <if test="isActive != null">AND is_active =  1</if>
         </where>
     </select>

@@ -1,6 +1,6 @@
 package com.abnormality.abnormalityaccept.service.impl;
-import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.Facility;
+import com.abnormality.abnormalityaccept.entity.param.FacilityParam;
 import com.abnormality.abnormalityaccept.service.FacilityService;
 import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
 
@@ -65,15 +65,12 @@ public class FacilityServiceImpl implements FacilityService {
     public boolean deleteFacilityById(Long id) {
         return facilityMapper.deleteFacilityById(id);
     }
+
     @Override
-    public Result<List<Facility>> findByLevel(Integer level) {
-        List<Facility> facility = facilityMapper.findByLevel(level);
-        return Result.ok(facility);
+    public PageInfo<Facility>  findFacilityByConditions(FacilityParam facilityParam){
+        PageHelper.startPage(facilityParam.getPageNum(),facilityParam.getPageSize());
+        List<Facility> facilityList = facilityMapper.findFacilityByConditions(facilityParam);
+        return PageInfo.of(facilityList);
     }
-    // 拓展搜索设施（按名称或地址模糊查询）
-    @Override
-    public Result<List<Facility>> search(String keyword) {
-        List<Facility> facility = facilityMapper.searchByKeyword(keyword);
-        return Result.ok(facility);
-    }
+
 }

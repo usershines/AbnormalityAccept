@@ -32,5 +32,5 @@ public class Team {
 
     private Long leaderId;
 
-    private Integer isActive;
+    private Integer isActive=1;
 }

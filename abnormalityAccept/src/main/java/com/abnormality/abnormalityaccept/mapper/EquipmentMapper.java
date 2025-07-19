@@ -1,6 +1,8 @@
 
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Equipment;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.abnormality.abnormalityaccept.entity.EquipmentParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -14,11 +16,11 @@ import java.util.List;
  * @since 2025-07-13
  */
 @Mapper
-public interface EquipmentMapper {
+public interface EquipmentMapper extends BaseMapper<Equipment> {
     /**
      *查询所有装备
      */
-    List<Equipment> findAllEquipment(@Param("pageNum") Integer pageNum,@Param("pageSize") Integer pageSize );
+    List<Equipment> findAllEquipment();
     /**
      根据id查询装备
      */
@@ -36,15 +38,6 @@ public interface EquipmentMapper {
      */
     boolean deleteEquipmentById(Long id);
     // ============== 拓展方法 ==============
-
-
-    /**
-     * 根据状态查询装备
-     * @param state 装备状态
-     * @return 装备列表
-     */
-    List<Equipment> findEquipmentByState(String state);
-
 
     /**
      * 统计装备数量
@@ -67,11 +60,7 @@ public interface EquipmentMapper {
      */
     int batchDeleteEquipment(List<Long> ids);
 
-    /**
-     * 根据名称模糊查询装备
-     * @param name 装备名称（模糊匹配）
-     * @return 装备列表
-     */
-    List<Equipment> findEquipmentByName(@Param("name") String name);
-//    int countByCondition(Equipment condition);
+    List<Equipment> findEquipmentByConditions (EquipmentParam equipmentParam);
+
+
 }

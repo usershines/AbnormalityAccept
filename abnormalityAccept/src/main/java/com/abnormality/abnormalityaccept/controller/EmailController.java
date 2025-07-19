@@ -37,7 +37,6 @@ public class EmailController {
     @GetMapping("/list")
     public Result<PageInfo<Email>> findAllEmail(@RequestParam Integer pageNum, @RequestParam Integer pageSize){
         Long receiverId = userService.getUserIdByToken();
-        PageHelper.startPage(pageNum,pageSize);
         PageInfo<Email> emailList = emailService.findAllEmail(pageNum,pageSize,receiverId);
         return Result.ok(emailList);
     }

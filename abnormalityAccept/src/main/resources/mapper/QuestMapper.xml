@@ -8,13 +8,15 @@
         <id property="id" column="id"/>
         <result property="questCode" column="quest_code"/>
         <result property="questName" column="quest_name"/>
+        <result property="resolvingByTeamId" column="resolving_by_team_id"/>
+        <result property="resolvingByTeamName" column="resolving_by_team_name"/>
         <result property="questDescription" column="quest_description"/>
         <result property="state" column="state"/>
     </resultMap>
 
     <!-- 基础字段片段，复用查询 -->
     <sql id="BaseQuestColumns">
-        id, quest_code, quest_name, quest_description, state
+        id, quest_code, quest_name, resolving_by_team_id,resolving_by_team_name, quest_description, state
     </sql>
 
     <!-- 查询所有任务 -->
@@ -56,12 +58,13 @@
 
     <!-- ============== 拓展方法实现 ============== -->
 
-    <!-- 条件查询任务（动态SQL，根据quest_code、quest_name、state等过滤） -->
-    <select id="findQuestByCondition" resultMap="BaseQuestResultMap">
+    <!-- 条件查询任务 -->
+    <select id="findQuestByConditions" resultMap="BaseQuestResultMap">
         SELECT
         <include refid="BaseQuestColumns"/>
         FROM quest
         <where>
+            <if test="id!=null ">AND id LIKE CONCAT('%',#{id},'%') </if>
             <if test="questCode != null and questCode != ''">
                 AND quest_code LIKE CONCAT('%', #{questCode}, '%')
             </if>
@@ -71,9 +74,23 @@
             <if test="questDescription != null and questDescription != ''">
                 AND quest_description LIKE CONCAT('%', #{questDescription}, '%')
             </if>
+            <if test="resolvingByTeamName !=null and resolvingByTeamName != ''">
+                AND resolving_by_team_name LIKE CONCAT('%',{resolvingByTeamName},'%')
+            </if>
+            <if test="resolvingByTeamId != null">
+                AND resolving_by_team_id LIKE CONCAT('%',{resolvingByTeamId},'%')
+            </if>
             <if test="state != null and state != ''">
                 AND state = #{state}
             </if>
+
+            <!-- 多值查询 -->
+            <if test="stateList != null and stateList.size()>0"> AND state IN
+                <foreach collection="stateList" item="state" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+
         </where>
     </select>
 

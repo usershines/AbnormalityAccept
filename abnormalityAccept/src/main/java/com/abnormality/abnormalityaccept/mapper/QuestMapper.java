@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.mapper;
 
 import com.abnormality.abnormalityaccept.entity.Quest;
+import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -37,7 +38,7 @@ public interface QuestMapper extends BaseMapper<Quest> {
     boolean deleteQuestById(Long id);
 
     // ============== 拓展方法 ==============
-    List<Quest> findQuestByConditions(Quest quest);
+    List<Quest> findQuestByConditions(QuestParam questParam);
 //
 //    /**
 //     * 根据状态查询任务

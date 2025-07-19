@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
 import com.abnormality.abnormalityaccept.entity.Quest;
+import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.abnormality.abnormalityaccept.mapper.QuestMapper;
 import com.abnormality.abnormalityaccept.service.QuestService;
 import com.github.pagehelper.PageHelper;
@@ -35,7 +36,6 @@ public class QuestServiceImpl implements QuestService {
         List<Quest> questList = questMapper.findAllQuest(pageNum, pageSize);
         return PageInfo.of(questList);
     }
-
     /**
      * 根据ID查询通知
      */
@@ -61,9 +61,9 @@ public class QuestServiceImpl implements QuestService {
     }
 
     @Override
-    public PageInfo<Quest> findQuestByConditions(Quest quest, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-        List<Quest> questList = questMapper.findQuestByConditions(quest);
+    public PageInfo<Quest> findQuestByConditions(QuestParam questParam) {
+        PageHelper.startPage(questParam.getPageNum(),questParam.getPageSize());
+        List<Quest> questList = questMapper.findQuestByConditions(questParam);
         return PageInfo.of(questList);
     }
 

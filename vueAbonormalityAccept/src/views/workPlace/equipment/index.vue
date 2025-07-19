@@ -311,15 +311,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
+import { reactive, ref, computed, onMounted } from 'vue';
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+import * as equipmentApi from '@/api/equipment';
+import { type Equipment } from '@/api/equipment';
 
 
 // 新增装备弹窗相关（严格包含指定属性）
 const createDialogVisible = ref(false);
 const createFormRef = ref<FormInstance>();
-const createForm = reactive({
-  id: 0,
+const createForm = ref<any>({
   name: '',
   type: 0,
   state: 0,
@@ -327,6 +328,23 @@ const createForm = reactive({
   masterId: 0,
   description: ''
 });
+
+// 编辑装备弹窗相关
+const editDialogVisible = ref(false);
+const editFormRef = ref<FormInstance>();
+const editForm = ref<any>({
+
+  name: '',
+  type: '',
+  state: '',
+  applicationRequirement: '',
+  masterId: '',
+  description: ''
+});
+
+const eqList=ref<Equipment[]>([]);
+
+
 
 // 新增装备表单验证规则（仅验证指定属性）
 const createRules = reactive<FormRules>({
@@ -337,18 +355,17 @@ const createRules = reactive<FormRules>({
   masterId: [{ required: true, message: '请输入负责人ID', trigger: 'blur' }]
 });
 
-// 编辑装备弹窗相关
-const editDialogVisible = ref(false);
-const editFormRef = ref<FormInstance>();
-const editForm = reactive({
-  id: 0,
-  name: '',
-  type: '',
-  state: '',
-  applicationRequirement: '',
-  masterId: '',
-  description: ''
-});
+const initData=async()=>{
+  const res=await equipmentApi.getEquipmentList(1,10);
+  eqList.value=res.data.list;
+  console.log(res.data.list);
+
+}
+
+onMounted(() => {
+  initData();
+}
+)
 
 // 打开新增装备弹窗
 const handleCreate = () => {
@@ -356,16 +373,16 @@ const handleCreate = () => {
 };
 
 // 提交新增装备表单（严格处理指定属性）
-const submitCreate = () => {
+const submitCreate = async() => {
   if (!createFormRef.value) return;
-  createFormRef.value.validate((valid) => {
+  createFormRef.value.validate(async(valid) => {
     if (valid) {
-      const newId = Math.max(...originTableData.value.map(e => e.id), 0) + 1;
-      const newEquipment = { id: newId, ...createForm };
-      originTableData.value.push(newEquipment);
+      const newId = Math.max(...eqList.value.map(e => e.id), 0) + 1;
+      const newEquipment = { id: newId, ...createForm.value };
+      const data=(await equipmentApi.addEquipment(newEquipment)).data
       ElMessage.success('新增装备成功');
       createDialogVisible.value = false;
-      createFormRef.value.resetFields();
+      createFormRef.value?.resetFields();
     } else {
       ElMessage.warning('请填写完整信息');
     }
@@ -422,14 +439,15 @@ const selectedEquipment = ref<any>(null);
 
 // 搜索过滤（仅基于指定属性）
 const filteredData = computed(() => {
-  return originTableData.value.filter(item => {
-    const nameMatch = searchForm.name ? item.name.includes(searchForm.name) : true;
-    const typeMatch = searchForm.type ? item.type.includes(searchForm.type) : true;
-    const stateMatch = searchForm.state ? item.state.includes(searchForm.state) : true;
-    const idMatch = searchForm.id ? item.id.toString().includes(searchForm.id) : true;
-    const masterIdMatch = searchForm.masterId ? item.masterId.toString().includes(searchForm.masterId) : true; // 新增持有者ID过滤条件
-    return nameMatch && typeMatch && stateMatch && idMatch && masterIdMatch;
-  });
+  const filters = {
+  name: (item: Equipment) => !searchForm.name || item.name.includes(searchForm.name),
+  type: (item: Equipment) => !searchForm.type || String(item.type).includes(searchForm.type),
+  state: (item: Equipment) => !searchForm.state || String(item.state).includes(searchForm.state),
+  id: (item: Equipment) => !searchForm.id || item.id.toString().includes(searchForm.id),
+  masterId: (item: Equipment) => !searchForm.masterId || item.masterId.toString().includes(searchForm.masterId),
+};
+
+  return eqList.value.filter(item => Object.values(filters).every(filter => filter(item)));
 });
 
 // 计算当前页数据
@@ -474,13 +492,13 @@ const handleCurrentChange = (val: number) => { currentPage.value = val; };
 // 详情、编辑、删除方法
 const handleDetail = (row: any) => { selectedEquipment.value = row; detailDialogVisible.value = true; };
 const handleEdit = (row: any) => {
-  editForm.id = row.id;
-  editForm.name = row.name;
-  editForm.type = row.type;
-  editForm.state = row.state;
-  editForm.applicationRequirement = row.applicationRequirement;
-  editForm.masterId = row.masterId;
-  editForm.description = row.description;
+  editForm.value.id = row.id;
+  editForm.value.name = row.name;
+  editForm.value.type = row.type;
+  editForm.value.state = row.state;
+  editForm.value.applicationRequirement = row.applicationRequirement;
+  editForm.value.masterId = row.masterId;
+  editForm.value.description = row.description;
   editDialogVisible.value = true;
 };
 const handleDelete = (row: any) => {
@@ -493,9 +511,9 @@ const handleDelete = (row: any) => {
       type: 'warning',
     }
   ).then(() => {
-    const index = originTableData.value.findIndex(item => item.id === row.id);
+    const index = eqList.value.findIndex(item => item.id === row.id);
     if (index !== -1) {
-      originTableData.value.splice(index, 1);
+      eqList.value.splice(index, 1);
       ElMessage.warning(`已删除装备: ${row.name}`);
       if (currentTableData.value.length === 0 && currentPage.value > 1) currentPage.value--;
     }
@@ -508,9 +526,10 @@ const submitEdit = () => {
   if (!editFormRef.value) return;
   editFormRef.value.validate((valid) => {
     if (valid) {
-      const index = originTableData.value.findIndex(item => item.id === editForm.id);
+      const index = eqList.value.findIndex(item => item.id === editForm.value.id);
       if (index !== -1) {
-        originTableData.value[index] = { ...editForm };
+        // eqList.value[index] = { ...editForm };
+        eqList.value[index]=editForm.value
         ElMessage.success('编辑装备成功');
         editDialogVisible.value = false;
       }

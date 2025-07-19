@@ -8,6 +8,7 @@ import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
+import com.abnormality.abnormalityaccept.mapper.EmailMapper;
 import com.abnormality.abnormalityaccept.service.UserService;
 import com.abnormality.abnormalityaccept.util.AopUtil;
 import com.github.pagehelper.PageInfo;
@@ -20,6 +21,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
 
     @Operation(summary = "用户注册")
     @PostMapping("/register")

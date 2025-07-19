@@ -45,6 +45,8 @@
         UPDATE quest
         SET quest_code = #{questCode},
             quest_name = #{questName},
+            resolving_by_team_id = #{resolvingByTeamId},
+            resolving_by_team_name = #{resolvingByTeamName},
             quest_description = #{questDescription},
             state = #{state}
         WHERE id = #{id}

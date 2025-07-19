@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Notice;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,7 +14,7 @@ import java.util.List;
  * @since 2025-07-13
  */
 @Mapper
-public interface NoticeMapper {
+public interface NoticeMapper extends BaseMapper<Notice> {
     /**
      *查询所有公告
      */

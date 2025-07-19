@@ -4,9 +4,11 @@ import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.EmailAddRequest;
 import com.abnormality.abnormalityaccept.dto.request.StateRequest;
 import com.abnormality.abnormalityaccept.entity.Email;
+import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.EmailService;
 import com.abnormality.abnormalityaccept.service.UserService;
+import com.abnormality.abnormalityaccept.util.AopUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +39,9 @@ public class EmailController {
     @GetMapping("/list")
     public Result<PageInfo<Email>> findAllEmail(@RequestParam Integer pageNum, @RequestParam Integer pageSize){
         Long receiverId = userService.getUserIdByToken();
+        String  username = JwtPayload.fromToken(AopUtil.getToken()).getUsername();
         PageInfo<Email> emailList = emailService.findAllEmail(pageNum,pageSize,receiverId);
+        if(emailList.getList() == null || emailList.getList().isEmpty()) return Result.error("您暂时没有收到过邮件"+receiverId+username);
         return Result.ok(emailList);
     }
 
@@ -75,7 +79,7 @@ public class EmailController {
     }
 
     @Operation(summary = "根据主题查询邮件")
-    @GetMapping("/receiver/theme")
+    @GetMapping("/theme")
     public Result<PageInfo<Email>> findEmailByTheme(@RequestParam String theme, @RequestParam Integer pageNum, @RequestParam Integer pageSize){
 
         Long receiverId = userService.getUserIdByToken();

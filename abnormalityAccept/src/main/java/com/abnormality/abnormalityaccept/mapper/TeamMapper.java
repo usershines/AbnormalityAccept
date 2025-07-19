@@ -2,6 +2,7 @@ package com.abnormality.abnormalityaccept.mapper;
 
 import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.TeamParam;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
  * @since 2025-07-13
  */
 @Mapper
-public interface TeamMapper {
+public interface TeamMapper extends BaseMapper<Team> {
 
     // teamMapper.selectById()
 

@@ -18,7 +18,7 @@ public class Quest {
     private String questCode;
     private String questName;
     private Long resolvingByTeamId;
-    private Integer resolvingByTeamName;
+    private String resolvingByTeamName;
     private String questDescription;
     private Integer state;
 

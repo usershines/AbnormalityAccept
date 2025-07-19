@@ -8,12 +8,13 @@
         <id property="id" column="id"/>
         <result property="level" column="level"/>
         <result property="managerId" column="manager_id"/>
+        <result property="managerName" column="manager_name"/>
         <result property="facilityName" column="facility_name"/>
         <result property="facilityAddress" column="facility_address"/>
     </resultMap>
 
     <sql id="Base_Facility">
-        id, level,leader_id, facility_name, facility_address
+        id, level,manager_id, manager_name, facility_name, facility_address
     </sql>
 
     <select id="findAllFacility" resultMap="Base_Facility_List">
@@ -30,8 +31,8 @@
     </select>
 
     <insert id="addFacility">
-        INSERT INTO facility(id, level,manager_id,facility_name, facility_address)
-        VALUES(#{id}, #{level}, #{managerId},#{facilityName}, #{facilityAddress})
+        INSERT INTO facility(id, level,manager_id, manager_name, facility_name, facility_address)
+        VALUES(#{id}, #{level}, #{managerId}, #{managerName}, #{facilityName}, #{facilityAddress})
     </insert>
 
     <update id="updateFacility">
@@ -39,6 +40,7 @@
         SET id = #{name},
             level = #{level},
             manager_id = #{managerId},
+            manager_name = #{managerName},
             facility_name = #{facilityName},
             facility_address = #{facilityAddress}
         WHERE id = #{id}
@@ -60,6 +62,12 @@
             </if>
             <if test="level != null and level != ''">AND level = #{level} </if>
             <if test="managerId != null"> AND manager_id LIKE CONCAT('%', #{managerId}, '%')</if>
+            <if test="managerName != null and managerName != ''">
+                AND manager_name LIKE CONCAT('%', #{managerName}, '%')
+            </if>
+            <if test="facilityAddress != null and facilityAddress != ''">
+                AND facility_address LIKE CONCAT('%', #{facilityAddress}, '%')
+            </if>
 
         </where>
 

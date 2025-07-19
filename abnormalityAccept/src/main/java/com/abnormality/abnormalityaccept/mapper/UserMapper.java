@@ -69,6 +69,8 @@ public interface UserMapper extends BaseMapper<User> {
     int updatePassword(Long userId);
     // 多条件查询用户
     List<User> findUserByConditions(UserParamRequest userParamRequest);
+    
+    User findUserByName(String name);
 
 
 }

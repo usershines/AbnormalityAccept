@@ -226,4 +226,9 @@
         </where>
     </select>
 
+    <select id="findUserByName" resultMap="Base_User_List">
+        SELECT * FROM user
+        WHERE username = #{username}
+    </select>
+
 </mapper>

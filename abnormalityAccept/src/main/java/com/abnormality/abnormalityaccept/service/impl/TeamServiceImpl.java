@@ -18,6 +18,7 @@ package com.abnormality.abnormalityaccept.service.impl;
 
 import com.abnormality.abnormalityaccept.annotation.Level;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
+import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import com.abnormality.abnormalityaccept.entity.User;
@@ -28,6 +29,7 @@ import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.mapper.QuestMapper;
 import com.abnormality.abnormalityaccept.service.TeamService;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -79,8 +81,14 @@ public class TeamServiceImpl implements TeamService {
         if(updatedData.getStatus()<0 || updatedData.getStatus()>3) throw new ServiceException(Code.BAD_REQUEST, "非法参数");
         if(updatedData.getLevel()<0 || updatedData.getLevel()>5) throw new ServiceException(Code.BAD_REQUEST, "非法参数");
         if(updatedData.getLeaderId() == null) throw new ServiceException(Code.BAD_REQUEST, "队长不能为空");
-        Team team = new Team();
-        team.setName(updatedData.getName());
+        Team team = teamMapper.selectById(updatedData.getId());
+        String name = updatedData.getName();
+        List<Quest> quests = questMapper.selectList(new QueryWrapper<Quest>().eq("quest_name", name));
+        for(Quest quest:quests){
+            quest.setResolvingByTeamName(name);
+            questMapper.updateQuest(quest);
+        }
+        team.setName(name);
         team.setStatus(updatedData.getStatus());
         team.setLevel(updatedData.getLevel());
         team.setResolvingQuestId(updatedData.getResolvingQuestId());
@@ -88,7 +96,6 @@ public class TeamServiceImpl implements TeamService {
         team.setDescription(updatedData.getDescription());
         return teamMapper.updateTeam(team)>0;
     }
-
     @Override
     @Level(allowLevel = 5)
     public boolean addMemberToTeam(Long teamId, Long userId) {
@@ -137,6 +144,12 @@ public class TeamServiceImpl implements TeamService {
             user.setTeamId(null);
             userMapper.updateUser(user);
         }
+        List<Quest> quests = questMapper.selectList(new QueryWrapper<Quest>().eq("resolving_by_team_id", teamId));
+        for (Quest quest : quests) {
+            quest.setResolvingByTeamId(null);
+            questMapper.updateQuest(quest);
+        }
+
         return teamMapper.deleteTeamById(teamId)>0;
     }
 

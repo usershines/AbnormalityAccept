@@ -50,7 +50,9 @@ public class EmailServiceImpl implements EmailService {
         if(user == null) throw new ServiceException("接收者用户不存在");
         Long receiverId = user.getId();
         email.setSenderId(userID);
+        email.setSenderName(userMapper.selectById(userID).getUsername());
         email.setReceiverId(receiverId);
+        email.setReceiverName(user.getUsername());
         email.setTheme(emailAddRequest.getTheme());
         email.setContent(emailAddRequest.getContent());
         email.setSendTime(LocalDate.now());

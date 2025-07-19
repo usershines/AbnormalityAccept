@@ -15,11 +15,13 @@ import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
 import com.abnormality.abnormalityaccept.dto.request.UpdateUserOneSelfRequest;
 import com.abnormality.abnormalityaccept.dto.request.UserParamRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
-import com.abnormality.abnormalityaccept.entity.JwtPayload;
-import com.abnormality.abnormalityaccept.entity.User;
+import com.abnormality.abnormalityaccept.entity.*;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.BaseException;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
+import com.abnormality.abnormalityaccept.mapper.EmailMapper;
+import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
+import com.abnormality.abnormalityaccept.mapper.TeamMapper;
 import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.service.RedisService;
 import com.abnormality.abnormalityaccept.service.UserService;
@@ -65,6 +67,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private final UserMapper userMapper;
+
+    @Autowired
+    private final EmailMapper emailMapper;
+
+    @Autowired
+    private final FacilityMapper facilityMapper;
 
     /**
      * 分页查询所有用户信息。
@@ -186,6 +194,24 @@ public class UserServiceImpl implements UserService {
             BelongUser.setInviterName(editor.getUsername());
             userMapper.updateUserAll(BelongUser);
         }
+
+        List<Facility> facilities = facilityMapper.selectList(new QueryWrapper<Facility>().eq("manager_id", editor.getId()));
+        for (Facility facility : facilities){
+            facility.setManagerName(editor.getUsername());
+            facilityMapper.updateFacility(facility);
+        }
+
+        List<Email> emails1 = emailMapper.selectList(new QueryWrapper<Email>().eq("sender_id", editor.getId()));
+        for (Email email : emails1){
+            email.setSenderName(editor.getUsername());
+            emailMapper.updateById(email);
+        }
+        List<Email> emails2 = emailMapper.selectList(new QueryWrapper<Email>().eq("receiver_id", editor.getId()));
+        for (Email email : emails2){
+            email.setReceiverName(editor.getUsername());
+            emailMapper.updateById(email);
+        }
+
         return userMapper.updateUser(editor) > 0;
     }
 
@@ -460,7 +486,7 @@ public class UserServiceImpl implements UserService {
     public Long getUserIdByToken(){
         String token = AopUtil.getToken();
         String username = JwtPayload.fromToken(token).getUsername();
-        return userMapper.selectOne(new QueryWrapper<User>().eq("username",username)).getId();
+        return userMapper.findUserByName(username).getId();
     }
 
 }

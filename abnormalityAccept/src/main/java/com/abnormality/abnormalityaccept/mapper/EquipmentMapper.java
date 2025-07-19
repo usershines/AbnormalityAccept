@@ -1,8 +1,9 @@
 
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Equipment;
+import com.abnormality.abnormalityaccept.entity.param.EquipmentParam;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.abnormality.abnormalityaccept.entity.EquipmentParam;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

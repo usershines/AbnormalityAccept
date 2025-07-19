@@ -10,6 +10,7 @@ import lombok.Data;
  */
 @Data
 public class TeamUpdateRequest {
+    private Long id;
     private String name;
     private Integer status;
     private Long resolvingQuestId;

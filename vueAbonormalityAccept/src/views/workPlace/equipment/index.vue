@@ -356,10 +356,16 @@ const createRules = reactive<FormRules>({
 });
 
 const initData=async()=>{
-  const res=await equipmentApi.getEquipmentList(1,10);
-  eqList.value=res.data.list;
-  console.log(res.data.list);
-
+  equipmentApi.getEquipmentList(pageSize.value,pageSize.value).then(res=>{
+    console.log(res)
+    if(res.data.code==200){
+      eqList.value=res.data.list;
+      ElMessage.success('装备数据获取成功')
+    }
+  }).catch(err=> {
+    console.log(err)
+    ElMessage.error('装备数据获取失败' + err.msg)
+  })
 }
 
 onMounted(() => {
@@ -457,8 +463,8 @@ const currentTableData = computed(() => {
 });
 
 // 类型标签样式映射
-const getTypeTagType = (type: string) => {
-  const typeMap: Record<string, string> = { 'T1': 'primary', 'T2': 'success', 'T3': 'warning' };
+const getTypeTagType = (type: number) => {
+  const typeMap: Record<number, string> = { 1: 'primary', 2: 'success', 3: 'warning' };
   return typeMap[type] || 'info';
 };
 
@@ -510,26 +516,32 @@ const handleDelete = (row: any) => {
       cancelButtonText: '取消',
       type: 'warning',
     }
-  ).then(() => {
+  ).then(async() => {
     const index = eqList.value.findIndex(item => item.id === row.id);
     if (index !== -1) {
-      eqList.value.splice(index, 1);
-      ElMessage.warning(`已删除装备: ${row.name}`);
-      if (currentTableData.value.length === 0 && currentPage.value > 1) currentPage.value--;
+      const result =(await equipmentApi.deleteEquipment(row.id)).data;
+      if (result.code===200) {
+        ElMessage.warning(`已删除装备: ${row.name}`);
+        // if (currentTableData.value.length === 0 && currentPage.value > 1) currentPage.value--;
+        initData();
+      }
+      
+      
     }
   }).catch(() => {
     ElMessage.info('已取消删除');
   });
 };
 // 提交编辑表单
-const submitEdit = () => {
+const submitEdit = async() => {
   if (!editFormRef.value) return;
-  editFormRef.value.validate((valid) => {
+  editFormRef.value.validate(async(valid) => {
     if (valid) {
       const index = eqList.value.findIndex(item => item.id === editForm.value.id);
       if (index !== -1) {
         // eqList.value[index] = { ...editForm };
-        eqList.value[index]=editForm.value
+        const res=(await equipmentApi.updateEquipment(editForm.value)).data
+        initData()
         ElMessage.success('编辑装备成功');
         editDialogVisible.value = false;
       }

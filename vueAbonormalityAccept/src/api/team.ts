@@ -11,3 +11,12 @@ interface Team {
     description: number;
     leaderId: number;
 }
+
+export function getTeamList(pageNum: number,pageSize: number){
+    return request.get('/team/list',{
+        params:{
+            pageNum:pageNum,
+            pageSize:pageSize
+        }
+    })
+}

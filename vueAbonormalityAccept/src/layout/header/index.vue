@@ -22,10 +22,10 @@
           <el-menu-item index="/start" @click="goToHome" >首页</el-menu-item>
           <el-menu-item index="/workPlace">工作区</el-menu-item>
           <el-menu-item index="/email/inbox">邮箱</el-menu-item>
-          <el-menu-item index="order">Orders</el-menu-item>
+          <el-menu-item index="/personal">个人主页</el-menu-item>
         </el-menu>
-        <el-avatar  :size="80" :src="userAvatar" />
-        <el-button @click="Logout">登出</el-button>
+        <el-avatar  :size="80" :src="userAvatar" @click="router.push('personal')" style="cursor: pointer"/>
+        <el-button @click="Logout" style="margin: 30px 0 10px 30px">登出</el-button>
       </div>
     </div>
 </template>
@@ -50,6 +50,9 @@ const updateDefaultActive = () => {
     if (route.path.startsWith('/email')) {
       defaultActive.value = '/email/inbox';
     }else {
+      if(route.path.startsWith('/personal')) {
+        defaultActive.value = '/personal';
+      }
       defaultActive.value = route.name;
     }
   }
@@ -107,6 +110,7 @@ const Logout = () => {
   }
   )
 }
+
 
 </script>
 

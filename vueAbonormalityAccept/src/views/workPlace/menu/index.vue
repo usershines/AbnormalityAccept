@@ -71,15 +71,9 @@
         <span>设施管理</span>
       </el-menu-item>
 
-      <!-- 其他功能 -->
-      <el-menu-item index="settings">
-        <el-icon><Setting /></el-icon>
-        <span>系统设置</span>
-      </el-menu-item>
-
-      <el-menu-item index="emergency">
-        <el-icon><BellFilled /></el-icon>
-        <span class="emergency-btn">紧急按钮</span>
+      <el-menu-item index="/workPlace/personal">
+        <el-icon><OfficeBuilding /></el-icon>
+        <span>个人主页</span>
       </el-menu-item>
     </el-menu>
 
@@ -103,7 +97,7 @@
 <script setup lang="ts">
 import {
   HomeFilled, User, MagicStick, SuitcaseLine,
-  Position, Tickets, UserFilled, Setting, BellFilled
+  Position, Tickets, OfficeBuilding, Setting, BellFilled
 } from '@element-plus/icons-vue'
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";

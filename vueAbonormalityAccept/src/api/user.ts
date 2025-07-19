@@ -1,17 +1,17 @@
 import request from "@/utils/requests.ts";
 
 //用户类型
-interface User {
+export interface User {
 
-    id: number,
-    username: string,
-    password: string,
-    email: string,
-    inviterId: number,
-    leaderId: number,
-    facilityId: number,
-    introduction: string,
-    level: number,
+    id: number | null,
+    username: string | null,
+    password: string | null,
+    email: string | null,
+    inviterId: number | null,
+    leaderId: number | null,
+    facilityId: number | null,
+    introduction: string | null,
+    level: number | null,
 
 }
 
@@ -33,8 +33,8 @@ export function getUserList(pageNum: number, pageSize: number){
 }
 
 // 更新用户信息
-export function updateUser(user: any){
-    return request.put('/user/update',user)
+export function updateUser(userProfile: any){
+    return request.post('/user/update',userProfile)
 }
 
 // 新建用户
@@ -64,4 +64,17 @@ export function findUser(user: any, pageNum: number, pageSize: number){
             pageSize: pageSize,
         }
     })
+}
+
+export const findByName=async (name:string)=>{
+    return request.get('/user/findByName', {
+        params:{
+            name: name,
+        }
+    })
+}
+
+
+export const updatePassword=async(body:any)=>{
+    return request.post('/user/updatePassword', body)
 }

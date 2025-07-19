@@ -55,6 +55,8 @@ class Request {
                     return Promise.reject(res)
                 }
                 // 返回响应数据体（包含code/message/data结构）
+                console.log('响应数据:')
+                console.log(response.data)
                 return response.data
             },
             (error: AxiosError) => {

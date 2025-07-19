@@ -17,7 +17,12 @@
   <template #default>
     <el-container>
         <el-card shadow="hover" class="tableCard">
-          <h3 style="text-align: center">用户</h3>
+          <div class="cardHeader">
+            <h3 style="text-align: center; margin-left: 130px">用户</h3>
+            <div class="avatar">
+              <el-image :src="userAvatar" />
+            </div>
+          </div>
           <el-table
               :data="userTableData"
               style="width: 100%;height: 600px"
@@ -28,7 +33,12 @@
         </el-card>
 
       <el-card shadow="hover" class="tableCard">
-        <h3 style="text-align: center">异想体</h3>
+        <div class="cardHeader">
+          <h3 style="text-align: center; margin-left: 110px">异想体</h3>
+          <div class="avatar">
+            <el-image :src="abnormalityAvatar" />
+          </div>
+        </div>
         <el-table
             :data="abnormalityTableData"
             style="width: 100%;height: 600px"
@@ -40,7 +50,12 @@
       </el-card>
 
       <el-card shadow="hover" class="tableCard">
-        <h3 style="text-align: center">小队</h3>
+        <div class="cardHeader">
+          <h3 style="text-align: center; margin-left: 100px">机动小队</h3>
+          <div class="avatar">
+            <el-image :src="teamAvatar" />
+          </div>
+        </div>
         <el-table
             :data="teamTableData"
             style="width: 100%;height: 600px"
@@ -52,7 +67,12 @@
       </el-card>
 
       <el-card shadow="hover" class="tableCard">
-        <h3 style="text-align: center">设施</h3>
+        <div class="cardHeader">
+          <h3 style="text-align: center; margin-left: 130px">设施</h3>
+          <div class="avatar">
+            <el-image :src="facilityAvatar" />
+          </div>
+        </div>
         <el-table
             :data="facilityTableData"
             style="width: 100%;height: 600px"
@@ -109,6 +129,11 @@ import {getTeamList} from "@/api/team.ts";
 import {ElMessage} from "element-plus";
 
 const noticeVisible = ref(false);
+
+const userAvatar = ref("/src/assets/pic/user.png");
+const abnormalityAvatar = ref("/src/assets/pic/abnormality.png");
+const teamAvatar = ref("/src/assets/pic/team.png");
+const facilityAvatar = ref("/src/assets/pic/facility.png");
 
 const abnormalityColor = (row) => {
   switch (row.row.level) {
@@ -626,5 +651,16 @@ const formatDate = (dateString: string) => {
 
 .tableCard{
   margin: 10px;
+}
+
+.avatar{
+  height: 60px;
+  width:  60px;
+}
+
+.cardHeader{
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
 }
 </style>

@@ -356,10 +356,16 @@ const createRules = reactive<FormRules>({
 });
 
 const initData=async()=>{
-  const res=await equipmentApi.getEquipmentList(1,10);
-  eqList.value=res.data.list;
-  console.log(res.data.list);
-
+  equipmentApi.getEquipmentList(pageSize.value,pageSize.value).then(res=>{
+    console.log(res)
+    if(res.data.code==200){
+      eqList.value=res.data.list;
+      ElMessage.success('装备数据获取成功')
+    }
+  }).catch(err=> {
+    console.log(err)
+    ElMessage.error('装备数据获取失败' + err.msg)
+  })
 }
 
 onMounted(() => {

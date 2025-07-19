@@ -42,7 +42,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public boolean addEquipment(Equipment equipment) {
 
-        return equipmentMapper.addEquipment(equipment)>0;
+        return equipmentMapper.insertOrUpdate( equipment);
 
     }
     /**

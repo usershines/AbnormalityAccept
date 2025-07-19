@@ -1,7 +1,8 @@
 
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Equipment;
-import com.abnormality.abnormalityaccept.entity.param.EquipmentParam;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.abnormality.abnormalityaccept.entity.EquipmentParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * @since 2025-07-13
  */
 @Mapper
-public interface EquipmentMapper {
+public interface EquipmentMapper extends BaseMapper<Equipment> {
     /**
      *查询所有装备
      */

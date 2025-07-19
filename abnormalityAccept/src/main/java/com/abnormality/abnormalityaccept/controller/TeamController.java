@@ -45,14 +45,14 @@ public class TeamController {
     private final TeamService teamService;
 
     @Operation(summary = "查询所有小队")
-    @PostMapping("/list")
+    @GetMapping("/list")
     @Level(allowLevel = {5})
     public Result<PageInfo<Team>> findAllTeam(@Parameter Integer pageNum, @RequestParam Integer pageSize){
         PageInfo<Team> teamList = teamService.findAllTeam(pageNum, pageSize);
         return Result.ok(teamList);
     }
     @Operation(summary = "根据id查询小队")
-    @PostMapping("/{id}")
+    @GetMapping("/{id}")
     @Level(allowLevel = {5})
     public Result<Team> findTeamById(@PathVariable Long id){
         Team team = teamService.findTeamById(id);
@@ -60,7 +60,7 @@ public class TeamController {
     }
 
     @Operation(summary = "查询暂无机动小队归属的用户列表")
-    @PostMapping("/usersBelongNotTeam")
+    @GetMapping("/usersBelongNotTeam")
     @Level(allowLevel = {5})
     public Result<PageInfo<User>> findUserBelongNotTeam(@RequestParam Integer pageNum, @RequestParam Integer pageSize){
         PageInfo<User> userList = teamService.findUserBelongNotTeam(pageNum, pageSize);

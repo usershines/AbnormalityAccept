@@ -2,6 +2,8 @@ package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.entity.Abnormality;
+import com.abnormality.abnormalityaccept.entity.AbnormalityParam;
+import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.AbnormalityService;
 import com.abnormality.abnormalityaccept.service.FileService;
 import com.abnormality.abnormalityaccept.service.UserService;
@@ -57,7 +59,7 @@ public class AbnormalityController {
         if (abnormalityService.addAbnormality(abnormality)) {
             return Result.ok("添加成功");
         } else {
-            return Result.error(500,"添加失败");
+            return Result.error(Code.ERROR.getCode(),"添加失败");
         }
     }
     @Operation(summary = "更新异想体")
@@ -67,26 +69,20 @@ public class AbnormalityController {
         if (abnormalityService.updateAbnormality(abnormality, editorId)) {
             return Result.ok("更新成功");
         } else {
-            return Result.error(500,"更新失败");
+            return Result.error(Code.ERROR.getCode(),"更新失败");
         }
     }
     @Operation(summary = "分页条件查询异想体信息")
     @PostMapping("/conditions")
     public Result<PageInfo<Abnormality>> findAbnormalityByConditions(
-            @RequestParam(required = false) Long id,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) Integer level,
-            @RequestParam(required = false) Long facilityId,
+            @RequestBody AbnormalityParam abnormalityParam,
             @RequestParam Integer pageNum,
-            @RequestParam Integer pageSize)
-    {
-        Abnormality abnormality = new Abnormality();
-        abnormality.setId(id);
-        abnormality.setName(name);
-        abnormality.setLevel(level);
-        abnormality.setFacilityId(facilityId);
-        PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormality, pageNum, pageSize);
+            @RequestParam Integer pageSize){
+
+        PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormalityParam, pageNum, pageSize);
         List<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList.getList());
+        if (abnormalityList.getList()==null || abnormalityList.getList().isEmpty())
+            return Result.error(Code.NOT_FOUND.getCode(), "未查询到符合条件的异想体数据");
         return Result.ok(PageInfo.of(abnormalityList1));
 
     }

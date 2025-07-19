@@ -23,7 +23,9 @@ import com.abnormality.abnormalityaccept.annotation.Level;
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Team;
+import com.abnormality.abnormalityaccept.entity.TeamParam;
 import com.abnormality.abnormalityaccept.entity.User;
+import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.TeamService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,6 +97,25 @@ public class TeamController {
     public Result<String> removeMemberFromTeam(@RequestParam Long teamId, @RequestParam Long userId){
         if(teamService.removeMemberFromTeam(teamId, userId)) return Result.ok("移除成功");
         return Result.error("移除失败");
+    }
+
+    @Operation(summary = "删除小队")
+    @DeleteMapping("/delete")
+    @Level(allowLevel = {5})
+    public Result<String> deleteTeamById(@RequestParam Long id){
+        if(teamService.deleteTeamById(id)) return Result.ok("删除成功");
+        return Result.error("删除失败");
+    }
+    @Operation(summary = "分页多条件查询")
+    @PostMapping("/conditions")
+    @Level(allowLevel = {5})
+    public Result<PageInfo<Team>> findTeamByConditions(
+            @RequestBody TeamParam teamParam,
+            @RequestParam Integer pageNum,
+            @RequestParam Integer pageSize){
+        PageInfo<Team> teamList = teamService.findTeamByConditions(teamParam, pageNum, pageSize);
+        if(teamList.getList() ==null || teamList.getList().isEmpty() ) return Result.error(Code.ERROR.getCode(),"未查询到相关小队");
+        return Result.ok(teamList);
     }
 
 }

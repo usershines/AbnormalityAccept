@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.mapper;
 
+import com.abnormality.abnormalityaccept.dto.request.UserParamRequest;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -67,7 +68,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     int updatePassword(Long userId);
     // 多条件查询用户
-    List<User> findUserByConditions(User user);
+    List<User> findUserByConditions(UserParamRequest userParamRequest);
 
 
 }

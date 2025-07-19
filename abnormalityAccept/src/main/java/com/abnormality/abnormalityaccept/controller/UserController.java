@@ -155,13 +155,8 @@ public class UserController {
     @PostMapping("/findUserByConditions")
     public Result<PageInfo<User>> findUserByConditions(@RequestBody UserParamRequest userParamRequest, @RequestParam Integer pageNum, @RequestParam Integer pageSize) {
 
-        User user = new User();
-        user.setId(userParamRequest.getId());
-        user.setUsername(userParamRequest.getUsername());
-        user.setEmail(userParamRequest.getEmail());
-        user.setLevel(userParamRequest.getLevel());
-        user.setFacilityId(userParamRequest.getFacilityId());
-        PageInfo<User> userList = userService.findUserByConditions(user,pageNum, pageSize);
+        PageInfo<User> userList = userService.findUserByConditions(userParamRequest,pageNum, pageSize);
+
         return Result.ok(userList);
     }
 

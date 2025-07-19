@@ -53,41 +53,34 @@
     <!-- ============== 拓展方法实现 ============== -->
 
     <!-- 条件查询装备（动态SQL） -->
-    <select id="findEquipmentByCondition" resultType="com.abnormality.abnormalityaccept.entity.Equipment">
-        SELECT * FROM equipment
+    <select id="findEquipmentByConditions" resultType="com.abnormality.abnormalityaccept.entity.Equipment">
+        SELECT
+        <include refid="Base_Equipment"/>
+        FROM equipment
         <where>
+            <if test="id != null and id != ''">AND id LIKE CONCAT('%', #{id}, '%')</if>
             <if test="name != null and name != ''">
                 AND name LIKE CONCAT('%', #{name}, '%')
-            </if>
-            <if test="type != null and type != ''">
-                AND type = #{type}
-            </if>
-            <if test="state != null and state != ''">
-                AND state = #{state}
             </if>
             <if test="masterId != null and masterId != ''">
                 AND master_id = #{masterId}
             </if>
+            <if test="description !=null and description !=''">AND description LIKE CONCAT('%', #{description}, '%') </if>
+
+            <!-- 多值查询 -->
+            <if test="stateList != null and stateList.size()>0"> AND state IN
+                <foreach collection="stateList" item="state" open="(" separator="," close=")">
+                    #{sex}
+                </foreach>
+            </if>
+            <if test="typeList != null and typeList.size()>0"> AND type IN
+                <foreach collection="typeList" item="type" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+            </if>
         </where>
     </select>
 
-<!--    &lt;!&ndash; 分页查询装备 &ndash;&gt;-->
-<!--    <select id="findEquipmentByPage" resultType="com.abnormality.abnormalityaccept.entity.Equipment">-->
-<!--        SELECT * FROM equipment-->
-<!--            LIMIT #{offset}, #{pageSize}-->
-<!--    </select>-->
-
-    <!-- 根据状态查询装备 -->
-    <select id="findEquipmentByState" resultType="com.abnormality.abnormalityaccept.entity.Equipment">
-        SELECT * FROM equipment WHERE state = #{state}
-
-    </select>
-
-    <!-- 根据负责人查询装备 -->
-    <select id="findEquipmentByMasterId" resultType="com.abnormality.abnormalityaccept.entity.Equipment">
-        SELECT * FROM equipment WHERE master_id = #{masterId}
-
-    </select>
 
     <!-- 统计装备数量 -->
     <select id="countEquipment" resultType="java.lang.Integer">
@@ -114,21 +107,5 @@
         </foreach>
     </delete>
 
-    <!-- 根据名称模糊查询装备 -->
-    <select id="findEquipmentByName" resultType="com.abnormality.abnormalityaccept.entity.Equipment">
-        SELECT * FROM equipment
-        WHERE name LIKE CONCAT('%', #{name}, '%')
 
-    </select>
-<!--    <select id="countByCondition" parameterType="Equipment" resultType="int">-->
-<!--        SELECT COUNT(*) FROM equipment-->
-<!--        <where>-->
-<!--            <if test="type != null and type != ''">-->
-<!--                AND type = #{type}-->
-<!--            </if>-->
-<!--            <if test="state != null and state != ''">-->
-<!--                AND state = #{state}-->
-<!--            </if>-->
-<!--        </where>-->
-<!--    </select>-->
 </mapper>

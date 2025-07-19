@@ -28,9 +28,9 @@ spring:
       strict: false # 是否启用严格模式，false 表示非严格，允许某些操作失败
       datasource:
         master:
-          url: jdbc:mysql://poyuan.kmdns.net:3306/abnormality?useSSL=false&serverTimezone=UTC # 主数据库连接地址
-          username: abnormality # 主数据库用户名
-          password: abnormality # 主数据库密码
+          url: jdbc:mysql://localhost:3306/abnormality?useSSL=false&serverTimezone=UTC # 主数据库连接地址
+          username: root # 主数据库用户名
+          password:  # 主数据库密码
           driver-class-name: com.mysql.cj.jdbc.Driver # 主数据库驱动类
 
 #        slave:

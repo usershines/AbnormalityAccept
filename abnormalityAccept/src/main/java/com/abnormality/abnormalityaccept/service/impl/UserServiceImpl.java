@@ -13,6 +13,7 @@ import com.abnormality.abnormalityaccept.annotation.Level;
 import com.abnormality.abnormalityaccept.dto.request.EditSubordinateRequest;
 import com.abnormality.abnormalityaccept.dto.request.InviteRequest;
 import com.abnormality.abnormalityaccept.dto.request.UpdateUserOneSelfRequest;
+import com.abnormality.abnormalityaccept.dto.request.UserParamRequest;
 import com.abnormality.abnormalityaccept.dto.response.AuthResponse;
 import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.entity.User;
@@ -210,15 +211,15 @@ public class UserServiceImpl implements UserService {
     /**
      * 根据条件分页查询用户信息。
      *
-     * @param user      查询条件封装的用户对象
+     * @param userParamRequest      查询条件封装的对象
      * @param pageNum   当前页码
      * @param pageSize 每页显示条数
      * @return 包含符合条件用户的 PageInfo 对象
      */
     @Override
-    public PageInfo<User> findUserByConditions(User user, Integer pageNum, Integer pageSize) {
+    public PageInfo<User> findUserByConditions(UserParamRequest userParamRequest , Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<User> userList = userMapper.findUserByConditions(user);
+        List<User> userList = userMapper.findUserByConditions(userParamRequest);
         return PageInfo.of(userList);
     }
 

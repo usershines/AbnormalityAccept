@@ -1,19 +1,17 @@
 package com.abnormality.abnormalityaccept.entity;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author shanh
  * @version 1.0
  * {@code @description:}
- * @since 2025-07-13
+ * @since 2025-07-19
  */
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Equipment {
+public class EquipmentParam {
     private Long id;
     private Integer type;
     private String name;
@@ -21,5 +19,9 @@ public class Equipment {
     private String applicationRequirement;
     private Long masterId;
     private String description;
+
+    //多值查询参数
+    private List<Integer> stateList;
+    private List<Integer> typeList;
 
 }

@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service.impl;
 import com.abnormality.abnormalityaccept.entity.Equipment;
+import com.abnormality.abnormalityaccept.entity.EquipmentParam;
 import com.abnormality.abnormalityaccept.service.EquipmentService;
 import com.abnormality.abnormalityaccept.mapper.EquipmentMapper;
 
@@ -23,7 +24,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public PageInfo<Equipment> findAllEquipment(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<Equipment> EquipmentList = equipmentMapper.findAllEquipment(pageNum, pageSize);
+        List<Equipment> EquipmentList = equipmentMapper.findAllEquipment();
 //        return PageInfo.of(EquipmentList);
         return new PageInfo<>(EquipmentList);
     }
@@ -63,12 +64,6 @@ public class EquipmentServiceImpl implements EquipmentService {
 
 
     @Override
-    public List<Equipment> findByState(String state) {
-        return equipmentMapper.findEquipmentByState(state);
-    }
-
-
-    @Override
     public int count() {
         return equipmentMapper.countEquipment();
     }
@@ -84,19 +79,15 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public List<Equipment> findByName(String name) {
-        return equipmentMapper.findEquipmentByName(name);
+    public PageInfo<Equipment> findEquipmentByConditions(EquipmentParam equipmentParam, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Equipment> EquipmentList = equipmentMapper.findEquipmentByConditions(equipmentParam);
+        return new PageInfo<>(EquipmentList);
     }
 
-//    @Override
-//    public int countEquipments(Integer type, Integer state) {
-//        Equipment condition = new Equipment();
-//        condition.setType(type);
-//        condition.setState(state);
-//
-////    // 调用 Mapper 统计
-////        return equipmentMapper.countByCondition(condition);
-//    }
+
+
+
 
 
 }

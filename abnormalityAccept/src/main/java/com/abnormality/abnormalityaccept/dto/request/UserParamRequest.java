@@ -11,13 +11,22 @@ import lombok.Data;
 
 @Data
 public class UserParamRequest {
-    private  Long id;
-    private  String username;
-    private  String email;
-    private  Integer level;
-    private  Long facilityId;
-    private  Long teamId;
-    private  Long inviterId;
-    private  Long leaderId;
-    private  String introduction;
+    private Long id;
+    private String username;
+    private String password;
+    private String email;
+    private Integer level;
+    private Long teamId;
+    private Long inviterId;
+    private String inviterName;
+    private Long leaderId;
+    private String leaderName;
+    private Long facilityId;
+    private String facilityName;
+    private String introduction ;
+    private Integer isActive=1;
+
+    //范围查询
+    private  Integer minLevel;
+    private  Integer maxLevel;
 }

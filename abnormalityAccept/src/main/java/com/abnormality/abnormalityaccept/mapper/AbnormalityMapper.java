@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.mapper;
 
 import com.abnormality.abnormalityaccept.entity.Abnormality;
+import com.abnormality.abnormalityaccept.entity.AbnormalityParam;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
@@ -26,7 +27,7 @@ public interface AbnormalityMapper extends BaseMapper<Abnormality> {
 
     boolean updateAbnormality(Abnormality abnormality);
 
-    List<Abnormality> findAbnormalityByConditions(Abnormality abnormality);
+    List<Abnormality> findAbnormalityByConditions(AbnormalityParam abnormalityParam);
 
 
 

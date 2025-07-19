@@ -5,11 +5,12 @@
       <router-view style="margin: 10px 3% 10px 3% "/>
     </el-main>
   </el-container></div>
+  <Pet/>
 </template>
 
 <script setup lang="ts">
 import Header from '../layout/header/index.vue'
-
+import Pet from '@/layout/pet/index.vue'
 </script>
 
 

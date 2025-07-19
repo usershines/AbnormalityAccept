@@ -1,17 +1,17 @@
 import request from "@/utils/requests.ts";
 
 //用户类型
-interface User {
+export interface User {
 
-    id: number,
-    username: string,
-    password: string,
-    email: string,
-    inviterId: number,
-    leaderId: number,
-    facilityId: number,
-    introduction: string,
-    level: number,
+    id: number | null,
+    username: string | null,
+    password: string | null,
+    email: string | null,
+    inviterId: number | null,
+    leaderId: number | null,
+    facilityId: number | null,
+    introduction: string | null,
+    level: number | null,
 
 }
 

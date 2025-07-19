@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.mapper;
 import com.abnormality.abnormalityaccept.entity.Facility;
+import com.abnormality.abnormalityaccept.entity.param.FacilityParam;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -34,9 +35,8 @@ public interface FacilityMapper extends BaseMapper<Facility> {
      *删除设施
      */
     boolean deleteFacilityById(Long id);
-    // 拓展功能：按等级查询（权限控制相关，根据实体类 level 字段）
-    List<Facility> findByLevel(@Param("level") Integer level);
-    // 拓展功能：模糊查询（按设施名称 facilityName 或地址 facilityAddress）
-    List<Facility> searchByKeyword(@Param("keyword") String keyword);
+
+    List<Facility> findFacilityByConditions(FacilityParam facilityParam);
+
 
 }

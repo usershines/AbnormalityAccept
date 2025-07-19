@@ -2,6 +2,7 @@ package com.abnormality.abnormalityaccept.service;
 
 import com.abnormality.abnormalityaccept.entity.Notice;
 import com.abnormality.abnormalityaccept.entity.Quest;
+import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -17,5 +18,5 @@ import com.github.pagehelper.PageInfo;
 
      boolean deleteQuestById(Long id);
      boolean addQuest(Quest quest, Integer sendId);
-     PageInfo<Quest> findQuestByConditions(Quest quest, Integer pageNum, Integer pageSize);
+     PageInfo<Quest> findQuestByConditions(QuestParam questParam);
 }

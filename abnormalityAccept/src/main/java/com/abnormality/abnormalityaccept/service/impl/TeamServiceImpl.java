@@ -19,9 +19,9 @@ package com.abnormality.abnormalityaccept.service.impl;
 import com.abnormality.abnormalityaccept.annotation.Level;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Team;
+import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
-import com.abnormality.abnormalityaccept.exception.BaseException;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.TeamMapper;
 import com.abnormality.abnormalityaccept.mapper.UserMapper;
@@ -32,7 +32,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -139,6 +138,14 @@ public class TeamServiceImpl implements TeamService {
             userMapper.updateUser(user);
         }
         return teamMapper.deleteTeamById(teamId)>0;
+    }
+
+    @Override
+    @Level(allowLevel = 5)
+    public PageInfo<Team> findTeamByConditions(TeamParam teamParam) {
+        PageHelper.startPage(teamParam.getPageNum(),teamParam.getPageSize());
+        List<Team> teamList = teamMapper.findTeamByConditions(teamParam);
+        return PageInfo.of(teamList);
     }
 
 }

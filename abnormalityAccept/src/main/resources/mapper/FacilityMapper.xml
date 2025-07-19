@@ -7,7 +7,7 @@
     <resultMap id="Base_Facility_List" type="com.abnormality.abnormalityaccept.entity.Facility">
         <id property="id" column="id"/>
         <result property="level" column="level"/>
-        <result property="leaderId" column="leader_id"/>
+        <result property="managerId" column="manager_id"/>
         <result property="facilityName" column="facility_name"/>
         <result property="facilityAddress" column="facility_address"/>
     </resultMap>
@@ -30,15 +30,15 @@
     </select>
 
     <insert id="addFacility">
-        INSERT INTO facility(id, level,leader_id,facility_name, facility_address)
-        VALUES(#{id}, #{level}, #{leaderId},#{facilityName}, #{facilityAddress})
+        INSERT INTO facility(id, level,manager_id,facility_name, facility_address)
+        VALUES(#{id}, #{level}, #{managerId},#{facilityName}, #{facilityAddress})
     </insert>
 
     <update id="updateFacility">
         UPDATE facility
         SET id = #{name},
             level = #{level},
-            leader_id = #{leaderId},
+            manager_id = #{managerId},
             facility_name = #{facilityName},
             facility_address = #{facilityAddress}
         WHERE id = #{id}
@@ -49,27 +49,21 @@
         WHERE id = #{id}
     </delete>
 
-    <select id="findFacilityByCondition" resultMap="Base_Facility_List">
+    <select id="findFacilityByConditions" resultMap="Base_Facility_List">
         SELECT
         <include refid="Base_Facility"/>
         FROM facilitiy
         <where>
+            <if test="id !=null and "> AND id LIKE CONCAT('%', #{id}, '%')</if>
             <if test="facilityName != null and facilityName != ''">
                 AND name LIKE CONCAT('%', #{facilityName}, '%')
             </if>
+            <if test="level != null and level != ''">AND level = #{level} </if>
+            <if test="managerId != null"> AND manager_id LIKE CONCAT('%', #{managerId}, '%')</if>
+
         </where>
-    </select>
-    <!-- 6. 按等级查询设施 -->
-    <select id="findByLevel" resultType="com.abnormality.abnormalityaccept.entity.Facility">
-        SELECT <include refid="Base_Facility"/> FROM facility
-        WHERE level = #{level}
 
     </select>
-    <!-- 10. 模糊查询（按设施名称或地址） -->
-    <select id="searchByKeyword" resultType="com.abnormality.abnormalityaccept.entity.Facility">
-        SELECT <include refid="Base_Facility"/> FROM facility
-        WHERE facility_name LIKE CONCAT('%', #{keyword}, '%')
-        OR facility_address LIKE CONCAT('%', #{keyword}, '%')
-    </select>
+
 
 </mapper>

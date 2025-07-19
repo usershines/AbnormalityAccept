@@ -101,7 +101,7 @@
       class="containment-table"
       :header-cell-style="tableHeaderStyle"
     >
-      <el-table-column prop="name" label="名称" width="200">
+      <el-table-column prop="name" label="名称">
         <template #header>
           <span><i class="iconfont icon-user"></i> 名称</span>
         </template>
@@ -121,20 +121,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="facility" label="所在设施" width="180">
+      <el-table-column prop="facilityId" label="所在设施" width="180">
         <template #header>
           <span><i class="iconfont icon-location"></i> 所在设施</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="status" label="收容状态" width="120">
-        <template #header>
-          <span><i class="iconfont icon-status"></i> 收容状态</span>
-        </template>
-        <template #default="scope">
-          <el-tag :type="scope.row.status === '稳定' ? 'success' : 'danger'" class="status-tag">
-            {{ scope.row.status }}
-          </el-tag>
         </template>
       </el-table-column>
 
@@ -487,7 +476,7 @@ const total = ref(0)
 const creatDialogVisible = ref(false)
 const detailDialogVisible = ref(false)
 const dialogTitle = ref('新建异想体')
-const currentAbnormality = {
+const currentAbnormality = ref({
   id: 0,
   name: '',
   level: 0,
@@ -496,7 +485,7 @@ const currentAbnormality = {
   notes: '',
   facilityId: 0,
   imageName: "",
-}
+})
 const abnormalityFormRef = ref(null)
 
 

@@ -2,10 +2,9 @@ package com.abnormality.abnormalityaccept.service;
 
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Team;
+import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
-
-import java.util.List;
 
 /**
  * @author shanh
@@ -38,6 +37,9 @@ public interface TeamService {
 
     // 删除小队
     boolean deleteTeamById(Long teamId);
+
+    // 分页多条件查询
+    PageInfo<Team> findTeamByConditions(TeamParam teamParam);
 
 
 

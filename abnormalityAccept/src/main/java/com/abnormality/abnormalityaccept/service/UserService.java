@@ -80,6 +80,8 @@ public interface UserService {
 
     Long getUserIdByToken();
 
+    PageInfo<User> findByFacilityId(Long facilityId, Integer pageNum, Integer pageSize);
+
 //
 //
 

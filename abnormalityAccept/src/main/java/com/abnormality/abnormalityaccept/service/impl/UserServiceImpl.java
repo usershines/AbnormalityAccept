@@ -491,6 +491,20 @@ public class UserServiceImpl implements UserService {
         return userMapper.findUserByName(username).getId();
     }
 
+    @Override
+    public PageInfo<User> findByFacilityId(Long facilityId, Integer pageNum, Integer pageSize) {
+        if(ObjectUtil.isEmpty(pageNum)){
+            pageNum = 1;
+        }
+        if(ObjectUtil.isEmpty(pageSize)){
+            pageSize = 10;
+        }
+
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> userList = userMapper.selectList(new QueryWrapper<User>().eq("facility_id", facilityId));
+        return PageInfo.of(userList);
+    }
+
 }
 
 

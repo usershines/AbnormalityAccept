@@ -179,6 +179,13 @@ public class UserController {
         return Result.ok(userService.findUserByName(name));
     }
 
+    @Operation(summary = "根据设施名称查找")
+    @GetMapping("/findByFacilityId")
+    public Result<PageInfo<User>> findUserByFacilityId(@RequestParam Long facilityId,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+        return Result.ok(userService.findByFacilityId(facilityId,pageNum,pageSize));
+
+    }
+
 
 
 }

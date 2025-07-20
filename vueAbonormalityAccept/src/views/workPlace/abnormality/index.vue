@@ -50,7 +50,7 @@
     <el-form :inline="true" :model="filterForm" class="search-form">
       <el-form-item label="SCP编号" class="search-item">
         <el-input
-          v-model="filterForm.number"
+          v-model="filterForm.id"
           placeholder="SCP-XXX"
           clearable
           class="search-input"
@@ -101,6 +101,15 @@
       class="containment-table"
       :header-cell-style="tableHeaderStyle"
     >
+    <el-table-column label="预览图">
+      <template #default="scope">
+        <el-image
+          :src="scope.row.imgName"
+          fit="cover"
+          class="abnormality-image"
+        ></el-image>
+      </template>
+    </el-table-column>
       <el-table-column prop="name" label="名称">
         <template #header>
           <span><i class="iconfont icon-user"></i> 名称</span>
@@ -314,6 +323,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import {getAbnormalityList, getAbnormalityById, addAbnormality, deleteAbnormality, updateAbnormality} from "@/api/abnormality.ts";
+import { ElMessage, ElMessageBox, type UploadProps } from 'element-plus';
 
 // 表格数据表单
 const tableData = ref<abnormality[]>([
@@ -522,7 +532,7 @@ const newAbnormalityForm  = ref({
   manageMethod: '',
   notes: '',
   facilityId: 0,
-  imageName: "",
+  imgName: "",
 })
 
 // 异想体表单规则
@@ -577,18 +587,18 @@ const showCreateDialog = () => {
   creatDialogVisible.value = true
 }
 
-const editAbnormality = (item) => {
+const editAbnormality = (item :any) => {
   dialogTitle.value = '编辑异想体'
   newAbnormalityForm.value = { ...item }
   creatDialogVisible.value = true
 }
 
-const viewDetail = (item) => {
+const viewDetail = (item:any) => {
   currentAbnormality.value = { ...item }
   detailDialogVisible.value = true
 }
 
-const handleDeleteAbnormality = (item) => {
+const handleDeleteAbnormality = (item:any) => {
   ElMessageBox.confirm(`确定要删除异想体 ${item.name} 吗?`, '警告', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -608,16 +618,27 @@ const handleDeleteAbnormality = (item) => {
     })
 })}
 
-const submitAbnormality = () => {
-  console.log(newAbnormalityForm.value)
+const submitAbnormality = async() => {
+  const res=await addAbnormality(newAbnormalityForm.value)
+  if(res.code === 200){
+    ElMessage.success('添加成功')
+    catchData()
+    creatDialogVisible.value = false
+  }else{
+    ElMessage.error('添加失败'+res.msg)
+  }
 }
 
 const handleSizeChange = (val: number) => {
   pageSize.value = val
+  console.log(val)
+  catchData()
 }
 
 const handleCurrentChange = (val: number) => {
+  console.log(val)
   pageNum.value = val
+  catchData()
 }
 
 const getClearLevel = (value: number) => {
@@ -647,7 +668,7 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
   imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   console.log(response)
   if(response.code === 200) {
-    newAbnormalityForm.value.imageName = response.data
+    newAbnormalityForm.value.imgName = response.data
     ElMessage.success("图片上传成功")
   }else{
     ElMessage.error(response.msg)
@@ -670,7 +691,7 @@ const headers = ref({
 })
 
 // 级别tag
-const getLevelType = (value) => {
+const getLevelType = (value:number) => {
   switch (value) {
     case 0: return 'primary'
     case 1: return 'success'
@@ -682,7 +703,7 @@ const getLevelType = (value) => {
 
 // 搜索
 const handleSearch = () => {
-  getAbnormalityById(filterForm.value.number).then((res)=>{
+  getAbnormalityById(filterForm.value.id).then((res)=>{
     if(res.code === 200){
       tableData.value =  res.data.list
       ElMessage.success('搜索结果更新成功')

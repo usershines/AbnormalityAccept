@@ -43,8 +43,7 @@ public class AbnormalityController {
     @GetMapping("/list")
     public Result<PageInfo<Abnormality>> findAllAbnormality(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         PageInfo<Abnormality> abnormalityList = abnormalityService.findAllAbnormality(pageNum, pageSize);
-        List<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList.getList());
-        return Result.ok(PageInfo.of(abnormalityList1));
+        return Result.ok(fileService.completeImageUrl(abnormalityList));
     }
     @Operation(summary = "根据id查询异想体")
     @GetMapping("/{id}")
@@ -76,11 +75,17 @@ public class AbnormalityController {
     public Result<PageInfo<Abnormality>> findAbnormalityByConditions(AbnormalityParam abnormalityParam){
 
         PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormalityParam);
-        List<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList.getList());
+        PageInfo<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList);
         if (abnormalityList.getList()==null || abnormalityList.getList().isEmpty())
             return Result.error(Code.NOT_FOUND.getCode(), "未查询到符合条件的异想体数据");
-        return Result.ok(PageInfo.of(abnormalityList1));
+        return Result.ok(abnormalityList1);
 
+    }
+
+    @Operation(summary = "根据设施Id查找")
+    @GetMapping("/findByFacilityId")
+    public Result<PageInfo<Abnormality>> findAbnormalityByFacilityId(@RequestParam Long facilityId,@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+        return Result.ok(fileService.completeImageUrl(abnormalityService.findAbnormalityByFacilityId(facilityId,pageNum,pageSize)));
     }
 
 
@@ -96,5 +101,7 @@ public class AbnormalityController {
         }
         return abnormalityVoList;
     }
+
+
 
 }

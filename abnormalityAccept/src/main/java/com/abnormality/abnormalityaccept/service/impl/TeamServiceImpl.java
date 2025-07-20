@@ -158,10 +158,8 @@ public class TeamServiceImpl implements TeamService {
             quest.setResolvingByTeamId(null);
             questMapper.updateQuest(quest);
         }
-        List<UserAndTeam> userAndTeams = userAndTeamMapper.selectList(new QueryWrapper<UserAndTeam>().eq("team_id", teamId));
-        for (UserAndTeam userAndTeam : userAndTeams){
-            userAndTeamMapper.delete(new QueryWrapper<UserAndTeam>().eq("team_id", teamId));
-        }
+
+        userAndTeamMapper.delete(new QueryWrapper<UserAndTeam>().eq("team_id", teamId));
 
         return teamMapper.deleteTeamById(teamId)>0;
     }

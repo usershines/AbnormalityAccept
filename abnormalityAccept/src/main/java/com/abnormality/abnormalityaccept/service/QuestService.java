@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service;
 
+import com.abnormality.abnormalityaccept.dto.request.QuestRequest;
 import com.abnormality.abnormalityaccept.entity.Notice;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.param.QuestParam;
@@ -17,6 +18,6 @@ import com.github.pagehelper.PageInfo;
      boolean updateQuest(Quest quest);
 
      boolean deleteQuestById(Long id);
-     boolean addQuest(Quest quest, Long sendId);
+     boolean addQuest(QuestRequest questRequest, Long sendId);
      PageInfo<Quest> findQuestByConditions(QuestParam questParam);
 }

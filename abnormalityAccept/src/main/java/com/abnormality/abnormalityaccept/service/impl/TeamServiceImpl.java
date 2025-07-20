@@ -20,11 +20,13 @@ import com.abnormality.abnormalityaccept.annotation.Level;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.Team;
+import com.abnormality.abnormalityaccept.entity.UserAndTeam;
 import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.TeamMapper;
+import com.abnormality.abnormalityaccept.mapper.UserAndTeamMapper;
 import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.mapper.QuestMapper;
 import com.abnormality.abnormalityaccept.service.TeamService;
@@ -44,6 +46,8 @@ public class TeamServiceImpl implements TeamService {
     private final TeamMapper teamMapper;
     private final UserMapper userMapper;
     private final QuestMapper questMapper;
+
+    private final UserAndTeamMapper userAndTeamMapper;
 
     @Override
     @Level(allowLevel = {5})
@@ -103,9 +107,12 @@ public class TeamServiceImpl implements TeamService {
         User  user = userMapper.findUserById(userId);
         if (team == null) throw new ServiceException(Code.NOT_FOUND, "小队不存在");
         if (user.getTeamId()!= null) throw new ServiceException(Code.BAD_REQUEST, "用户已加入小队");
-        team.getMemberIds().add(userId);
+        UserAndTeam userAndTeam = new UserAndTeam();
+        userAndTeam.setTeamId(teamId);
+        userAndTeam.setUserId(userId);
+        userAndTeamMapper.insert(userAndTeam);
         user.setTeamId(teamId);
-        userMapper.updateUser(user);
+        userMapper.updateUserAll(user);
         return teamMapper.updateTeam(team)>0;
     }
 

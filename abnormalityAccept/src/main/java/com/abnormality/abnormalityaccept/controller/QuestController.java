@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.dto.request.QuestRequest;
 import com.abnormality.abnormalityaccept.entity.Notice;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.param.QuestParam;
@@ -57,9 +58,9 @@ public class QuestController {
 
     @Operation(summary = "添加任务")
     @PostMapping("/new")
-    public Result<String> addQuest(@RequestBody Quest quest) {
+    public Result<String> addQuest(@RequestBody QuestRequest  questRequest) {
         Long sendId = userService.getUserIdByToken();
-        if (questService.addQuest(quest,sendId)) {
+        if (questService.addQuest(questRequest,sendId)) {
             return Result.ok("添加成功");
         }
         return Result.error(Code.ERROR.getCode(), "添加失败");

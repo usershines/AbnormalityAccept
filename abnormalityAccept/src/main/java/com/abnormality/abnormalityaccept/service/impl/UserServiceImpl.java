@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 用户服务实现类，提供用户管理、认证、权限验证等功能。
@@ -179,10 +180,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUser(UpdateUserOneSelfRequest updateUserOneSelfRequest, Long UserId) {
-
+        if(userMapper.selectById(UserId).getUsername()==updateUserOneSelfRequest.getUsername())
+            throw new ServiceException(Code.ERROR,"新用户名不能和旧用户名重复");
         if(updateUserOneSelfRequest.getUsername() == null) throw new ServiceException(Code.ERROR,"用户名不能为空");
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", updateUserOneSelfRequest.getUsername() ));
-        if(ObjectUtil.isNotEmpty(user)) throw new ServiceException(Code.ERROR,"用户名已存在");
+        if(!Objects.equals(user.getId(), UserId))
+            if(userMapper.selectOne(new QueryWrapper<User>().eq("username", updateUserOneSelfRequest.getUsername())) != null)
+                throw new ServiceException(Code.ERROR,"用户名已存在");
 
         User editor = userMapper.selectById(UserId);
         editor.setUsername(updateUserOneSelfRequest.getUsername());

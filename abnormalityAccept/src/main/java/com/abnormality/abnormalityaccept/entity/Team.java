@@ -20,8 +20,6 @@ public class Team {
 
     private String name;
 
-    //@TableField(exist = false)
-    private List<Long> memberIds;
 
     //TODO:待更新
     private int status;

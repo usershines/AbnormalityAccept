@@ -6,6 +6,8 @@ import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /**
  * @author shanh
  * @version 1.0
@@ -41,7 +43,8 @@ public interface TeamService {
     // 分页多条件查询
     PageInfo<Team> findTeamByConditions(TeamParam teamParam);
 
-
+    //查询小队成员信息
+    List< User> findTeamMember(Long teamId);
 
 //    // 获取小队详情
 //    List<User> getTeamDetails(Long teamId);

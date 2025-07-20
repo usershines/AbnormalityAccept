@@ -24,10 +24,13 @@ export interface UserParamsRequest{
     level: number | null,
     teamId: number | null,
     inviterId: number | null,
+    inviterName: string | null,
     leaderId: number | null,
     leaderName: string | null,
     facilityId: number | null,
     facilityName: string | null,
+    introduction: string | null,
+    isActive: number | null,
 
     // 等级范围
     minLevel: number | null,
@@ -81,7 +84,9 @@ export function logout(){
 export function findUser(user: UserParamsRequest){
     if(user.maxLevel === null) user.maxLevel = 5;
     if(user.minLevel === null) user.minLevel = 1;
-    return request.post('/user/findUserByCondition', user)
+    return request.get('/user/conditions', {
+        params: user,
+    })
 }
 
 // 名称查询

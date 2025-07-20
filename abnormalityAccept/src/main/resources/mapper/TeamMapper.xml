@@ -46,6 +46,13 @@
         WHERE name = #{name} and is_active = 1
     </select>
 
+    <select id="findTeamByResolvingQuestId" resultMap="Base_Team_List">
+        SELECT
+        <include refid="Base_Team"/>
+        FROM team
+        WHERE resolving_quest_id = #{resolvingQuestId} and is_active = 1
+    </select>
+
     <!-- 3. 添加团队 -->
     <insert id="addTeam">
         INSERT INTO team(name, status, resolving_quest_id, resolving_quest_name, level, description, leader_id,is_active)

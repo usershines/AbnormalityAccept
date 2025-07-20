@@ -25,4 +25,5 @@ public class AbnormalityParam {
     private Integer pageNum;
     private Integer pageSize;
 
+
 }

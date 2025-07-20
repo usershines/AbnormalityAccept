@@ -8,6 +8,7 @@ import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.service.FileService;
 import com.abnormality.abnormalityaccept.util.AFileUtil;
+import com.github.pagehelper.PageInfo;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
@@ -164,32 +165,43 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Abnormality completeImageUrl(Abnormality abnormality) {
-        Abnormality abnormalityVo = new Abnormality();
-        abnormalityVo.setId(abnormality.getId());
-        abnormalityVo.setName(abnormality.getName());
-        abnormalityVo.setLevel(abnormality.getLevel());
-        abnormalityVo.setDescription(abnormality.getDescription());
-        abnormalityVo.setManageMethod(abnormality.getManageMethod());
-        abnormalityVo.setNotes(abnormality.getNotes());
-        abnormalityVo.setFacilityId(abnormality.getFacilityId());
-        abnormalityVo.setImgName(getPublicUrl(abnormality.getImgName()));
-//        abnormalityVo.setPageNum(abnormality.getPageNum());
-//        abnormalityVo.setPageSize(abnormality.getPageSize());
-        return abnormalityVo;
+//        Abnormality abnormalityVo = new Abnormality();
+////        abnormalityVo.setId(abnormality.getId());
+////        abnormalityVo.setName(abnormality.getName());
+////        abnormalityVo.setLevel(abnormality.getLevel());
+////        abnormalityVo.setDescription(abnormality.getDescription());
+////        abnormalityVo.setManageMethod(abnormality.getManageMethod());
+////        abnormalityVo.setNotes(abnormality.getNotes());
+////        abnormalityVo.setFacilityId(abnormality.getFacilityId());
+////        abnormalityVo.setImgName(getPublicUrl(abnormality.getImgName()));
+//////        abnormalityVo.setPageNum(abnormality.getPageNum());
+//////        abnormalityVo.setPageSize(abnormality.getPageSize());
+////        return abnormalityVo;
+        abnormality.setImgName(getPublicUrl(abnormality.getImgName()));
+        return abnormality;
     }
 
     @Override
     public List<Abnormality> completeImageUrl(List<Abnormality> abnormalityList) {
         List<Abnormality> abnormalityVoList = new ArrayList<>();
-        for(Abnormality abnormality:abnormalityList){
+        for (Abnormality abnormality : abnormalityList) {
             abnormalityVoList.add(completeImageUrl(abnormality));
         }
         return abnormalityVoList;
     }
 
     @Override
+    public PageInfo<Abnormality> completeImageUrl(PageInfo<Abnormality> abnormalityList) {
+        List<Abnormality> list = abnormalityList.getList();
+        for (Abnormality abnormality : list) {
+            completeImageUrl(abnormality);
+        }
+        return abnormalityList;
+    }
+
+    @Override
     public String test() {
-        try{
+        try {
             List<String> results=new ArrayList<>();
 //            return JSONUtil.toJsonStr(minioClient.listBuckets());
             Object result=minioClient.getBucketEncryption(GetBucketEncryptionArgs.builder().bucket(bucketName).build());

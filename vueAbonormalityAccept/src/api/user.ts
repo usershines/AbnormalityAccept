@@ -97,3 +97,8 @@ export const findByName=async (name:string)=>{
 export const updatePassword=async(body:any)=>{
     return request.post('/user/updatePassword', body)
 }
+
+// id查询
+export function findUserById(id:number){
+    return request.get(`/user/${id}`)
+}

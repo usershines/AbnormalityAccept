@@ -104,3 +104,7 @@ export function findTeamByCondition(team: TeamParam){
         params: team
     })
 }
+
+export function deleteTeam(teamId: number) {
+    return request.delete(`/team/${teamId}`);
+}

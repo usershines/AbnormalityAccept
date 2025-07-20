@@ -1,6 +1,6 @@
 import request from "@/utils/requests.ts";
 
-interface Quest{
+export interface Quest{
     id: number;
     questName: string;
     questDescription: string;
@@ -15,3 +15,6 @@ export function getQuestList(pageNum: number,pageSize: number){
 }
 
 // 由id查询任务
+export function getQuestById(id: number){
+    return request.get(`/quest/${id}`)
+}

@@ -567,10 +567,10 @@ const formatDate = (dateString: string) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   } else if (diffDays === 1) {
     return '昨天'
-  } else if (diffDays < 7) {
-    return date.toLocaleDateString([], { weekday: 'short' })
-  } else {
+  } else if(now.getFullYear()===date.getFullYear()){
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+  }else{
+    return date.toLocaleDateString([], {year:'numeric', month: 'short', day: 'numeric' })
   }
 }
 

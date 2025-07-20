@@ -70,11 +70,6 @@
         <el-icon><OfficeBuilding /></el-icon>
         <span>设施管理</span>
       </el-menu-item>
-
-      <el-menu-item index="/workPlace/personal">
-        <el-icon><OfficeBuilding /></el-icon>
-        <span>个人主页</span>
-      </el-menu-item>
     </el-menu>
 
     <div class="system-status">

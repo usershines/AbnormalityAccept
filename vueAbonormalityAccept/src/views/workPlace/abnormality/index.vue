@@ -491,9 +491,14 @@ const abnormalityFormRef = ref(null)
 
 // 筛选条件表单
 const filterForm = ref({
-  number: 0,
+  id: 0,
   name: '',
-  level: ''
+  level: 0,
+  description: '',
+  manageMethod: '',
+  notes: '',
+  facilityId: 0,
+  imageName: "",
 })
 
 // 定义异想体
@@ -556,9 +561,14 @@ const tableHeaderStyle = () => {
 
 const resetFilter = () => {
   filterForm.value = {
-    number: '',
+    id: 0,
     name: '',
-    level: ''
+    level: 0,
+    description: '',
+    manageMethod: '',
+    notes: '',
+    facilityId: 0,
+    imageName: "",
   }
   catchData()
 }

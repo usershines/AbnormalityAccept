@@ -1,14 +1,32 @@
 import request from "@/utils/requests.ts";
 
-interface abnormality {
-    id: number;
-    name: string;
-    level: number;
-    description: string;
-    manageMethod: string;
-    notes: string;
-    facilityId: number;
-    imageName: string;
+export interface Abnormality {
+    id: number | null;
+    name: string | null;
+    level: number | null;
+    description: string | null;
+    manageMethod: string | null;
+    notes: string | null;
+    facilityId: number | null;
+    imageName: string | null;
+}
+
+export interface AbnormalityParam{
+    id: number | null;
+    name: string | null;
+    level: number | null;
+    description: string | null;
+    manageMethod: string | null;
+    notes: string | null;
+    facilityId: number | null;
+
+    //等级范围查询
+    minLevel: number | null;
+    maxLevel: number | null;
+
+    pageNum: number | null;
+    pageSize: number | null;
+
 }
 
 // 添加异想体
@@ -36,4 +54,13 @@ export function updateAbnormality(abnormality: any) {
 // 删除异想体
 export function deleteAbnormality(id: number) {
     return request.delete(`/abnormality/${id}`);
+}
+
+// 条件查询异想体
+export function findAbnormality(abnormality: AbnormalityParam){
+    if(abnormality.minLevel === null) abnormality.minLevel = 1;
+    if(abnormality.maxLevel === null) abnormality.maxLevel = 5;
+    return request.get('/abnormality/conditions', {
+        params:abnormality
+    })
 }

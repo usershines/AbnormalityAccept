@@ -33,15 +33,6 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="所在地" class="search-item">
-          <el-input
-              v-model="searchForm.location"
-              placeholder="请输入所在地"
-              clearable
-              class="search-input"
-          ></el-input>
-        </el-form-item>
-
         <el-form-item label="状态" class="search-item">
           <el-select
               v-model="searchForm.status"
@@ -77,7 +68,7 @@
         <div style="margin: -10px 0 -30px; overflow-y: auto;overflow-x:hidden ; height: 630px">
             <el-row :gutter="20">
               <el-col
-                  v-for="item in currentTableData"
+                  v-for="item in teamTableData"
                   :key="item.id"
                   :xs="24" :sm="12" :md="8" :lg="6"
                   style="width: 100%;margin-bottom: 10px"
@@ -90,7 +81,7 @@
                   <template #header>
                     <div style="display: flex;flex-direction: row;">
                       <div>
-                        <el-avatar :size="60" :src="item.avatar" style="margin-bottom: 0px" />
+                        <el-avatar :size="60" :src="teamAvatar" style="margin-bottom: 0px" />
                         <h3 style="margin-bottom: 5px;margin-top: 20px;overflow-x: hidden;white-space: nowrap">{{ item.name }}</h3>
                       </div>
                       <div style="display: flex;flex-direction: column;margin: 0px 0px 0 auto;align-items: flex-end">
@@ -133,12 +124,6 @@
                     <div class="info-item">
                       <span class="label">成员：{{ item.members.length }}人</span>
                     </div>
-                    <div class="info-item">
-                      <span class="value">当前任务：{{ item.currentMission || '无' }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">所在地：{{ item.location }}</span>
-                    </div>
                   </div>
                 </el-card>
               </el-col>
@@ -152,11 +137,11 @@
         <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="currentPage"
+            :current-page="pageNum"
             :page-sizes="[8, 16, 24]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="filteredData.length"
+            :total="total"
             prev-text="上一页"
             next-text="下一页"
             class="containment-pagination"
@@ -183,7 +168,7 @@
           </div>
         </div>
         <div class="header-content">
-          <el-avatar :size="80" :src="selectedTeam.avatar" class="detail-avatar" />
+          <el-avatar :size="80" :src="teamAvatar" class="detail-avatar" />
           <div class="header-info">
             <h2 class="team-title">{{ selectedTeam.name }}</h2>
             <div class="info-row">
@@ -200,21 +185,20 @@
               </span>
             </div>
             <div class="info-row">
-              <span><i class="iconfont icon-location"></i> 所在地：{{ selectedTeam.location }}</span>
-              <span><i class="iconfont icon-superior"></i> 上级：{{ selectedTeam.superior }}</span>
-            </div>
-            <div v-if="selectedTeam.currentMission" class="info-row mission">
-              <span><i class="iconfont icon-mission"></i> 执行中任务：{{ selectedTeam.currentMission }}</span>
+              <span><i class="iconfont icon-superior"></i> 队长：{{ selectedTeam.leaderId }}</span>
             </div>
             <div class="info-row description">
               <span><i class="iconfont icon-description"></i> 简介：{{ selectedTeam.description }}</span>
+            </div>
+            <div class="info-row description">
+              <span><i class="iconfont icon-description"></i> 正在执行任务：{{ selectedQuest?.questName }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <div class="detail-section">
-        <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeam.members.length }}人)</h3>
+        <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers.length }}人)</h3>
         <el-table
           :data="selectedTeam.members"
           border
@@ -236,8 +220,8 @@
               <span><i class="iconfont icon-security"></i> 权限等级</span>
             </template>
             <template #default="scope">
-              <el-tag :type="getLevelTagType(scope.row.clearance)" class="clearance-tag">
-                {{ scope.row.clearance }}
+              <el-tag :type="getLevelTagType(scope.row.level)" class="clearance-tag">
+                {{ scope.row.level }}
               </el-tag>
             </template>
           </el-table-column>
@@ -258,7 +242,7 @@
             <template #default="scope">
               <el-button
                 type="text"
-                @click="viewMemberDetails(scope.row)"
+                @click="viewMemberDetails(scope.row.members)"
                 class="detail-btn"
               >
                 <i class="iconfont icon-detail"></i> 详情
@@ -268,13 +252,14 @@
         </el-table>
       </div>
 
+<!--
       <div class="detail-section">
         <h3 class="section-title"><i class="iconfont icon-history"></i> 任务历史</h3>
         <el-timeline class="mission-timeline">
           <el-timeline-item
-            v-for="(mission, index) in selectedTeam.missionHistory"
-            :key="index"
-            :timestamp="mission.date"
+            v-for="missonId in selectedTeam.resolvingQuestIdq"
+            :key="missonId"
+            :timestamp="missonId.date"
             placement="top"
           >
             <el-card class="mission-card">
@@ -291,6 +276,7 @@
           </el-timeline-item>
         </el-timeline>
       </div>
+-->
     </div>
 
     <template #footer>
@@ -306,7 +292,7 @@
   <!-- 成员详情弹窗 -->
   <el-dialog
     v-model="memberDialogVisible"
-    :title="`${selectedMember?.name} - 人员档案`"
+    :title="`${selectedMember?.username} - 人员档案`"
     width="50%"
     class="containment-dialog"
   >
@@ -315,40 +301,32 @@
         <div class="security-stamp small">
           <div class="stamp-content">
             <div class="stamp-title">SCP FOUNDATION</div>
-            <div class="stamp-level">机密等级: {{ selectedMember.clearance }}</div>
+            <div class="stamp-level">机密等级: {{ selectedMember.level }}</div>
           </div>
         </div>
         <div class="header-content">
-          <el-avatar :size="100" :src="selectedMember.avatar" class="member-avatar" />
+          <el-avatar :size="100" :src="userAvatar" class="member-avatar" />
           <div class="member-info">
-            <h2 class="member-name">{{ selectedMember.name }}</h2>
+            <h2 class="member-name">{{ selectedMember.username }}</h2>
             <div class="info-row">
-              <span><i class="iconfont icon-role"></i> 职位：{{ selectedMember.role }}</span>
+              <span><i class="iconfont icon-role"></i> 职位：空</span>
               <span><i class="iconfont icon-security"></i> 权限等级：
-                <el-tag :type="getLevelTagType(selectedMember.clearance)" class="clearance-tag">
-                  {{ selectedMember.clearance }}
+                <el-tag :type="getLevelTagType(selectedMember.level)" class="clearance-tag">
+                  {{ selectedMember.level }}
                 </el-tag>
               </span>
             </div>
             <div class="info-row">
-              <span><i class="iconfont icon-status"></i> 状态：
-                <el-tag :type="getMemberStatusTagType(selectedMember.status)" class="status-tag">
-                  {{ selectedMember.status }}
-                </el-tag>
-              </span>
-              <span><i class="iconfont icon-date"></i> 加入时间：{{ selectedMember.joinDate }}</span>
-            </div>
-            <div class="info-row">
-              <span><i class="iconfont icon-security-level"></i> 安全许可：{{ selectedMember.securityClearance }}</span>
+              <span><i class="iconfont icon-date"></i> 直接上级ID：{{ selectedMember.leaderId }}</span>
             </div>
             <div class="info-row description">
-              <span><i class="iconfont icon-description"></i> 简介：{{ selectedMember.bio }}</span>
+              <span><i class="iconfont icon-description"></i> 简介：{{ selectedMember.introduction }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="detail-section">
+<!--      <div class="detail-section">
         <h3 class="section-title"><i class="iconfont icon-skill"></i> 技能专长</h3>
         <div class="skills">
           <el-tag
@@ -359,7 +337,7 @@
             {{ skill }}
           </el-tag>
         </div>
-      </div>
+      </div>-->
     </div>
 
     <template #footer>
@@ -375,375 +353,109 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue';
+import * as TeamApi from '@/api/team';
+import * as QuestApi from '@/api/quest';
+import * as UserApi from '@/api/user';
+import type { Team, TeamParam, TeamUpdateRequest } from '@/api/team';
+import type { Quest } from '@/api/quest';
+import type { User, UserParamsRequest } from '@/api/user';
 import { ElMessage } from 'element-plus';
 
-// 模拟数据库连接
-const simulateDatabaseConnection = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-      ElMessage.success('数据库连接成功');
-    }, 200);
+const userAvatar = ref("/src/assets/pic/user.png");
+// 获取数据
+const catchTeamTableData = () => {
+  TeamApi.getTeamList(pageNum.value, pageSize.value).then((res) => {
+    if (res.code === 200) {
+      teamTableData.value = res.data.list;
+      total.value = res.data.total;
+    } else if (res.code === 501) {
+      ElMessage.error('权限不足，无法获取小队信息');
+    } else {
+      ElMessage.error('小队信息获取失败：' + res.msg);
+    }
+  }).catch((err) => {
+    console.log(err);
+    ElMessage.error('小队信息获取失败：' + err.msg);
   });
 };
 
-// 定义成员接口
-interface Member {
-  id: number;
-  name: string;
-  role: string;
-  clearance: string;
-  status: string;
-  avatar: string;
-  joinDate: string;
-  securityClearance: string;
-  bio: string;
-  skills: string[];
-}
-
-// 定义任务历史接口
-interface Mission {
-  title: string;
-  description: string;
-  date: string;
-  status: string;
-  duration: string;
-}
-
-// 定义小队接口
-interface Team {
-  id: number;
-  name: string;
-  level: string;
-  email: string;
-  location: string;
-  superior: string;
-  status: string;
-  avatar: string;
-  description: string;
-  members: Member[];
-  currentMission: string;
-  missionHistory: Mission[];
-}
-
-// 搜索表单数据
-const searchForm = reactive({
-  name: '',
-  level: 0 || null,
-  location: '',
-  status: 0 || null,
-});
-
-// 原始表格数据（模拟数据库获取）
-const originTableData = ref<Team[]>([]);
+// 队伍表格数据
+const teamTableData = ref<Team[]>([]);
+const teamAvatar = ref("/src/assets/pic/team.png");
 
 // 分页相关数据
-const currentPage = ref(1);
+const pageNum = ref(1);
 const pageSize = ref(8);
+const total = ref(0);
 
 // 弹窗相关
 const detailDialogVisible = ref(false);
 const memberDialogVisible = ref(false);
 const selectedTeam = ref<Team | null>(null);
-const selectedMember = ref<Member | null>(null);
+const selectedTeamMembers = ref<User[]>([]);
+const selectedMember = ref<User | null>(null);
+const selectedQuest = ref<Quest | null>(null);
 
-// 模拟从数据库获取小队数据
-const fetchTeamsFromDatabase = async () => {
-  // 模拟数据库连接
-  await simulateDatabaseConnection();
 
-  // 返回模拟数据
-  return [
-    {
-      id: 1,
-      name: 'O5-13',
-      level: 'O5',
-      email: 'o5-13@scp-foundation.org',
-      location: 'Site-19',
-      superior: 'O5议会',
-      status: '任务中',
-      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      description: '监督者议会成员',
-      currentMission: 'SCP-682收容突破应对',
-      members: [
-        { id: 101, name: 'O5-13', role: '监督者', clearance: 'O5', status: '在岗', avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png', joinDate: '2010-05-12', securityClearance: '最高机密', bio: '监督者议会成员，负责Site-19管理', skills: ['战略决策', '异常评估', '资源管理'] },
-        { id: 102, name: 'Dr. Bright', role: '高级研究员', clearance: 'A', status: '任务中', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2015-08-23', securityClearance: '机密', bio: 'SCP-963持有者，异常实体专家', skills: ['实体收容', '跨维度研究', '紧急响应'] }
-      ],
-      missionHistory: [
-        { title: 'SCP-096收容失效', description: '处理SCP-096在Site-19的收容失效事件', date: '2023-05-15', status: '成功', duration: '8小时' },
-        { title: 'Site-81安全评估', description: '对Site-81进行年度安全审查', date: '2023-03-10', status: '成功', duration: '3天' },
-        { title: 'SCP-173迁移', description: '将SCP-173迁移至新收容设施', date: '2023-01-20', status: '部分成功', duration: '12小时' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'MTF Epsilon-11',
-      level: 'B',
-      email: 'epsilon11@scp-foundation.org',
-      location: '机动部署',
-      superior: 'O5-13',
-      status: '空闲',
-      avatar: 'https://cube.elemecdn.com/e/f5/3f28f2a7e22d5c5c3d7b9e0e7b3e9png.png',
-      description: '九尾狐机动特遣队',
-      currentMission: '',
-      members: [
-        { id: 201, name: '指挥官 Grant', role: '指挥官', clearance: 'B', status: '在岗', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2018-11-05', securityClearance: '机密', bio: '九尾狐特遣队指挥官，战术专家', skills: ['战术指挥', 'CQB', '爆破'] },
-        { id: 202, name: '特工 Davis', role: '医疗兵', clearance: 'C', status: '休假', avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png', joinDate: '2020-02-14', securityClearance: '受限', bio: '战地医疗专家，异常医疗处理', skills: ['急救', '异常医疗', '生物危害处理'] },
-        { id: 203, name: '特工 Miller', role: '重装兵', clearance: 'C', status: '在岗', avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png', joinDate: '2019-07-30', securityClearance: '受限', bio: '重武器专家，收容突破应对', skills: ['重武器', '防御战术', '装甲操作'] }
-      ],
-      missionHistory: [
-        { title: 'Site-19收容突破', description: '应对Site-19多起Keter级收容失效', date: '2023-06-20', status: '成功', duration: '36小时' },
-        { title: 'SCP-106追捕', description: '追捕并重新收容逃脱的SCP-106', date: '2023-04-05', status: '成功', duration: '18小时' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'MTF Alpha-1',
-      level: 'A',
-      email: 'alpha1@scp-foundation.org',
-      location: '机动部署',
-      superior: 'O5议会',
-      status: '任务中',
-      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      description: '红右手特别行动组',
-      currentMission: '内部安全审查',
-      members: [
-        { id: 301, name: '指挥官 Reed', role: '指挥官', clearance: 'A', status: '在岗', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2012-09-12', securityClearance: '最高机密', bio: '红右手指挥官，内部安全专家', skills: ['反情报', '内部调查', '特种作战'] },
-        { id: 302, name: '特工 Carter', role: '情报官', clearance: 'B', status: '任务中', avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png', joinDate: '2017-05-18', securityClearance: '机密', bio: '情报分析专家，反渗透', skills: ['情报分析', '密码学', '监视'] }
-      ],
-      missionHistory: [
-        { title: 'Site-43渗透测试', description: '对Site-43进行安全渗透测试', date: '2023-05-30', status: '成功', duration: '24小时' },
-        { title: 'O5-7安保任务', description: '为O5-7会议提供高级别安保', date: '2023-04-22', status: '成功', duration: '48小时' }
-      ]
-    },
-    {
-      id: 4,
-      name: '研究团队 Gamma',
-      level: 'C',
-      email: 'gamma@scp-foundation.org',
-      location: 'Site-64',
-      superior: 'Dr. Glass',
-      status: '无法活动',
-      avatar: 'https://cube.elemecdn.com/1/34/18c7e8f8e8f8e8f8e8f8e8f8e8f8e8.png',
-      description: '收容措施优化团队',
-      currentMission: '',
-      members: [
-        { id: 401, name: 'Dr. Shaw', role: '首席研究员', clearance: 'C', status: '医疗休假', avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png', joinDate: '2021-03-15', securityClearance: '受限', bio: '收容措施专家，物理学博士', skills: ['收容设计', '材料科学', '结构分析'] },
-        { id: 402, name: 'Dr. Finch', role: '研究员', clearance: 'C', status: '在岗', avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png', joinDate: '2022-01-10', securityClearance: '受限', bio: '异常工程学专家', skills: ['工程学', '异常材料', '原型设计'] }
-      ],
-      missionHistory: [
-        { title: 'SCP-914优化', description: '优化SCP-914的收容和测试协议', date: '2023-02-18', status: '成功', duration: '2周' },
-        { title: 'SCP-173收容间升级', description: '重新设计SCP-173的收容间', date: '2022-11-05', status: '成功', duration: '3周' }
-      ]
-    },
-    {
-      id: 5,
-      name: 'MTF Gamma-5',
-      level: 'B',
-      email: 'gamma5@scp-foundation.org',
-      location: '机动部署',
-      superior: 'O5-13',
-      status: '未知',
-      avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png',
-      description: '红鲱鱼机动特遣队',
-      currentMission: '深空探测任务',
-      members: [
-        { id: 501, name: '指挥官 Vega', role: '指挥官', clearance: 'B', status: '任务中', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2019-08-20', securityClearance: '机密', bio: '深空异常专家，宇航员', skills: ['太空作战', '零重力战术', '外星环境'] },
-        { id: 502, name: '特工 Nova', role: '领航员', clearance: 'C', status: '任务中', avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png', joinDate: '2020-05-15', securityClearance: '受限', bio: '天体导航专家，异常空间现象', skills: ['天体导航', '异常空间', '通信系统'] }
-      ],
-      missionHistory: [
-        { title: '月球异常调查', description: '调查月球背面的异常能量信号', date: '2023-01-10', status: '成功', duration: '14天' },
-        { title: 'SCP-2399收容', description: '执行SCP-2399收容协议', date: '2022-09-12', status: '部分成功', duration: '30天' }
-      ]
-    },
-    {
-      id: 6,
-      name: '伦理委员会',
-      level: 'A',
-      email: 'ethics@scp-foundation.org',
-      location: 'Site-15',
-      superior: 'O5-7',
-      status: '空闲',
-      avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png',
-      description: '基金会伦理监督',
-      currentMission: '',
-      members: [
-        { id: 601, name: 'Dr. Rights', role: '主席', clearance: 'A', status: '在岗', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2015-07-01', securityClearance: '机密', bio: '伦理委员会主席，法学博士', skills: ['伦理学', '法律', '政策制定'] },
-        { id: 602, name: 'Dr. Vale', role: '高级伦理官', clearance: 'B', status: '休假', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2018-03-22', securityClearance: '机密', bio: '生物伦理学专家', skills: ['生物伦理', '医学伦理', '风险评估'] }
-      ],
-      missionHistory: [
-        { title: 'D级人员政策修订', description: '修订D级人员使用政策', date: '2023-04-10', status: '成功', duration: '1个月' },
-        { title: 'SCP-231程序审查', description: '审查SCP-231相关程序', date: '2023-02-15', status: '进行中', duration: '持续' }
-      ]
-    },
-    {
-      id: 1,
-      name: 'O5-13',
-      level: 'O5',
-      email: 'o5-13@scp-foundation.org',
-      location: 'Site-19',
-      superior: 'O5议会',
-      status: '任务中',
-      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      description: '监督者议会成员',
-      currentMission: 'SCP-682收容突破应对',
-      members: [
-        { id: 101, name: 'O5-13', role: '监督者', clearance: 'O5', status: '在岗', avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png', joinDate: '2010-05-12', securityClearance: '最高机密', bio: '监督者议会成员，负责Site-19管理', skills: ['战略决策', '异常评估', '资源管理'] },
-        { id: 102, name: 'Dr. Bright', role: '高级研究员', clearance: 'A', status: '任务中', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2015-08-23', securityClearance: '机密', bio: 'SCP-963持有者，异常实体专家', skills: ['实体收容', '跨维度研究', '紧急响应'] }
-      ],
-      missionHistory: [
-        { title: 'SCP-096收容失效', description: '处理SCP-096在Site-19的收容失效事件', date: '2023-05-15', status: '成功', duration: '8小时' },
-        { title: 'Site-81安全评估', description: '对Site-81进行年度安全审查', date: '2023-03-10', status: '成功', duration: '3天' },
-        { title: 'SCP-173迁移', description: '将SCP-173迁移至新收容设施', date: '2023-01-20', status: '部分成功', duration: '12小时' }
-      ]
-    },
-    {
-      id: 2,
-      name: 'MTF Epsilon-11',
-      level: 'B',
-      email: 'epsilon11@scp-foundation.org',
-      location: '机动部署',
-      superior: 'O5-13',
-      status: '空闲',
-      avatar: 'https://cube.elemecdn.com/e/f5/3f28f2a7e22d5c5c3d7b9e0e7b3e9png.png',
-      description: '九尾狐机动特遣队',
-      currentMission: '',
-      members: [
-        { id: 201, name: '指挥官 Grant', role: '指挥官', clearance: 'B', status: '在岗', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2018-11-05', securityClearance: '机密', bio: '九尾狐特遣队指挥官，战术专家', skills: ['战术指挥', 'CQB', '爆破'] },
-        { id: 202, name: '特工 Davis', role: '医疗兵', clearance: 'C', status: '休假', avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png', joinDate: '2020-02-14', securityClearance: '受限', bio: '战地医疗专家，异常医疗处理', skills: ['急救', '异常医疗', '生物危害处理'] },
-        { id: 203, name: '特工 Miller', role: '重装兵', clearance: 'C', status: '在岗', avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png', joinDate: '2019-07-30', securityClearance: '受限', bio: '重武器专家，收容突破应对', skills: ['重武器', '防御战术', '装甲操作'] }
-      ],
-      missionHistory: [
-        { title: 'Site-19收容突破', description: '应对Site-19多起Keter级收容失效', date: '2023-06-20', status: '成功', duration: '36小时' },
-        { title: 'SCP-106追捕', description: '追捕并重新收容逃脱的SCP-106', date: '2023-04-05', status: '成功', duration: '18小时' }
-      ]
-    },
-    {
-      id: 3,
-      name: 'MTF Alpha-1',
-      level: 'A',
-      email: 'alpha1@scp-foundation.org',
-      location: '机动部署',
-      superior: 'O5议会',
-      status: '任务中',
-      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      description: '红右手特别行动组',
-      currentMission: '内部安全审查',
-      members: [
-        { id: 301, name: '指挥官 Reed', role: '指挥官', clearance: 'A', status: '在岗', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2012-09-12', securityClearance: '最高机密', bio: '红右手指挥官，内部安全专家', skills: ['反情报', '内部调查', '特种作战'] },
-        { id: 302, name: '特工 Carter', role: '情报官', clearance: 'B', status: '任务中', avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png', joinDate: '2017-05-18', securityClearance: '机密', bio: '情报分析专家，反渗透', skills: ['情报分析', '密码学', '监视'] }
-      ],
-      missionHistory: [
-        { title: 'Site-43渗透测试', description: '对Site-43进行安全渗透测试', date: '2023-05-30', status: '成功', duration: '24小时' },
-        { title: 'O5-7安保任务', description: '为O5-7会议提供高级别安保', date: '2023-04-22', status: '成功', duration: '48小时' }
-      ]
-    },
-    {
-      id: 4,
-      name: '研究团队 Gamma',
-      level: 'C',
-      email: 'gamma@scp-foundation.org',
-      location: 'Site-64',
-      superior: 'Dr. Glass',
-      status: '无法活动',
-      avatar: 'https://cube.elemecdn.com/1/34/18c7e8f8e8f8e8f8e8f8e8f8e8f8e8.png',
-      description: '收容措施优化团队',
-      currentMission: '',
-      members: [
-        { id: 401, name: 'Dr. Shaw', role: '首席研究员', clearance: 'C', status: '医疗休假', avatar: 'https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png', joinDate: '2021-03-15', securityClearance: '受限', bio: '收容措施专家，物理学博士', skills: ['收容设计', '材料科学', '结构分析'] },
-        { id: 402, name: 'Dr. Finch', role: '研究员', clearance: 'C', status: '在岗', avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png', joinDate: '2022-01-10', securityClearance: '受限', bio: '异常工程学专家', skills: ['工程学', '异常材料', '原型设计'] }
-      ],
-      missionHistory: [
-        { title: 'SCP-914优化', description: '优化SCP-914的收容和测试协议', date: '2023-02-18', status: '成功', duration: '2周' },
-        { title: 'SCP-173收容间升级', description: '重新设计SCP-173的收容间', date: '2022-11-05', status: '成功', duration: '3周' }
-      ]
-    },
-    {
-      id: 5,
-      name: 'MTF Gamma-5',
-      level: 'B',
-      email: 'gamma5@scp-foundation.org',
-      location: '机动部署',
-      superior: 'O5-13',
-      status: '未知',
-      avatar: 'https://cube.elemecdn.com/d/2d/bd0f8d8e8c8d9f1b9f9c8d8d8d8d8d.png',
-      description: '红鲱鱼机动特遣队',
-      currentMission: '深空探测任务',
-      members: [
-        { id: 501, name: '指挥官 Vega', role: '指挥官', clearance: 'B', status: '任务中', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2019-08-20', securityClearance: '机密', bio: '深空异常专家，宇航员', skills: ['太空作战', '零重力战术', '外星环境'] },
-        { id: 502, name: '特工 Nova', role: '领航员', clearance: 'C', status: '任务中', avatar: 'https://cube.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6dpng.png', joinDate: '2020-05-15', securityClearance: '受限', bio: '天体导航专家，异常空间现象', skills: ['天体导航', '异常空间', '通信系统'] }
-      ],
-      missionHistory: [
-        { title: '月球异常调查', description: '调查月球背面的异常能量信号', date: '2023-01-10', status: '成功', duration: '14天' },
-        { title: 'SCP-2399收容', description: '执行SCP-2399收容协议', date: '2022-09-12', status: '部分成功', duration: '30天' }
-      ]
-    },
-    {
-      id: 6,
-      name: '伦理委员会',
-      level: 'A',
-      email: 'ethics@scp-foundation.org',
-      location: 'Site-15',
-      superior: 'O5-7',
-      status: '空闲',
-      avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png',
-      description: '基金会伦理监督',
-      currentMission: '',
-      members: [
-        { id: 601, name: 'Dr. Rights', role: '主席', clearance: 'A', status: '在岗', avatar: 'https://cube.elemecdn.com/3/28/bb9a72d9dafd3f4a1f9d9e5d8c4e3png.png', joinDate: '2015-07-01', securityClearance: '机密', bio: '伦理委员会主席，法学博士', skills: ['伦理学', '法律', '政策制定'] },
-        { id: 602, name: 'Dr. Vale', role: '高级伦理官', clearance: 'B', status: '休假', avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png', joinDate: '2018-03-22', securityClearance: '机密', bio: '生物伦理学专家', skills: ['生物伦理', '医学伦理', '风险评估'] }
-      ],
-      missionHistory: [
-        { title: 'D级人员政策修订', description: '修订D级人员使用政策', date: '2023-04-10', status: '成功', duration: '1个月' },
-        { title: 'SCP-231程序审查', description: '审查SCP-231相关程序', date: '2023-02-15', status: '进行中', duration: '持续' }
-      ]
-    },
-  ];
+// 初始化页面
+onMounted(() => {
+  catchTeamTableData();
+});
+
+// 搜索方法
+const searchForm = ref<TeamParam>({
+  id: null,
+  name: '',
+  status: null,
+  resolvingQuestId: null,
+  level: null,
+  description: '',
+  leaderId: null,
+  minLevel: 1,
+  maxLevel: 5,
+  statusList: null,
+  pageNum: pageNum.value,
+  pageSize: pageSize.value,
+});
+
+const handleSearch = () => {
+  // 确保分页参数正确
+  searchForm.value.pageNum = pageNum.value;
+  searchForm.value.pageSize = pageSize.value;
+
+  TeamApi.findTeamByCondition(searchForm.value).then((res) => {
+    if (res.code === 200) {
+      teamTableData.value = res.data.list;
+      total.value = res.data.total;
+    } else if (res.code === 501) {
+      ElMessage.error('权限不足，无法查询队伍');
+    } else {
+      ElMessage.error('查询队伍失败：' + res.msg);
+    }
+  }).catch((err) => {
+    ElMessage.error('查询队伍失败：' + err.msg);
+  });
 };
 
-// 初始化数据
-onMounted(async () => {
-  const teams = await fetchTeamsFromDatabase();
-  originTableData.value = teams;
-});
-
-// 实现搜索过滤功能
-const filteredData = computed(() => {
-  return originTableData.value.filter(item => {
-    const nameMatch = searchForm.name ? item.name.includes(searchForm.name) : true;
-    const levelMatch = searchForm.level ? item.level === searchForm.level : true;
-    const locationMatch = searchForm.location ? item.location.includes(searchForm.location) : true;
-    const statusMatch = searchForm.status ? item.status === searchForm.status : true;
-    return nameMatch && levelMatch && locationMatch && statusMatch;
-  });
-});
-
-// 计算当前页显示的数据
-const currentTableData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredData.value.slice(start, end);
-});
-
 // 获取权限等级对应的标签类型
-const getLevelTagType = (level: string) => {
+const getLevelTagType = (level: number) => {
   const types: Record<string, string> = {
-    'O5': 'danger',
-    'A': 'warning',
-    'B': 'primary',
-    'C': 'success',
-    'D': 'info'
+    5: 'danger',
+    4: 'warning',
+    3: 'primary',
+    2: 'success',
+    1: 'info',
   };
   return types[level] || '';
 };
 
 // 获取小队状态对应的标签类型
-const getStatusTagType = (status: string) => {
+const getStatusTagType = (status: number) => {
   const types: Record<string, string> = {
-    '空闲': 'success',
-    '任务中': 'warning',
-    '无法活动': 'danger',
-    '未知': 'info'
+    0: 'success',
+    1: 'warning',
+    2: 'danger',
+    3: 'info',
   };
   return types[status] || '';
 };
@@ -754,46 +466,116 @@ const getMemberStatusTagType = (status: string) => {
     '在岗': 'success',
     '任务中': 'warning',
     '医疗休假': 'danger',
-    '休假': 'info'
+    '休假': 'info',
   };
   return types[status] || '';
 };
 
-// 搜索方法
-const handleSearch = () => {
-  currentPage.value = 1;
-};
-
 // 重置方法
 const handleReset = () => {
-  searchForm.name = '';
-  searchForm.level = '';
-  searchForm.location = '';
-  searchForm.status = '';
-  currentPage.value = 1;
+  searchForm.value = {
+    id: null,
+    name: '',
+    status: null,
+    resolvingQuestId: null,
+    level: null,
+    description: '',
+    leaderId: null,
+    minLevel: 1,
+    maxLevel: 5,
+    statusList: null,
+    pageNum: pageNum.value,
+    pageSize: pageSize.value,
+  };
+  catchTeamTableData();
 };
 
 // 每页条数改变
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
-  currentPage.value = 1;
+  handleSearch(); // 使用搜索方法重新加载数据
 };
 
 // 当前页改变
 const handleCurrentChange = (val: number) => {
-  currentPage.value = val;
+  pageNum.value = val;
+  handleSearch(); // 使用搜索方法重新加载数据
 };
 
 // 查看详情方法
-const handleDetail = (row: Team) => {
+const handleDetail = async (row: Team) => {
   selectedTeam.value = row;
   detailDialogVisible.value = true;
+  selectedTeamMembers.value = []; // 清空成员列表
+
+  // 获取小队成员信息
+  const memberIds = row.members;
+  for (const memberId of memberIds) {
+    try {
+      const res = await UserApi.findUserById(memberId);
+      console.log(res);
+      if (res.code === 200 && res.data != null) {
+        selectedTeamMembers.value.push(res.data);
+      } else if (res.code === 501) {
+        ElMessage.error(`权限不足，无法获取成员ID: ${memberId} 的信息`);
+      } else {
+        ElMessage.error(`获取成员ID: ${memberId} 的信息失败：${res.msg}`);
+      }
+    } catch (err) {
+      ElMessage.error(`获取成员ID: ${memberId} 的信息失败：${(err as Error).message}`);
+    }
+  }
+
+  // 获取小队正在执行的任务信息
+  if (row.resolvingQuestId) {
+    try {
+      const res = await QuestApi.getQuestById(row.resolvingQuestId);
+      if (res.code === 200) {
+        selectedQuest.value = res.data;
+      } else if (res.code === 501) {
+        ElMessage.error('权限不足，无法获取任务信息');
+      } else {
+        ElMessage.error('获取任务信息失败：' + res.msg);
+      }
+    } catch (err) {
+      ElMessage.error('获取任务信息失败：' + (err as Error).message);
+    }
+  }
 };
 
 // 查看成员详情
-const viewMemberDetails = (member: Member) => {
-  selectedMember.value = member;
-  memberDialogVisible.value = true;
+const viewMemberDetails = (memberId: number) => {
+  // 构造用户查询参数
+  const userParams: UserParamsRequest = {
+    id: memberId,
+    pageNum: 1,
+    pageSize: 1,
+    username: null,
+    password: null,
+    email: null,
+    level: null,
+    teamId: null,
+    inviterId: null,
+    leaderId: null,
+    leaderName: null,
+    facilityId: null,
+    facilityName: null,
+    minLevel: null,
+    maxLevel: null
+  };
+
+  UserApi.findUser(userParams).then((res) => {
+    if (res.code === 200 && res.data.list.length > 0) {
+      selectedMember.value = res.data.list[0];
+      memberDialogVisible.value = true;
+    } else if (res.code === 501) {
+      ElMessage.error('权限不足，无法获取成员信息');
+    } else {
+      ElMessage.error('获取成员信息失败：' + res.msg);
+    }
+  }).catch((err) => {
+    ElMessage.error('获取成员信息失败：' + (err as Error).message);
+  });
 };
 
 // 编辑方法
@@ -802,20 +584,23 @@ const handleEdit = (row: Team) => {
   // 这里可以添加实际编辑逻辑
 };
 
-// 添加删除方法
+// 删除方法
 const handleDelete = (row: Team) => {
-  const index = originTableData.value.findIndex(item => item.id === row.id);
-  if (index !== -1) {
-    originTableData.value.splice(index, 1);
-    ElMessage.warning(`已删除小队: ${row.name}`);
-    // 如果删除的是当前页最后一条且不是第一页，则跳转到上一页
-    if (currentTableData.value.length === 0 && currentPage.value > 1) {
-      currentPage.value -= 1;
+  TeamApi.deleteTeam(row.id).then((res) => {
+    if (res.code === 200) {
+      ElMessage.success(`小队 ${row.name} 删除成功`);
+      // 重新加载数据
+      catchTeamTableData();
+    } else if (res.code === 501) {
+      ElMessage.error('权限不足，无法删除小队');
+    } else {
+      ElMessage.error('删除小队失败：' + res.msg);
     }
-  }
+  }).catch((err) => {
+    ElMessage.error('删除小队失败：' + (err as Error).message);
+  });
 };
 </script>
-
 <style scoped>
 /* 弹窗样式增强 */
 .containment-dialog {

@@ -649,7 +649,7 @@ const catchData = () => {
     }
   }).catch((e) => {
         console.log('错误',e)
-        ElMessage.error(e.message);
+        ElMessage.error('查询数据错误：'+e.msg);
       }
   )
 }

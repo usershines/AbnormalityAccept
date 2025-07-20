@@ -38,8 +38,8 @@ public class NoticeController {
 
     @Operation(summary = "根据ID查询通知")
     @Parameter(name = "id", description = "通知ID", required = true, example = "1")
-    @GetMapping("/findById")
-    public Result<Notice> findNoticeById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public Result<Notice> findNoticeById(@PathVariable Long id) {
         Notice notice = noticeService.findNoticeById(id);
         if (notice == null) {
             return Result.error(500, "通知不存在");

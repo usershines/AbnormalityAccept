@@ -128,7 +128,7 @@ public class TeamServiceImpl implements TeamService {
         if(userAndTeam == null || ObjectUtil.isNull(userAndTeam)) throw new ServiceException(Code.NOT_FOUND, "用户未加入小队");
         userAndTeamMapper.delete(new QueryWrapper<UserAndTeam>().eq("user_id", userId));
         user.setTeamId(null);
-        userMapper.updateUser(user);
+        userMapper.updateUserAll(user);
         return teamMapper.updateTeam(team) > 0;
     }
 
@@ -157,6 +157,10 @@ public class TeamServiceImpl implements TeamService {
         for (Quest quest : quests) {
             quest.setResolvingByTeamId(null);
             questMapper.updateQuest(quest);
+        }
+        List<UserAndTeam> userAndTeams = userAndTeamMapper.selectList(new QueryWrapper<UserAndTeam>().eq("team_id", teamId));
+        for (UserAndTeam userAndTeam : userAndTeams){
+            userAndTeamMapper.delete(new QueryWrapper<UserAndTeam>().eq("team_id", teamId));
         }
 
         return teamMapper.deleteTeamById(teamId)>0;

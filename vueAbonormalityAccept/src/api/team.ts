@@ -8,7 +8,7 @@ export interface Team {
     status: number;
     resolvingQuestId: number;
     level:  number;
-    description: number;
+    description: string;
     leaderId: number;
 }
 
@@ -24,24 +24,24 @@ export interface TeamUpdateRequest {
 
 // 队伍条件查询类型
 export interface TeamParam {
-    id: number;
-    name: string;
-    status: 0;
-    resolvingQuestId: number;
-    level:  number;
-    description: string;
-    leaderId: number;
+    id: number | null;
+    name: string | null;
+    status: 0 | null;
+    resolvingQuestId: number | null;
+    level:  number | null;
+    description: string | null;
+    leaderId: number | null;
 
     //范围查询参数
-    minLevel: number;
-    maxLevel: number;
+    minLevel: number | null;
+    maxLevel: number | null;
 
     //状态
-    statusList: number[];
+    statusList: number[] | null;
 
     //分页
-    pageNum: number;
-    pageSize: number;
+    pageNum: number | null;
+    pageSize: number | null;
 
 }
 
@@ -96,7 +96,10 @@ export function removeMember(teamId: number, memberId: number) {
 export function findTeamByCondition(team: TeamParam){
     if(team.minLevel === null) team.minLevel = 1;
     if(team.maxLevel === null) team.maxLevel = 5;
-    if(team.statusList === null) team.statusList = [team.status]
+    if(team.statusList === null) {
+        if(team.status !== null)         team.statusList = [team.status];
+        else team.statusList = [0,1,2,3]
+    }
     return request.get('/team/conditions',{
         params: team
     })

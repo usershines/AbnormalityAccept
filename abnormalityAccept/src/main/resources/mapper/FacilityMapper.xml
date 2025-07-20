@@ -38,12 +38,12 @@
 
     <update id="updateFacility">
         UPDATE facility
-        SET id = #{name},
+        SET
             level = #{level},
             manager_id = #{managerId},
             manager_name = #{managerName},
             facility_name = #{facilityName},
-            facility_address = #{facilityAddress}
+            facility_address = #{facilityAddress},
             is_active = #{isActive}
         WHERE id = #{id}
     </update>

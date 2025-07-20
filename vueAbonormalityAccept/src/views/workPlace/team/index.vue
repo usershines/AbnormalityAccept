@@ -299,7 +299,7 @@ import * as QuestApi from '@/api/quest';
 import * as UserApi from '@/api/user';
 import type { Team, TeamParam, TeamUpdateRequest } from '@/api/team';
 import type { Quest } from '@/api/quest';
-import type { User, UserParamsRequest } from '@/api/user';
+import type { User } from '@/api/user';
 import { ElMessage } from 'element-plus';
 
 const userAvatar = ref("/src/assets/pic/user.png");

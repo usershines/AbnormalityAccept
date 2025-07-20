@@ -20,7 +20,7 @@ import com.abnormality.abnormalityaccept.mapper.NoticeMapper;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/Notice")
+@RequestMapping("/notice")
 @Tag(name = "公告管理")
 public class NoticeController {
     private final NoticeService noticeService;
@@ -28,7 +28,7 @@ public class NoticeController {
     @Operation(summary = "分页查询所有通知")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    @GetMapping("/findAll")
+    @GetMapping("/list")
     public Result<PageInfo<Notice>> findAllNotice(
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize) {

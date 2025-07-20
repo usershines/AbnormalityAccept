@@ -632,13 +632,13 @@ const tableData = ref([
 
 
 // 分页相关数据
-const currentPage = ref(1);
+const currentPageNum = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 
 // 获取数据
 const catchData = () => {
-  getUserList(currentPage.value, pageSize.value).then((response) => {
+  getUserList(currentPageNum.value, pageSize.value).then((response) => {
     if(response.code === 200) {
       tableData.value = response.data.list;
       total.value = response.data.total;

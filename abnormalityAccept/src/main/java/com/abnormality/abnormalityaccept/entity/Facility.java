@@ -24,5 +24,8 @@ public class Facility {
     private Long managerId;
     private String managerName;
 
+    //用于表示是否启用
+    private Integer isActive=1;
+
     
 }

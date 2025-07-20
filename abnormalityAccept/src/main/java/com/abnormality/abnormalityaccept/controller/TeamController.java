@@ -34,6 +34,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
 
 @RestController
@@ -113,6 +114,15 @@ public class TeamController {
         PageInfo<Team> teamList = teamService.findTeamByConditions(teamParam);
         if(teamList.getList() ==null || teamList.getList().isEmpty() ) return Result.error(Code.ERROR.getCode(),"未查询到相关小队");
         return Result.ok(teamList);
+    }
+
+    @Operation(summary = "查询小队成员")
+    @GetMapping("/{id}/members")
+    @Level(allowLevel = {5})
+    public Result<List<User>> findTeamMember(@PathVariable Long id){
+        List<User> userList = teamService.findTeamMember(id);
+        if(userList ==null || userList.isEmpty() ) return Result.error(Code.ERROR.getCode(),"未查询到相关小队成员");
+        return Result.ok(userList);
     }
 
 }

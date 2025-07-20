@@ -11,10 +11,11 @@
         <result property="managerName" column="manager_name"/>
         <result property="facilityName" column="facility_name"/>
         <result property="facilityAddress" column="facility_address"/>
+        <result property="isActive" column="is_active"/>
     </resultMap>
 
     <sql id="Base_Facility">
-        id, level,manager_id, manager_name, facility_name, facility_address
+        id, level,manager_id, manager_name, facility_name, facility_address, is_active
     </sql>
 
     <select id="findAllFacility" resultMap="Base_Facility_List">
@@ -31,8 +32,8 @@
     </select>
 
     <insert id="addFacility">
-        INSERT INTO facility(id, level,manager_id, manager_name, facility_name, facility_address)
-        VALUES(#{id}, #{level}, #{managerId}, #{managerName}, #{facilityName}, #{facilityAddress})
+        INSERT INTO facility(id, level,manager_id, manager_name, facility_name, facility_address, is_active)
+        VALUES(#{id}, #{level}, #{managerId}, #{managerName}, #{facilityName}, #{facilityAddress},1)
     </insert>
 
     <update id="updateFacility">
@@ -43,13 +44,15 @@
             manager_name = #{managerName},
             facility_name = #{facilityName},
             facility_address = #{facilityAddress}
+            is_active = #{isActive}
         WHERE id = #{id}
     </update>
 
-    <delete id="deleteFacilityById">
-        DELETE FROM facility
+    <update id="deleteFacilityById">
+        UPDATE facility
+        SET is_active = 0
         WHERE id = #{id}
-    </delete>
+    </update>
 
     <select id="findFacilityByConditions" resultMap="Base_Facility_List">
         SELECT

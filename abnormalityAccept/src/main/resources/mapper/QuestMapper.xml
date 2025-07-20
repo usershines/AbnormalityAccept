@@ -8,6 +8,7 @@
         <id property="id" column="id"/>
         <result property="questCode" column="quest_code"/>
         <result property="questName" column="quest_name"/>
+        <result property="questLevel" column="quest_level"/>
         <result property="resolvingByTeamId" column="resolving_by_team_id"/>
         <result property="resolvingByTeamName" column="resolving_by_team_name"/>
         <result property="questDescription" column="quest_description"/>
@@ -16,7 +17,7 @@
 
     <!-- 基础字段片段，复用查询 -->
     <sql id="BaseQuestColumns">
-        id, quest_code, quest_name, resolving_by_team_id,resolving_by_team_name, quest_description, state
+        id, quest_code, quest_name, quest_level, resolving_by_team_id,resolving_by_team_name, quest_description, state
     </sql>
 
     <!-- 查询所有任务 -->
@@ -36,8 +37,8 @@
 
     <!-- 添加任务 -->
     <insert id="addQuest">
-        INSERT INTO quest (quest_code, quest_name, quest_description, state)
-        VALUES (#{questCode}, #{questName}, #{questDescription}, #{state})
+        INSERT INTO quest (quest_code, quest_name, quest_level, resolving_by_team_id, resolving_by_team_name, quest_description, state)
+        VALUES (#{questCode}, #{questName}, #{questLevel}, #{resolvingByTeamId}, #{resolvingByTeamName}, #{questDescription}, #{state})
     </insert>
 
     <!-- 更新任务 -->
@@ -45,6 +46,7 @@
         UPDATE quest
         SET quest_code = #{questCode},
             quest_name = #{questName},
+            quest_level = #{questLevel},
             resolving_by_team_id = #{resolvingByTeamId},
             resolving_by_team_name = #{resolvingByTeamName},
             quest_description = #{questDescription},
@@ -73,6 +75,9 @@
             <if test="questName != null and questName != ''">
                 AND quest_name LIKE CONCAT('%', #{questName}, '%')
             </if>
+            <if test="questLevel != null">
+                AND quest_level = #{questLevel}
+            </if>
             <if test="questDescription != null and questDescription != ''">
                 AND quest_description LIKE CONCAT('%', #{questDescription}, '%')
             </if>
@@ -91,6 +96,14 @@
                 <foreach collection="stateList" item="state" open="(" separator="," close=")">
                     #{state}
                 </foreach>
+            </if>
+
+            <!-- 范围查询 -->
+            <if test="minQuestLevel != null">
+                AND quest_level >= #{minQuestLevel}
+            </if>
+            <if test="maxQuestLevel != null">
+                AND quest_level &lt;= #{maxQuestLevel}
             </if>
 
         </where>

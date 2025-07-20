@@ -20,6 +20,7 @@ public class Quest {
     private Long id;
     private String questCode;
     private String questName;
+    private Integer questLevel;
     private Long resolvingByTeamId;
     private String resolvingByTeamName;
     private String questDescription;

@@ -38,12 +38,12 @@
 
     <update id="updateFacility">
         UPDATE facility
-        SET id = #{name},
+        SET
             level = #{level},
             manager_id = #{managerId},
             manager_name = #{managerName},
             facility_name = #{facilityName},
-            facility_address = #{facilityAddress}
+            facility_address = #{facilityAddress},
             is_active = #{isActive}
         WHERE id = #{id}
     </update>
@@ -61,7 +61,7 @@
         <where>
             <if test="id !=null and "> AND id LIKE CONCAT('%', #{id}, '%')</if>
             <if test="facilityName != null and facilityName != ''">
-                AND name LIKE CONCAT('%', #{facilityName}, '%')
+                AND facility_name LIKE CONCAT('%', #{facilityName}, '%')
             </if>
             <if test="level != null and level != ''">AND level = #{level} </if>
             <if test="managerId != null"> AND manager_id LIKE CONCAT('%', #{managerId}, '%')</if>

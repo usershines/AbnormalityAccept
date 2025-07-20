@@ -180,7 +180,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUser(UpdateUserOneSelfRequest updateUserOneSelfRequest, Long UserId) {
-        if(userMapper.selectById(UserId).getUsername()==updateUserOneSelfRequest.getUsername())
+        if(Objects.equals(userMapper.selectById(UserId).getUsername(), updateUserOneSelfRequest.getUsername()))
             throw new ServiceException(Code.ERROR,"新用户名不能和旧用户名重复");
         if(updateUserOneSelfRequest.getUsername() == null) throw new ServiceException(Code.ERROR,"用户名不能为空");
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", updateUserOneSelfRequest.getUsername() ));

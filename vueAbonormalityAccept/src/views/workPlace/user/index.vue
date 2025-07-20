@@ -404,7 +404,7 @@
 <script setup lang="ts">
 import {reactive, ref, computed, onMounted} from 'vue';
 import {getUserList, updateUser, addUser, deleteUser, findUser} from "@/api/user.ts";
-import {ElMessage} from "element-plus";
+import type {UserParamsRequest} from "@/api/user.ts";
 
 // 新建用户弹窗相关
 const createDialogVisible = ref(false);
@@ -465,15 +465,29 @@ const submitCreate = () => {
 }
 
 // 搜索表单数据
-const searchForm = reactive({
-  id: 0 || null,
-  username: '',
-  level: '',
-  email: '',
-  facilityId: 0 || null,
-  leaderId: 0 || null,
-  isActive: 1 || null,
-  introduction: ''
+const searchForm = ref<UserParamsRequest>({
+  id: null,
+  username: null,
+  password: null,
+  email: null,
+  level: null,
+  teamId: null,
+  inviterId: null,
+  inviterName: null,
+  leaderId: null,
+  leaderName: null,
+  facilityId: null,
+  facilityName: null,
+  introduction: null,
+  isActive: 1,
+
+  // 等级范围
+  minLevel: null,
+  maxLevel: null,
+
+  pageNum: null,
+  pageSize: null,
+
 });
 
 // 原始表格数据（静态）
@@ -660,12 +674,17 @@ const selectedUser = ref<any>(null);
 
 // 实现搜索过滤功能
 const handleSearch = () => {
-  console.log('搜索表单',searchForm);
-  findUser(searchForm, currentPage.value,pageSize.value).then((response) => {
+  console.log('搜索表单',searchForm.value);
+  currentPage.value = 1;
+  searchForm.value.pageNum = currentPage.value;
+  searchForm.value.pageSize = pageSize.value;
+  findUser(searchForm.value).then((response) => {
     if(response.code === 200) {
       tableData.value = response.data.list;
       total.value = response.data.total;
       ElMessage.success('搜索成功')
+    }else {
+      ElMessage.error('搜索出错'+response.msg)
     }
   }).catch((e) => {
     console.log('error', e)

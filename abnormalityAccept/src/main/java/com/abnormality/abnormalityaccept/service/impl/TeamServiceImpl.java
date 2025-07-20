@@ -16,15 +16,18 @@
 //}
 package com.abnormality.abnormalityaccept.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.abnormality.abnormalityaccept.annotation.Level;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.Team;
+import com.abnormality.abnormalityaccept.entity.UserAndTeam;
 import com.abnormality.abnormalityaccept.entity.param.TeamParam;
 import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.TeamMapper;
+import com.abnormality.abnormalityaccept.mapper.UserAndTeamMapper;
 import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.mapper.QuestMapper;
 import com.abnormality.abnormalityaccept.service.TeamService;
@@ -44,6 +47,8 @@ public class TeamServiceImpl implements TeamService {
     private final TeamMapper teamMapper;
     private final UserMapper userMapper;
     private final QuestMapper questMapper;
+
+    private final UserAndTeamMapper userAndTeamMapper;
 
     @Override
     @Level(allowLevel = {5})
@@ -103,9 +108,12 @@ public class TeamServiceImpl implements TeamService {
         User  user = userMapper.findUserById(userId);
         if (team == null) throw new ServiceException(Code.NOT_FOUND, "小队不存在");
         if (user.getTeamId()!= null) throw new ServiceException(Code.BAD_REQUEST, "用户已加入小队");
-        team.getMemberIds().add(userId);
+        UserAndTeam userAndTeam = new UserAndTeam();
+        userAndTeam.setTeamId(teamId);
+        userAndTeam.setUserId(userId);
+        userAndTeamMapper.insert(userAndTeam);
         user.setTeamId(teamId);
-        userMapper.updateUser(user);
+        userMapper.updateUserAll(user);
         return teamMapper.updateTeam(team)>0;
     }
 
@@ -116,8 +124,9 @@ public class TeamServiceImpl implements TeamService {
         User  user = userMapper.findUserById(userId);
         if (team == null) throw new ServiceException(Code.NOT_FOUND, "小队不存在");
         if (user.getTeamId()== null) throw new ServiceException(Code.BAD_REQUEST, "用户未加入小队");
-        if (!team.getMemberIds().contains(userId)) throw new ServiceException(Code.BAD_REQUEST, "用户未加入该小队");
-        team.getMemberIds().remove(userId);
+        UserAndTeam userAndTeam = userAndTeamMapper.selectOne(new QueryWrapper<UserAndTeam>().eq("user_id", userId));
+        if(userAndTeam == null || ObjectUtil.isNull(userAndTeam)) throw new ServiceException(Code.NOT_FOUND, "用户未加入小队");
+        userAndTeamMapper.delete(new QueryWrapper<UserAndTeam>().eq("user_id", userId));
         user.setTeamId(null);
         userMapper.updateUser(user);
         return teamMapper.updateTeam(team) > 0;
@@ -159,6 +168,14 @@ public class TeamServiceImpl implements TeamService {
         PageHelper.startPage(teamParam.getPageNum(),teamParam.getPageSize());
         List<Team> teamList = teamMapper.findTeamByConditions(teamParam);
         return PageInfo.of(teamList);
+    }
+
+    @Override
+    @Level(allowLevel = 5)
+    public List< User> findTeamMember(Long teamId) {
+        Team team = teamMapper.findTeamById(teamId);
+        if (team == null) throw new ServiceException(Code.NOT_FOUND, "小队不存在");
+        return userMapper.findUserByTeamId(teamId);
     }
 
 }

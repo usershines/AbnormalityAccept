@@ -22,6 +22,8 @@ public interface TeamMapper extends BaseMapper<Team> {
 
     Team findTeamById(Long id);
 
+    Team findTeamByResolvingQuestId(Long resolvingQuestId);
+
     Team findTeamByName(String name);
 
     int addTeam(Team team);

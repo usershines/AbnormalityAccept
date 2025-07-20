@@ -44,7 +44,8 @@ public interface EquipmentMapper extends BaseMapper<Equipment> {
      * 统计装备数量
      * @return 装备总数
      */
-    int countEquipment();
+    int countEquipment(@Param("state") Integer state,
+                       @Param("type") String type);
 
     /**
      * 批量更新装备状态
@@ -52,14 +53,14 @@ public interface EquipmentMapper extends BaseMapper<Equipment> {
      * @param state 新状态
      * @return 更新条数
      */
-    int batchUpdateEquipmentState(@Param("ids") List<Long> ids, @Param("state") String state);
+    int batchUpdateEquipmentState(@Param("ids") List<Long> ids,@Param("state") Integer state);
 
     /**
      * 批量删除装备
      * @param ids 装备ID列表
      * @return 删除条数
      */
-    int batchDeleteEquipment(List<Long> ids);
+    int batchDeleteEquipment(@Param("ids") List<Long> ids);
 
     List<Equipment> findEquipmentByConditions (EquipmentParam equipmentParam);
 

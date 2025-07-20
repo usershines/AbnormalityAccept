@@ -21,7 +21,7 @@ import com.abnormality.abnormalityaccept.service.FacilityService;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/Facility")
+@RequestMapping("/facility")
 @Tag(name = "设施管理")
 public class FacilityController {
     private final FacilityService facilityService;
@@ -29,7 +29,7 @@ public class FacilityController {
     @Operation(summary = "分页查询所有设施")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    @GetMapping("/findAll")
+    @GetMapping("/list")
     public Result<PageInfo<Facility>> findAllFacility(
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize) {

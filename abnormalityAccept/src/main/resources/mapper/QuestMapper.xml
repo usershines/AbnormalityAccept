@@ -96,44 +96,6 @@
         </where>
     </select>
 
-    <!-- 根据状态查询任务 -->
-    <select id="findQuestByState" resultMap="BaseQuestResultMap">
-        SELECT
-        <include refid="BaseQuestColumns"/>
-        FROM quest
-        WHERE state = #{state}
-    </select>
 
-    <!-- 统计任务总数 -->
-    <select id="countQuest" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM quest
-    </select>
-
-    <!-- 批量更新任务状态 -->
-    <update id="batchUpdateQuestState">
-        UPDATE quest
-        SET state = #{state}
-        WHERE id IN
-        <foreach collection="ids" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </update>
-
-    <!-- 批量删除任务 -->
-    <delete id="batchDeleteQuest">
-        DELETE FROM quest
-        WHERE id IN
-        <foreach collection="list" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </delete>
-
-    <!-- 根据任务名称模糊查询 -->
-    <select id="findQuestByName" resultMap="BaseQuestResultMap">
-        SELECT
-        <include refid="BaseQuestColumns"/>
-        FROM quest
-        WHERE quest_name LIKE CONCAT('%', #{questName}, '%')
-    </select>
 
 </mapper>

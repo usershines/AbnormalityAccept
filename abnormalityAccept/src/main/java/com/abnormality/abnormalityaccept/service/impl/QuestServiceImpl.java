@@ -1,10 +1,12 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
+import com.abnormality.abnormalityaccept.dto.request.QuestRequest;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.abnormality.abnormalityaccept.mapper.QuestMapper;
 import com.abnormality.abnormalityaccept.mapper.TeamMapper;
+import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.service.QuestService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
@@ -29,10 +31,14 @@ public class QuestServiceImpl implements QuestService {
 
     @Autowired
     private TeamMapper teamMapper;
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
-    public boolean addQuest(Quest quest, Integer sendId) {
-        if(sendId <4) throw new IllegalArgumentException("只有A级用户可以发布任务");
-        return questMapper.addQuest(quest);
+    public boolean addQuest(QuestRequest questRequest, Long sendId) {
+        if(questRequest.getQuestCode() == null || questRequest.getQuestCode().isEmpty()) throw new IllegalArgumentException("任务编号不能为空");
+        if(userMapper.findUserById(sendId).getLevel()< 4) throw new IllegalArgumentException("只有A级用户可以发布任务");
+        return questMapper.addQuest(questRequest);
     }
     /**
      * 分页查询所有通知
@@ -69,14 +75,12 @@ public class QuestServiceImpl implements QuestService {
      */
     @Override
     public boolean deleteQuestById(Long id) {
-
-        List<Team> teamList = teamMapper.selectList(new QueryWrapper<Team>().eq("resolving_quest_id", id));
-        for(Team team:teamList){
-            team.setResolvingQuestName(null);
+        Team team = teamMapper.findTeamByResolvingQuestId(id);
+        if(team != null){
             team.setResolvingQuestId(null);
+            team.setResolvingQuestName(null);
             teamMapper.updateTeam(team);
         }
-
         return questMapper.deleteQuestById(id);
     }
 

@@ -20,7 +20,7 @@ import com.abnormality.abnormalityaccept.mapper.NoticeMapper;
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
-@RequestMapping("/Notice")
+@RequestMapping("/notice")
 @Tag(name = "公告管理")
 public class NoticeController {
     private final NoticeService noticeService;
@@ -28,7 +28,7 @@ public class NoticeController {
     @Operation(summary = "分页查询所有通知")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    @GetMapping("/findAll")
+    @GetMapping("/list")
     public Result<PageInfo<Notice>> findAllNotice(
             @RequestParam Integer pageNum,
             @RequestParam Integer pageSize) {
@@ -38,8 +38,8 @@ public class NoticeController {
 
     @Operation(summary = "根据ID查询通知")
     @Parameter(name = "id", description = "通知ID", required = true, example = "1")
-    @GetMapping("/findById")
-    public Result<Notice> findNoticeById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public Result<Notice> findNoticeById(@PathVariable Long id) {
         Notice notice = noticeService.findNoticeById(id);
         if (notice == null) {
             return Result.error(500, "通知不存在");

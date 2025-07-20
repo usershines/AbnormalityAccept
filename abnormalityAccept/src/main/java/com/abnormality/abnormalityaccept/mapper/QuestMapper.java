@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.mapper;
 
+import com.abnormality.abnormalityaccept.dto.request.QuestRequest;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -25,7 +26,7 @@ public interface QuestMapper extends BaseMapper<Quest> {
      * 根据id查询任务
      */
     Quest findQuestById(Long id);
-    boolean addQuest(Quest quest);
+    boolean addQuest(QuestRequest  qre);
 
     /**
      * 修改任务

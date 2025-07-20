@@ -8,12 +8,13 @@
     <resultMap id="Base_Notice_List" type="com.abnormality.abnormalityaccept.entity.Notice">
         <id property="id" column="id"/>
         <result property="content" column="content"/>
+        <result property="theme" column="theme"/>
         <result property="time" column="time"/>
         <result property="state" column="state"/>
     </resultMap>
 
     <sql id="Base_Notice">
-        id, content, time ,state
+        id, content, theme, time ,state
     </sql>
 
     <select id="findAllNotice" resultMap="Base_Notice_List">
@@ -31,16 +32,17 @@
     </select>
 
     <insert id="addNotice">
-        INSERT INTO mails(id, content, time, state)
-        VALUES(#{id}, #{content}, #{time}, #{state})
+        INSERT INTO notice(id, content, theme, time, state)
+        VALUES(#{id}, #{content}, #{theme}, #{time}, #{state})
     </insert>
 
     <update id="updateNotice">
         UPDATE notice
         SET id = #{id},
             content = #{content},
+            theme = #{theme},
             time = #{time},
-            state = #{state},
+            state = #{state}
         WHERE id = #{id}
     </update>
 

@@ -157,9 +157,8 @@ public class UserController {
     @Operation(summary = "多条件查询")
     @GetMapping("/conditions")
     public Result<PageInfo<User>> findUserByConditions(UserParamRequest userParamRequest) {
-
         PageInfo<User> userList = userService.findUserByConditions(userParamRequest);
-
+        if(userList.getList().isEmpty() || userList.getList()==null) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关用户信息");
         return Result.ok(userList);
     }
 

@@ -122,7 +122,7 @@
 
                     </div>
                     <div class="info-item">
-                      <span class="label">成员：{{ item.members?.length }}人</span>
+                      <span class="label">成员：{{ selectedTeamMembers?.values.length }}人</span>
                     </div>
                   </div>
                 </el-card>
@@ -203,12 +203,12 @@
           <el-button style="margin-left: 50px" @click="handleAddMember">添加用户</el-button>
         </div>
         <el-table
-          :data="selectedMember"
+          :data="selectedTeamMembers"
           border
           style="width: 100%"
           class="containment-table"
         >
-          <el-table-column prop="name" label="姓名" width="180">
+          <el-table-column prop="username" label="姓名" width="180">
             <template #header>
               <span><i class="iconfont icon-name"></i> 姓名</span>
             </template>
@@ -218,7 +218,7 @@
               <span><i class="iconfont icon-role"></i> 职位</span>
             </template>
           </el-table-column>
-          <el-table-column prop="clearance" label="权限等级">
+          <el-table-column prop="level" label="权限等级">
             <template #header>
               <span><i class="iconfont icon-security"></i> 权限等级</span>
             </template>
@@ -448,29 +448,26 @@ const handleDetail = async (row: Team) => {
   selectedTeam.value = row;
   detailDialogVisible.value = true;
   selectedTeamMembers.value = []; // 清空成员列表
-
-  // 获取小队成员信息
-  const memberIds = row.members;
-  for (const memberId of memberIds) {
+  
+  const teamId = row.id;
     try {
-      const res = await UserApi.findUserById(memberId);
+      const res = await TeamApi.getMemberList(teamId);
       console.log(res);
       if (res.code === 200 && res.data != null) {
         selectedTeamMembers.value.push(res.data);
       } else if (res.code === 501) {
-        ElMessage.error(`权限不足，无法获取成员ID: ${memberId} 的信息`);
+        ElMessage.error(`权限不足，无法获取成员ID: ${teamId} 的信息`);
       } else {
-        ElMessage.error(`获取成员ID: ${memberId} 的信息失败：${res.msg}`);
+        ElMessage.error(`获取成员ID: ${teamId} 的信息失败：${res.msg}`);
       }
     } catch (err) {
-      ElMessage.error(`获取成员ID: ${memberId} 的信息失败：${(err as Error).message}`);
+      ElMessage.error(`获取成员ID: ${teamId} 的信息失败：${(err as Error).message}`);
     }
-  }
 
   // 获取小队正在执行的任务信息
   if (row.resolvingQuestId) {
     try {
-      const res = await QuestApi.getQuestById(row.resolvingQuestId);
+      const res = await QuestApi.getQuest(row.resolvingQuestId);
       if (res.code === 200) {
         selectedQuest.value = res.data;
       } else if (res.code === 501) {

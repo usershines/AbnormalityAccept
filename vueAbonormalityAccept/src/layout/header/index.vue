@@ -101,7 +101,6 @@ const Logout = () => {
   ElMessage.info('正在登出')
   logout().then((res) => {
     if(res.code === 200){
-      router.push("/login")
       localStorage.clear()
     }
   }).catch(e => {
@@ -109,6 +108,8 @@ const Logout = () => {
     console.log(e)
   }
   )
+  router.push("/")
+
 }
 
 

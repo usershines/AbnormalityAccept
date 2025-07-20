@@ -45,6 +45,7 @@ export interface TeamParam {
 
 }
 
+// 获取队伍
 export function getTeamList(pageNum: number,pageSize: number){
     return request.get('/team/list',{
         params:{
@@ -54,10 +55,12 @@ export function getTeamList(pageNum: number,pageSize: number){
     })
 }
 
+// id查询小队
 export function findTeamById(teamId: number) {
     return request.get(`/team/${teamId}`);
 }
 
+// 寻找未加入小队的用户
 export function findUserBelongNoTeam(pageNum:number,pageSize:number){
     return request.get('/team/usersBelongNotTeam',{
         params:{
@@ -67,23 +70,27 @@ export function findUserBelongNoTeam(pageNum:number,pageSize:number){
     })
 }
 
+// 新建队伍
 export function addTeam(team:Team) {
     return request.post('/team/add',team)
 }
 
+// 更新队伍信息
 export function updateTeam(team: TeamUpdateRequest){
     return request.put('/team/update',team)
 }
 
+// 添加队员
 export function addMember(teamId: number, memberId: number) {
-    return request.post('/team/addMember',{
-        params:{
+    return request.post('/team/addMember',{},{
+        params: {
             teamId: teamId,
-            userId: memberId
+            userId: memberId,
         }
     })
 }
 
+// 移除队员
 export function removeMember(teamId: number, memberId: number) {
     return request.post('/team/removeMember',{
         params:{
@@ -93,6 +100,7 @@ export function removeMember(teamId: number, memberId: number) {
     })
 }
 
+// 小队条件查询
 export function findTeamByCondition(team: TeamParam){
     if(team.minLevel === null) team.minLevel = 1;
     if(team.maxLevel === null) team.maxLevel = 5;
@@ -105,6 +113,11 @@ export function findTeamByCondition(team: TeamParam){
     })
 }
 
+// 删除小队
 export function deleteTeam(teamId: number) {
-    return request.delete(`/team/${teamId}`);
+    return request.delete(`/team/delete`,{
+        params:{
+            id: teamId,
+        }
+    });
 }

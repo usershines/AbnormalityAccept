@@ -122,7 +122,7 @@
 
                     </div>
                     <div class="info-item">
-                      <span class="label">成员：{{ item.members.length }}人</span>
+                      <span class="label">成员：{{ item.members?.length }}人</span>
                     </div>
                   </div>
                 </el-card>
@@ -198,9 +198,12 @@
       </div>
 
       <div class="detail-section">
-        <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers.length }}人)</h3>
+        <div style="display: flex;margin-top: -30px;align-items: center">
+          <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers?.length.toString() }}人)</h3>
+          <el-button style="margin-left: 50px" @click="handleAddMember">添加用户</el-button>
+        </div>
         <el-table
-          :data="selectedTeam.members"
+          :data="selectedMember"
           border
           style="width: 100%"
           class="containment-table"
@@ -235,48 +238,10 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="120">
-            <template #header>
-              <span><i class="iconfont icon-operation"></i> 操作</span>
-            </template>
-            <template #default="scope">
-              <el-button
-                type="text"
-                @click="viewMemberDetails(scope.row.members)"
-                class="detail-btn"
-              >
-                <i class="iconfont icon-detail"></i> 详情
-              </el-button>
-            </template>
-          </el-table-column>
+<!--          <el-table-column>
+            <button>-->
         </el-table>
       </div>
-
-<!--
-      <div class="detail-section">
-        <h3 class="section-title"><i class="iconfont icon-history"></i> 任务历史</h3>
-        <el-timeline class="mission-timeline">
-          <el-timeline-item
-            v-for="missonId in selectedTeam.resolvingQuestIdq"
-            :key="missonId"
-            :timestamp="missonId.date"
-            placement="top"
-          >
-            <el-card class="mission-card">
-              <h4 class="mission-title">{{ mission.title }}</h4>
-              <p class="mission-description">{{ mission.description }}</p>
-              <div class="mission-status">
-                <span><i class="iconfont icon-status"></i> 状态：</span>
-                <el-tag :type="mission.status === '成功' ? 'success' : 'danger'" class="status-tag">
-                  {{ mission.status }}
-                </el-tag>
-                <span class="mission-duration"><i class="iconfont icon-time"></i> 持续时间：{{ mission.duration }}</span>
-              </div>
-            </el-card>
-          </el-timeline-item>
-        </el-timeline>
-      </div>
--->
     </div>
 
     <template #footer>
@@ -292,53 +257,29 @@
   <!-- 成员详情弹窗 -->
   <el-dialog
     v-model="memberDialogVisible"
-    :title="`${selectedMember?.username} - 人员档案`"
-    width="50%"
+    :title="`人员档案`"
+    width="30%"
     class="containment-dialog"
   >
-    <div v-if="selectedMember" class="member-detail">
-      <div class="member-header">
-        <div class="security-stamp small">
-          <div class="stamp-content">
-            <div class="stamp-title">SCP FOUNDATION</div>
-            <div class="stamp-level">机密等级: {{ selectedMember.level }}</div>
-          </div>
-        </div>
-        <div class="header-content">
-          <el-avatar :size="100" :src="userAvatar" class="member-avatar" />
-          <div class="member-info">
-            <h2 class="member-name">{{ selectedMember.username }}</h2>
-            <div class="info-row">
-              <span><i class="iconfont icon-role"></i> 职位：空</span>
-              <span><i class="iconfont icon-security"></i> 权限等级：
-                <el-tag :type="getLevelTagType(selectedMember.level)" class="clearance-tag">
-                  {{ selectedMember.level }}
-                </el-tag>
-              </span>
-            </div>
-            <div class="info-row">
-              <span><i class="iconfont icon-date"></i> 直接上级ID：{{ selectedMember.leaderId }}</span>
-            </div>
-            <div class="info-row description">
-              <span><i class="iconfont icon-description"></i> 简介：{{ selectedMember.introduction }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-<!--      <div class="detail-section">
-        <h3 class="section-title"><i class="iconfont icon-skill"></i> 技能专长</h3>
-        <div class="skills">
-          <el-tag
-            v-for="(skill, index) in selectedMember.skills"
-            :key="index"
-            class="skill-tag"
-          >
-            {{ skill }}
-          </el-tag>
-        </div>
-      </div>-->
+    <div style="display: flex">
+      <el-input v-model="memberAddId" placeholder="在这里输入用户ID"/>
+      <el-button>添加为成员</el-button>
     </div>
+    <el-table :data="memberList" stripe style="width: 100%">
+      <el-table-column prop="username" label="名称" width="180" />
+      <el-table-column prop="level" label="等级" width="180" />
+      <el-table-column label="操作" >
+        <template #default="scope">
+          <el-button @click=handleAddMemberWith(scope.row.id)>添加</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+        v-model:current-page="memberPageNum"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="memberPageTotal"
+        @current-change="handleCurrentMemberChange"
+    />
 
     <template #footer>
       <el-button
@@ -392,7 +333,7 @@ const total = ref(0);
 const detailDialogVisible = ref(false);
 const memberDialogVisible = ref(false);
 const selectedTeam = ref<Team | null>(null);
-const selectedTeamMembers = ref<User[]>([]);
+const selectedTeamMembers = ref<User[]>();
 const selectedMember = ref<User | null>(null);
 const selectedQuest = ref<Quest | null>(null);
 
@@ -493,13 +434,13 @@ const handleReset = () => {
 // 每页条数改变
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
-  handleSearch(); // 使用搜索方法重新加载数据
+  catchTeamTableData(); // 使用搜索方法重新加载数据
 };
 
 // 当前页改变
 const handleCurrentChange = (val: number) => {
   pageNum.value = val;
-  handleSearch(); // 使用搜索方法重新加载数据
+  catchTeamTableData(); // 使用搜索方法重新加载数据
 };
 
 // 查看详情方法
@@ -543,40 +484,6 @@ const handleDetail = async (row: Team) => {
   }
 };
 
-// 查看成员详情
-const viewMemberDetails = (memberId: number) => {
-  // 构造用户查询参数
-  const userParams: UserParamsRequest = {
-    id: memberId,
-    pageNum: 1,
-    pageSize: 1,
-    username: null,
-    password: null,
-    email: null,
-    level: null,
-    teamId: null,
-    inviterId: null,
-    leaderId: null,
-    leaderName: null,
-    facilityId: null,
-    facilityName: null,
-    minLevel: null,
-    maxLevel: null
-  };
-
-  UserApi.findUser(userParams).then((res) => {
-    if (res.code === 200 && res.data.list.length > 0) {
-      selectedMember.value = res.data.list[0];
-      memberDialogVisible.value = true;
-    } else if (res.code === 501) {
-      ElMessage.error('权限不足，无法获取成员信息');
-    } else {
-      ElMessage.error('获取成员信息失败：' + res.msg);
-    }
-  }).catch((err) => {
-    ElMessage.error('获取成员信息失败：' + (err as Error).message);
-  });
-};
 
 // 编辑方法
 const handleEdit = (row: Team) => {
@@ -599,7 +506,63 @@ const handleDelete = (row: Team) => {
   }).catch((err) => {
     ElMessage.error('删除小队失败：' + (err as Error).message);
   });
-};
+}
+
+// 添加小队成员
+const memberPageNum = ref(1)
+const memberPageSize = ref(10)
+const memberPageTotal = ref(0)
+const memberList = ref<User[]>()
+const memberAddId = ref<number | null>(null)
+const handleCurrentMemberChange = (val: number) => {
+  memberPageNum.value = val;
+  catchMemberNoTeam()
+}
+
+const catchMemberNoTeam = () =>{
+  TeamApi.findUserBelongNoTeam(memberPageNum.value,memberPageSize.value).then(res=>{
+    console.log(res)
+    if (res.code === 200) {
+      memberList.value = res.data.list;
+      memberPageTotal.value = res.data.total;
+      ElMessage.success('获取到当前可加入小队的成员')
+    }else {
+      ElMessage.error('获取无小队成员错误'+res.msg);
+    }
+  }).catch((err) => {
+    console.log(err)
+    ElMessage.error('获取无小队成员错误'+err.msg);
+  })
+}
+
+const handleAddMember = () =>{
+  memberDialogVisible.value = true
+  catchMemberNoTeam()
+}
+
+const handleAddMemberWith = (userId: number) => {
+  const teamId = selectedTeam.value?.id
+  console.log('向队伍',teamId,'中添加用户',userId)
+  if(teamId === null){
+    ElMessage.error('无法获取队伍id')
+    return
+  }else {
+    TeamApi.addMember(teamId, userId).then(res=>{
+      console.log(res)
+      if (res.code === 200) {
+        ElMessage.success('用户添加成功，请刷新页面')
+      }
+    }).catch((err) => {
+      console.log(err)
+      ElMessage.error('添加该用户失败:'+err.msg)
+    })
+  }
+}
+
+// 移除小队成员
+const removeMember = () =>{
+
+}
 </script>
 <style scoped>
 /* 弹窗样式增强 */

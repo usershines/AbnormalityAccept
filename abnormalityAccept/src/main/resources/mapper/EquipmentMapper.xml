@@ -86,13 +86,18 @@
     <!-- 统计装备数量 -->
     <select id="countEquipment" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM equipment
+        <where>
+            <!-- 可选条件：按状态统计 -->
+            <if test="state != null">AND state = #{state}</if>
+            <!-- 可选条件：按类型统计 -->
+            <if test="type != null">AND type = #{type}</if>
+        </where>
     </select>
 
     <!-- 批量更新装备状态 -->
     <update id="batchUpdateEquipmentState">
         UPDATE equipment
-        SET state = #{state},
-        update_time = NOW()
+        SET state = #{state}
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -103,7 +108,7 @@
     <delete id="batchDeleteEquipment">
         DELETE FROM equipment
         WHERE id IN
-        <foreach collection="list" item="id" open="(" separator="," close=")">
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>

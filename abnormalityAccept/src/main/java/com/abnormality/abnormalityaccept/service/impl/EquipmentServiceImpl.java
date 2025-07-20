@@ -66,12 +66,12 @@ public class EquipmentServiceImpl implements EquipmentService {
 
 
     @Override
-    public int count() {
-        return equipmentMapper.countEquipment();
+    public Integer countEquipment(Integer state, String type) {
+        return equipmentMapper.countEquipment(state,type);
     }
 
     @Override
-    public boolean batchUpdateState(List<Long> ids, String state) {
+    public boolean batchUpdateState(List<Long> ids, Integer state) {
         return equipmentMapper.batchUpdateEquipmentState(ids, state) > 0;
     }
 

@@ -84,12 +84,22 @@ public class EquipmentController {
     }
 
     // 拓展接口
+    // 统计装备数量
+    @GetMapping("/count")
+    @Operation(summary = "统计装备数量", description = "支持按状态和类型筛选")
+    public Result<Integer> count(
+            @Parameter(description = "状态：-1=删除，0=闲置，1=正常，2=维修") Integer state,
+            @Parameter(description = "装备类型") String type
+    ) {
+        return Result.ok(equipmentService.countEquipment(state, type));
+    }
     @Operation(summary = "批量更新装备")
     @PutMapping("/batch/state")
     public Result<String> batchUpdateState(
-            @RequestParam List<Long> ids,
-            @RequestParam String state) {
-        boolean success = equipmentService.batchUpdateState(ids, state);
+            @RequestParam Integer state,
+            @RequestParam List<Long> ids
+            ) {
+        boolean success = equipmentService.batchUpdateState(ids,state);
         return success ? Result.ok("批量更新成功") : Result.error(Code.ERROR.getCode(), "批量更新失败");
     }
     @Operation(summary = "批量删除装备")

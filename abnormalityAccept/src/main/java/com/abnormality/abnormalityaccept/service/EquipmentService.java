@@ -17,8 +17,8 @@ public interface EquipmentService {
     boolean updateEquipment(Equipment equipment);
     boolean deleteEquipmentById(Long id);
     // 拓展方法
-    int count();
-    boolean batchUpdateState(List<Long> ids, String state);
+    Integer countEquipment(Integer state, String type);
+    boolean batchUpdateState(List<Long> ids, Integer state);
     boolean batchDelete(List<Long> ids);
 
     PageInfo<Equipment> findEquipmentByConditions (EquipmentParam equipmentParam);

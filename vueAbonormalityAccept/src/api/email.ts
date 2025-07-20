@@ -26,7 +26,7 @@ export function findEmailById(emailId: number){
 }
 
 export function sendEmail(email:Email){
-    return request.post('/email/add',email);
+    return request.post('/email/send',email);
 }
 
 export function deleteEmail(emailId:number){

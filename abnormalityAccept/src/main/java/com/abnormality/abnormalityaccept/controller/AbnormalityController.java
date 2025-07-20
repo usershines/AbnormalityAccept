@@ -40,7 +40,7 @@ public class AbnormalityController {
     private UserService userService;
 
     @Operation(summary = "异想体信息查询")
-    @GetMapping("/List")
+    @GetMapping("/list")
     public Result<PageInfo<Abnormality>> findAllAbnormality(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
         PageInfo<Abnormality> abnormalityList = abnormalityService.findAllAbnormality(pageNum, pageSize);
         List<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList.getList());

@@ -15,10 +15,31 @@ export interface User {
 
 }
 
+// 用户条件查询
+export interface UserParamsRequest{
+    id: number | null,
+    username: string | null,
+    password: string | null,
+    email: string | null,
+    level: number | null,
+    teamId: number | null,
+    inviterId: number | null,
+    leaderId: number | null,
+    leaderName: string | null,
+    facilityId: number | null,
+    facilityName: string | null,
+
+    // 等级范围
+    minLevel: number | null,
+    maxLevel: number | null,
+
+    pageNum: number | null,
+    pageSize: number | null,
+}
+
 // 登录
 export function login(form:any) {
     console.log(form.name)
-
     return request.post("/user/login", form)
 }
 
@@ -57,15 +78,13 @@ export function logout(){
 }
 
 // 条件查询
-export function findUser(user: any, pageNum: number, pageSize: number){
-    return request.post('/user/findUserByCondition', user, {
-        params:{
-            pageNum: pageNum,
-            pageSize: pageSize,
-        }
-    })
+export function findUser(user: UserParamsRequest){
+    if(user.maxLevel === null) user.maxLevel = 5;
+    if(user.minLevel === null) user.minLevel = 1;
+    return request.post('/user/findUserByCondition', user)
 }
 
+// 名称查询
 export const findByName=async (name:string)=>{
     return request.get('/user/findByName', {
         params:{
@@ -74,7 +93,7 @@ export const findByName=async (name:string)=>{
     })
 }
 
-
+// 更新密码
 export const updatePassword=async(body:any)=>{
     return request.post('/user/updatePassword', body)
 }

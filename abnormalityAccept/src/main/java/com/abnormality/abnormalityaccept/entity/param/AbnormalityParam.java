@@ -22,7 +22,7 @@ public class AbnormalityParam {
     private Integer minLevel;
     private Integer maxLevel;
 
-    private Integer pageNUm;
+    private Integer pageNum;
     private Integer pageSize;
 
 }

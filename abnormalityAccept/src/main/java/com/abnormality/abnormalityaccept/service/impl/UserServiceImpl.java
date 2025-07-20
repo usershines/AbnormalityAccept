@@ -242,7 +242,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public PageInfo<User> findUserByConditions(UserParamRequest userParamRequest ) {
-        PageHelper.startPage(userParamRequest.getPageNUm(),userParamRequest.getPageSize());
+        PageHelper.startPage(userParamRequest.getPageNum(),userParamRequest.getPageSize());
         List<User> userList = userMapper.findUserByConditions(userParamRequest);
         return PageInfo.of(userList);
     }

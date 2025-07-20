@@ -26,7 +26,8 @@
     <select id="findAllTeam" resultMap="Base_Team_List">
         SELECT
         <include refid="Base_Team"/>
-        FROM team and is_active = 1
+        FROM team
+        where is_active = 1
     </select>
 
     <!-- 2. 根据ID查询团队 -->

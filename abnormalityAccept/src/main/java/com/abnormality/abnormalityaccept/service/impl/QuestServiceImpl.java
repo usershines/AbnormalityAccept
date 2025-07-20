@@ -5,6 +5,7 @@ import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.abnormality.abnormalityaccept.mapper.QuestMapper;
 import com.abnormality.abnormalityaccept.mapper.TeamMapper;
+import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.service.QuestService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
@@ -29,9 +30,13 @@ public class QuestServiceImpl implements QuestService {
 
     @Autowired
     private TeamMapper teamMapper;
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
-    public boolean addQuest(Quest quest, Integer sendId) {
-        if(sendId <4) throw new IllegalArgumentException("只有A级用户可以发布任务");
+    public boolean addQuest(Quest quest, Long sendId) {
+        if(quest.getQuestCode() == null || quest.getQuestCode().isEmpty()) throw new IllegalArgumentException("任务编号不能为空");
+        if(userMapper.findUserById(sendId).getLevel()< 4) throw new IllegalArgumentException("只有A级用户可以发布任务");
         return questMapper.addQuest(quest);
     }
     /**

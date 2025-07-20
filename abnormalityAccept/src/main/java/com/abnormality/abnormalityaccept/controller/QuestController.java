@@ -7,11 +7,13 @@ import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.NoticeService;
 import com.abnormality.abnormalityaccept.service.QuestService;
+import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -27,6 +29,9 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "任务管理")
 public class QuestController {
     private final QuestService questService;
+
+    @Autowired
+    private UserService userService;
 
     @Operation(summary = "分页查询所有任务")
     @Parameter(name = "pageNum", description = "页码", example = "1")
@@ -52,7 +57,8 @@ public class QuestController {
 
     @Operation(summary = "添加任务")
     @PostMapping("/new")
-    public Result<String> addQuest(@RequestBody Quest quest,@RequestParam Integer sendId) {
+    public Result<String> addQuest(@RequestBody Quest quest) {
+        Long sendId = userService.getUserIdByToken();
         if (questService.addQuest(quest,sendId)) {
             return Result.ok("添加成功");
         }

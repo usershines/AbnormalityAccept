@@ -17,6 +17,6 @@ import com.github.pagehelper.PageInfo;
      boolean updateQuest(Quest quest);
 
      boolean deleteQuestById(Long id);
-     boolean addQuest(Quest quest, Integer sendId);
+     boolean addQuest(Quest quest, Long sendId);
      PageInfo<Quest> findQuestByConditions(QuestParam questParam);
 }

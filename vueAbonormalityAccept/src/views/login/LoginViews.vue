@@ -110,6 +110,7 @@ onMounted(() => {
             v-model="form.password"
             type="password"
             placeholder="请输入生物密钥"
+            @keyup.enter="onSubmit"
             show-password
             class="scp-input"
           >

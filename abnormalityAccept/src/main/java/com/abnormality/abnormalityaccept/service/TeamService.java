@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service;
 
+import com.abnormality.abnormalityaccept.dto.request.TeamRequest;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.TeamParam;
@@ -26,7 +27,7 @@ public interface TeamService {
     PageInfo<User> findUserBelongNotTeam(Integer pageNum, Integer pageSize);
 
     //创建新的机动小队（O5权限）
-    boolean createTeam(Team team ,Long leaderId);
+    boolean createTeam(TeamRequest teamRequest);
 
     // 更新小队信息
     boolean updateTeam(TeamUpdateRequest teamUpdateRequest);

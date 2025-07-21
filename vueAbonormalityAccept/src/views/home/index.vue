@@ -1,121 +1,115 @@
 <template>
-  <el-card style="height: 770px">
+  <el-card style="height: 770px; background-color: #f9f9f9; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
     <template #header>
-    <el-carousel
-        height="200px"
-        motion-blur
-        type="card"
-        ref="carousel"
-    >
-      <el-carousel-item v-for="notice in notices" :key="notice" @click="clickCarousel(notice)">
-<!--        <el-image :src=notice. />-->
-        <h2>{{notice.theme}}</h2>
-      </el-carousel-item>
-    </el-carousel>
-  </template>
+      <el-carousel
+          height="200px"
+          motion-blur
+          type="card"
+          ref="carousel"
+      >
+        <el-carousel-item v-for="notice in notices" :key="notice" @click="clickCarousel(notice)">
+          <h2 style="color: #333; font-size: 24px; font-weight: 600;">{{notice.theme}}</h2>
+        </el-carousel-item>
+      </el-carousel>
+    </template>
 
-  <template #default>
-    <el-container>
-        <el-card shadow="hover" class="tableCard">
+    <template #default>
+      <el-container>
+        <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
-            <h3 style="text-align: center; margin-left: 130px">用户</h3>
+            <h3 style="text-align: center; margin-left: 130px; color: #333; font-size: 20px; font-weight: 600;">用户</h3>
             <div class="avatar">
-              <el-image :src="userAvatar" />
+              <el-image :src="userAvatar" style="border-radius: 50%; overflow: hidden;" />
             </div>
           </div>
           <el-table
               :data="userTableData"
-              style="width: 100%;height: 600px"
+              style="width: 100%;height: 600px; border-radius: 8px; overflow: hidden;"
           >
             <el-table-column prop="username" label="用户名" width="180" />
             <el-table-column prop="level" label="权限等级" width="180" />
           </el-table>
         </el-card>
 
-      <el-card shadow="hover" class="tableCard">
-        <div class="cardHeader">
-          <h3 style="text-align: center; margin-left: 110px">异想体</h3>
-          <div class="avatar">
-            <el-image :src="abnormalityAvatar" />
+        <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+          <div class="cardHeader">
+            <h3 style="text-align: center; margin-left: 110px; color: #333; font-size: 20px; font-weight: 600;">异想体</h3>
+            <div class="avatar">
+              <el-image :src="abnormalityAvatar" style="border-radius: 50%; overflow: hidden;" />
+            </div>
           </div>
-        </div>
-        <el-table
-            :data="abnormalityTableData"
-            style="width: 100%;height: 600px"
-            :row-class-name="abnormalityColor"
-        >
-          <el-table-column prop="num" label="编号" width="180" />
-          <el-table-column prop="name" label="名称" width="180" />
-        </el-table>
-      </el-card>
+          <el-table
+              :data="abnormalityTableData"
+              style="width: 100%;height: 600px; border-radius: 8px; overflow: hidden;"
+              :row-class-name="abnormalityColor"
+          >
+            <el-table-column prop="num" label="编号" width="180" />
+            <el-table-column prop="name" label="名称" width="180" />
+          </el-table>
+        </el-card>
 
-      <el-card shadow="hover" class="tableCard">
-        <div class="cardHeader">
-          <h3 style="text-align: center; margin-left: 100px">机动小队</h3>
-          <div class="avatar">
-            <el-image :src="teamAvatar" />
+        <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+          <div class="cardHeader">
+            <h3 style="text-align: center; margin-left: 100px; color: #333; font-size: 20px; font-weight: 600;">机动小队</h3>
+            <div class="avatar">
+              <el-image :src="teamAvatar" style="border-radius: 50%; overflow: hidden;" />
+            </div>
           </div>
-        </div>
-        <el-table
-            :data="teamTableData"
-            style="width: 100%;height: 600px"
-            :row-class-name="teamColor"
-        >
-          <el-table-column prop="name" label="名称" width="180" />
-          <el-table-column prop="status" :formatter="teamStatus" label="状态" width="180" />
-        </el-table>
-      </el-card>
+          <el-table
+              :data="teamTableData"
+              style="width: 100%;height: 600px; border-radius: 8px; overflow: hidden;"
+              :row-class-name="teamColor"
+          >
+            <el-table-column prop="name" label="名称" width="180" />
+            <el-table-column prop="status" :formatter="teamStatus" label="状态" width="180" />
+          </el-table>
+        </el-card>
 
-      <el-card shadow="hover" class="tableCard">
-        <div class="cardHeader">
-          <h3 style="text-align: center; margin-left: 130px">设施</h3>
-          <div class="avatar">
-            <el-image :src="facilityAvatar" />
+        <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+          <div class="cardHeader">
+            <h3 style="text-align: center; margin-left: 130px; color: #333; font-size: 20px; font-weight: 600;">设施</h3>
+            <div class="avatar">
+              <el-image :src="facilityAvatar" style="border-radius: 50%; overflow: hidden;" />
+            </div>
           </div>
-        </div>
-        <el-table
-            :data="facilityTableData"
-            style="width: 100%;height: 600px"
-            :row-class-name="facilityColor"
-        >
-          <el-table-column prop="facilityName" label="名称" width="180" />
-          <el-table-column prop="facilityAddress" show-overflow-tooltip label="地址" width="250" />
-        </el-table>
-      </el-card>
-    </el-container>
-  </template>
+          <el-table
+              :data="facilityTableData"
+              style="width: 100%;height: 600px; border-radius: 8px; overflow: hidden;"
+              :row-class-name="facilityColor"
+          >
+            <el-table-column prop="facilityName" label="名称" width="180" />
+            <el-table-column prop="facilityAddress" show-overflow-tooltip label="地址" width="250" />
+          </el-table>
+        </el-card>
+      </el-container>
+    </template>
 
-  <template #footer>
-    <div style="display: flex; justify-content: flex-end">
-      <h4 style="text-align: right">收容 控制 保护</h4>
-    </div>
-  </template></el-card>
+    <template #footer>
+      <div style="display: flex; justify-content: flex-end">
+        <h4 style="text-align: right; color: #666; font-size: 14px;">收容 控制 保护</h4>
+      </div>
+    </template>
+  </el-card>
 
   <el-dialog
-    v-model="noticeVisible"
-    class = "notice-container"
+      v-model="noticeVisible"
+      class = "notice-container"
+      style="background-color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"
   >
     <div style="height: 500px;">
       <div style="align-items: center;display: flex;flex-direction: column">
         <div class="notice-header">
-          <h1 class="notice-title">{{ currentNotice?.theme }}</h1>
-          <div class="title-divider"></div>
+          <h1 class="notice-title" style="font-size: 36px; font-weight: 700; color: #333;">{{ currentNotice?.theme }}</h1>
+          <div class="title-divider" style="background: linear-gradient(90deg, transparent, #e84545, transparent);"></div>
         </div>
 
-  <!--      <div class="notice-image">
-          <img :src="currentNotice?.state" alt="公告图片" />
-        </div>-->
-        <pre class="notice-content" v-html="currentNotice?.content"></pre>
+        <pre class="notice-content" v-html="currentNotice?.content" style="color: #666; font-size: 16px;"></pre>
       </div>
-
-
     </div>
-    <!--    时间  -->
     <div>
-      <h3 style="margin-left: 600px">发布时间：{{formatDate(currentNotice?.time.toString())}}</h3>
+      <h3 style="margin-left: 600px; color: #666; font-size: 14px;">发布时间：{{formatDate(currentNotice?.time.toString())}}</h3>
     </div>
   </el-dialog>
-
 </template>
 
 <script setup lang="ts">
@@ -588,16 +582,16 @@ const formatDate = (dateString: string) => {
 }
 
 .el-table .warning {
-  background-color: #E6A23C !important;
+  background-color: #ffd700 !important;
 }
 .el-table .danger {
-  background-color: #F56C6C !important;
+  background-color: #ff6347 !important;
 }
 .el-table .safe {
-  background-color: #67C23A !important;
+  background-color: #90ee90 !important;
 }
 .el-table .info{
-  background-color: gray !important;
+  background-color: #add8e6 !important;
 }
 </style>
 
@@ -605,7 +599,6 @@ const formatDate = (dateString: string) => {
 .title-divider {
   height: 3px;
   width: 300px;
-  background: linear-gradient(90deg, transparent, #53354a, transparent);
   border-radius: 3px;
 }
 
@@ -623,20 +616,13 @@ const formatDate = (dateString: string) => {
   font-size: 20px;
   overflow-y: auto;
   line-height: 1.9;
-  color: #555;
   position: relative;
 }
 
 .notice-title {
-  font-size: 48px;
   font-weight: 700;
-  color: black;
   margin: 0;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #e84545 0%, #903749 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
   position: relative;
   display: inline-block;
   padding: 0 15px;

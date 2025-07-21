@@ -26,8 +26,11 @@ public interface EmailMapper extends BaseMapper<Email> {
 
     List< Email> findEmailByTheme(String theme ,Long receiverId);
 
-
     List<Email> findEmailBySenderId(Long senderId, Long receiverId);
+
+    boolean updateEmailState(Long id, Integer state, Long receiverId);
+
+    boolean readAllEmail(Long receiverId);
 
 
 

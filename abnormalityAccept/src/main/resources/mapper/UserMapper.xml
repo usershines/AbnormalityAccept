@@ -162,8 +162,8 @@
                 facility_id = #{user.facilityId},
                 facility_name = #{user.facilityName},
                 leader_id = #{user.leaderId},
-                leader_name = #{user.leaderName},
-        where id = #{id} and is_active = 1
+                leader_name = #{user.leaderName}
+        where id = #{user.id} and is_active = 1
     </update>
 
     <!-- 专门修改密码 -->

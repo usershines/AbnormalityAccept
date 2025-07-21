@@ -27,4 +27,7 @@ public interface EmailService {
     PageInfo<Email> findEmailByTheme(String theme  , Integer pageNum, Integer pageSize, Long receiverId);
 
     boolean updateEmailState(Long id, Integer state, Long receiverId);
+
+    //查询自己发送过的邮件
+    PageInfo<Email> findEmailOneself(Long Id, Integer pageNum, Integer pageSize);
 }

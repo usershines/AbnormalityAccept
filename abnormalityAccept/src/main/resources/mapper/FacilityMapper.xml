@@ -57,7 +57,7 @@
     <select id="findFacilityByConditions" resultMap="Base_Facility_List">
         SELECT
         <include refid="Base_Facility"/>
-        FROM facilitiy
+        FROM facility
         <where>
             <if test="id !=null  "> AND id LIKE CONCAT('%', #{id}, '%')</if>
             <if test="facilityName != null and facilityName != ''">

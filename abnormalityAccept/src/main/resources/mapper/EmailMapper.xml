@@ -51,11 +51,17 @@
     </insert>
 
 
-
-
     <delete id="deleteEmailById">
         DELETE FROM email WHERE id = #{id} AND receiver_id = #{receiverId}
     </delete>
 
+
+    <update id="updateEmailState">
+        UPDATE email SET state = #{state} WHERE id = #{id} AND receiver_id = #{receiverId}
+    </update>
+
+    <update id="readAllEmail">
+        UPDATE email SET state = 1 WHERE receiver_id = #{receiverId}
+    </update>
 
 </mapper>

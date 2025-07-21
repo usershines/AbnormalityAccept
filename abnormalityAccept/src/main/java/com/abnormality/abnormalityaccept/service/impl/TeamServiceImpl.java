@@ -18,6 +18,7 @@ package com.abnormality.abnormalityaccept.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.abnormality.abnormalityaccept.annotation.Level;
+import com.abnormality.abnormalityaccept.dto.request.TeamRequest;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.Team;
@@ -75,11 +76,28 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Level(allowLevel = {5})
-    public boolean createTeam(Team team, Long leaderId) {
-        Team oldTeam = teamMapper.findTeamByName(team.getName());
+    public boolean createTeam(TeamRequest  teamRequest) {
+        Team oldTeam = teamMapper.findTeamByName(teamRequest.getName());
         if(oldTeam != null ) throw new ServiceException(Code.ERROR,"小队已存在");
-        team.setLeaderId(leaderId);
-        return teamMapper.addTeam(team)>0;
+        User leader = userMapper.findUserById(teamRequest.getLeaderId());
+        if(leader == null) throw new ServiceException(Code.ERROR,"用户不存在");
+        if(leader.getTeamId()!=null) throw new ServiceException(Code.ERROR,"用户已加入小队");
+
+        Team team = new Team();
+        team.setName(teamRequest.getName());
+        team.setLevel(teamRequest.getLevel());
+        team.setDescription(teamRequest.getDescription());
+        team.setLeaderId(teamRequest.getLeaderId());
+        team.setStatus(0);
+        teamMapper.insert( team);
+
+        leader.setTeamId(team.getId());
+        userMapper.updateUserAll(leader);
+
+        UserAndTeam userAndTeam = new UserAndTeam();
+        userAndTeam.setTeamId(team.getId());
+        userAndTeam.setUserId(leader.getId());
+        return userAndTeamMapper.insert(userAndTeam)>0;
     }
 
     @Override

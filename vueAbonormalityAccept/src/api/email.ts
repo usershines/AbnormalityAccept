@@ -34,9 +34,10 @@ export function deleteEmail(emailId:number){
 }
 
 export function findEmailBySender(senderName:string , pageNumber:number, pageSize:number){
-    return request.get(`/email/${senderName}`,{
+    return request.get(`/email/sender/`,{
         params:{
-            pageNumber: pageNumber,
+            senderName: senderName,
+            pageNum: pageNumber,
             pageSize: pageSize,
         }
     });

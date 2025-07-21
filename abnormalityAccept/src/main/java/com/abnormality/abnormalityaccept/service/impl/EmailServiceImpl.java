@@ -88,4 +88,12 @@ public class EmailServiceImpl implements EmailService {
             return true;
         }
     }
+
+    @Override
+    public PageInfo<Email> findEmailOneself(Long Id, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Email> emailList = emailMapper.selectList(new QueryWrapper<Email>().eq("sender_id", Id));
+        return PageInfo.of(emailList);
+    }
+
 }

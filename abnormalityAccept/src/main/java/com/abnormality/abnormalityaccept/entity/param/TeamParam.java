@@ -16,6 +16,7 @@ public class TeamParam {
     private String name;
     private Integer status;
     private Long resolvingQuestId;
+    private Long resolvingQuestName;
     private Integer level;
     private String description;
     private Long leaderId;
@@ -26,7 +27,7 @@ public class TeamParam {
     private Integer maxLevel;
 
     //多值查询参数
-    private List<Integer> statusList;
+    private List<Integer> stateList;
 
     private Integer pageNum;
     private Integer pageSize;

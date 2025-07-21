@@ -4,11 +4,11 @@ export interface Quest{
     id: number;
     questCode: String;
     questName: string;
-    level: number;
+    questLevel: number;
+    resolvingByTeamId: number;
+    resolvingByTeamName: string;
     questDescription: string;
     state: number;
-    pageNum: number;
-    pageSize: number;
 }
 
 // 分页查询
@@ -23,18 +23,19 @@ export function getQuestList(pageNum: number,pageSize: number){
 
 // 由id查询任务
 export function getQuest(id:number){
-    return request.get('')
+    return request.get(`/quest/${id}`)
 }
-
 
 //新建任务
 export function createQuest(quest:Quest){
     return request.post('/quest/new',quest);
 }
+
 //更新任务
 export function updateQuest(quest: Quest) {
     return request.put('/quest/update', quest);
 }
+
 //删除任务
 export function deleteQuest(id: number) {
     return request.delete(`/quest/${id}`);

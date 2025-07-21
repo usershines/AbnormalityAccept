@@ -339,7 +339,6 @@
 import {computed, nextTick, onMounted, reactive, ref} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {getQuestList,deleteQuest,createQuest,updateQuest,searchQuests} from "@/api/quest.ts";
-import request from "@/utils/requests.ts";
 
 // 按钮点击打印函数
 const handleButtonClick = (buttonName: string, action?: any) => {
@@ -365,7 +364,7 @@ const simulateDatabaseConnection = () => {
     });
   }catch (error) {
     //console.error('完整错误信息:', error);
-    ElMessage.error('获取用户列表失败')
+    ElMessage.error('获取任务列表失败')
   }
 };
 

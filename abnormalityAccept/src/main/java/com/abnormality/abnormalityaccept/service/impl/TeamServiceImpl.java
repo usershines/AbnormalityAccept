@@ -76,6 +76,8 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Level(allowLevel = {5})
     public boolean createTeam(Team team, Long leaderId) {
+        Team oldTeam = teamMapper.findTeamByName(team.getName());
+        if(oldTeam != null ) throw new ServiceException(Code.ERROR,"小队已存在");
         team.setLeaderId(leaderId);
         return teamMapper.addTeam(team)>0;
     }

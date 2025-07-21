@@ -64,3 +64,13 @@ export function findAbnormality(abnormality: AbnormalityParam){
         params:abnormality
     })
 }
+
+export const findByFacilityId  =async (id:number,pageNum: number, pageSize: number)=>{
+    return request.get(`/abnormality/findByFacilityId`,{
+        params:{
+            facilityId: id,
+            pageNum: pageNum,
+            pageSize: pageSize,
+        }
+    })
+}

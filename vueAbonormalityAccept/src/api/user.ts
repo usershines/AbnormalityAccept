@@ -8,8 +8,11 @@ export interface User {
     password: string | null,
     email: string | null,
     inviterId: number | null,
+    inviterName: string | null,
     leaderId: number | null,
+    leaderName: string | null,
     facilityId: number | null,
+    facilityName: string | null,
     introduction: string | null,
     level: number | null,
 
@@ -38,6 +41,13 @@ export interface UserParamsRequest{
 
     pageNum: number | null,
     pageSize: number | null,
+}
+
+// 编辑下属用户表单
+export interface EditSubordinateRequest {
+    subordinateId: number | null,
+    level: number | null,
+    leaderName: string | null,
 }
 
 // 登录
@@ -98,6 +108,8 @@ export const findByName=async (name:string)=>{
     })
 }
 
+
+
 // 更新密码
 export const updatePassword=async(body:any)=>{
     return request.post('/user/updatePassword', body)
@@ -106,4 +118,18 @@ export const updatePassword=async(body:any)=>{
 // id查询
 export function findUserById(id:number){
     return request.get(`/user/${id}`)
+}
+export const findByFacilityId  =async (id:number,pageNum: number, pageSize: number)=>{
+    return request.get(`/user/findByFacilityId`,{
+        params:{
+            facilityId: id,
+            pageNum: pageNum,
+            pageSize: pageSize,
+        }
+    })
+}
+
+// 编辑下属用户
+export function editSubordinate(id: number,data: EditSubordinateRequest){
+    request.post(`/user/editSubordinate/${id}`, data).then(r => {return r})
 }

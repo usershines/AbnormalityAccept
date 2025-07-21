@@ -96,4 +96,13 @@ public class EmailController {
         return update ? Result.ok("更新成功") : Result.error("更新失败");
     }
 
+    @Operation(summary = "查询用户自己发送的文件")
+    @GetMapping("/history")
+    public Result<PageInfo<Email>> findEmailOneself(@RequestParam Integer pageNum,@RequestParam Integer pageSize ){
+        Long Id = userService.getUserIdByToken();
+        PageInfo<Email> emailList = emailService.findEmailOneself(Id,pageNum,pageSize);
+        if(emailList.getList()==null||emailList.getList().isEmpty()) return Result.error(Code.NOT_FOUND.getCode(),"没有发送的文件");
+        return Result.ok(emailList);
+    }
+
 }

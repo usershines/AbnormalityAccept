@@ -18,10 +18,10 @@
         <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
             <div class="color-legend">
-              <span class="legend-item safe">系统管理员</span>
-              <span class="legend-item warning">特殊权限用户</span>
-              <span class="legend-item danger">初级用户</span>
-              <span class="legend-item info">普通用户</span>
+              <span class="legend-item warning">初级</span>
+              <span class="legend-item danger">中级</span>
+              <span class="legend-item info">高级</span>
+              <span class="legend-item safe">O5权限</span>
             </div>
             <h3 style="text-align: center; margin-left: 130px; color: #333; font-size: 20px; font-weight: 600;">用户</h3>
             <div class="avatar">

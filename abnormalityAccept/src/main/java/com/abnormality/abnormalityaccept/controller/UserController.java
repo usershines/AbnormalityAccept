@@ -187,7 +187,7 @@ public class UserController {
     }
 
     @Operation(summary = "启停用户")
-    @PostMapping("/isActive{/id}")
+    @PostMapping("/isActive/{id}")
     public Result<String> updateUserIsActive(@PathVariable Long id,@RequestParam Integer isActive){
         if(userService.updateUserIsActive(id,isActive)) return Result.ok("操作成功");
         else return Result.error("操作失败");

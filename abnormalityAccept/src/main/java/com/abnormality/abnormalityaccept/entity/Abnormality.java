@@ -32,7 +32,7 @@ public class Abnormality {
     /**
      * 图片名称,获取图片用
      */
-    private String imgName;
+    private String imgeName;
 
 
 }

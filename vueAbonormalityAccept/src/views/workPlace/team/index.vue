@@ -129,6 +129,55 @@
               </el-col>
             </el-row>
         </div>
+      <!-- 编辑小队弹窗 -->
+      <el-dialog
+          v-model="editDialogVisible"
+          title="编辑小队信息"
+          width="50%"
+          class="containment-dialog"
+      >
+        <el-form
+            :model="editTeamForm"
+            ref="editFormRef"
+            :rules="editFormRules"
+            label-width="120px"
+            label-position="left"
+        >
+          <el-form-item label="小队名称" prop="name">
+            <el-input v-model="editTeamForm.name" placeholder="请输入小队名称" />
+          </el-form-item>
+          <el-form-item label="权限等级" prop="level">
+            <el-select v-model="editTeamForm.level" placeholder="请选择权限等级">
+              <el-option label="O5议会" value="5"></el-option>
+              <el-option label="A级" value="4"></el-option>
+              <el-option label="B级" value="3"></el-option>
+              <el-option label="C级" value="2"></el-option>
+              <el-option label="D级" value="1"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="状态" prop="status">
+            <el-select v-model="editTeamForm.status" placeholder="请选择状态">
+              <el-option label="空闲" value="0"></el-option>
+              <el-option label="任务中" value="1"></el-option>
+              <el-option label="无法活动" value="2"></el-option>
+              <el-option label="未知" value="3"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="正在执行任务ID" prop="resolvingQuestId">
+            <el-input v-model="editTeamForm.resolvingQuestId" placeholder="请输入正在执行任务ID" />
+          </el-form-item>
+          <el-form-item label="队长ID" prop="leaderId">
+            <el-input v-model="editTeamForm.leaderId" placeholder="请输入队长ID" />
+          </el-form-item>
+          <el-form-item label="简介" prop="description">
+            <el-input v-model="editTeamForm.description" type="textarea" :rows="3" placeholder="请输入小队简介" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button @click="editDialogVisible = false" class="dialog-button">取消</el-button>
+          <el-button type="primary" @click="handleEditSubmit" class="dialog-button">确认</el-button>
+        </template>
+      </el-dialog>
     </template>
 
     <!-- 分页组件区域 -->
@@ -304,7 +353,7 @@ import * as UserApi from '@/api/user';
 import type { Team, TeamParam, TeamUpdateRequest } from '@/api/team';
 import type { Quest } from '@/api/quest';
 import type { User } from '@/api/user';
-import { ElMessage } from 'element-plus';
+import {ElMessage, type FormInstance} from 'element-plus';
 
 const userAvatar = ref("/src/assets/pic/user.png");
 // 获取数据
@@ -484,14 +533,56 @@ const handleDetail = async (row: Team) => {
     }
   }
 };
-
-
-// 编辑方法
-const handleEdit = (row: Team) => {
-  ElMessage.info(`编辑小队: ${row.name}`);
-  // 这里可以添加实际编辑逻辑
+// 编辑弹窗相关
+const editDialogVisible = ref(false);
+const editTeamForm = ref<TeamUpdateRequest>({
+  id: 0,
+  name: '',
+  status: 0,
+  resolvingQuestId:null,
+  level: 0,
+  description: '',
+  leaderId: null,
+});
+const editFormRules = {
+  name: [{ required: true, message: '请输入小队名称', trigger: 'blur' }],
+  level: [{ required: true, message: '请选择权限等级', trigger: 'change' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
 };
 
+const handleEdit = (row: Team) => {
+  editTeamForm.value = {
+    id: row.id,
+    name: row.name,
+    status: row.status,
+    resolvingQuestId: row.resolvingQuestId,
+    level: row.level,
+    description: row.description,
+    leaderId: row.leaderId,
+  };
+  editDialogVisible.value = true;
+};
+// 编辑方法
+// const handleEdit = (row: Team) => {
+//   ElMessage.info(`编辑小队: ${row.name}`);
+//
+//   // 这里可以添加实际编辑逻辑
+// };
+const handleEditSubmit = async () => {
+  try {
+    const res = await TeamApi.updateTeam(editTeamForm.value);
+    if (res.code === 200) {
+      ElMessage.success('小队信息编辑成功');
+      editDialogVisible.value = false;
+      catchTeamTableData(); // 重新获取小队列表，更新表格数据
+    } else {
+      ElMessage.error('编辑失败：' + res.msg);
+    }
+  } catch (err) {
+    ElMessage.error('编辑失败：' + (err as Error).message);
+  }
+};
+const editFormRef = ref<FormInstance | null>(null);
 // 删除方法
 const handleDelete = (row: Team) => {
   TeamApi.deleteTeam(row.id).then((res) => {

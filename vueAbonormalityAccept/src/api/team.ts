@@ -16,9 +16,10 @@ export interface TeamUpdateRequest {
     id: number;
     name: string;
     status: number;
-    resolvingQuestId: number;
+    resolvingQuestId: number | null;
     level:  number;
     description: string;
+    leaderId: number | null;
 }
 
 // 队伍条件查询类型

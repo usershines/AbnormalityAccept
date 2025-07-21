@@ -13,6 +13,7 @@
               placeholder="请输入任务名称"
               clearable
               class="search-input"
+              style="width: 125px;"
           ></el-input>
         </el-form-item>
 
@@ -23,15 +24,17 @@
               placeholder="请输入任务代号"
               clearable
               class="search-input"
+              style="width: 125px;"
           ></el-input>
         </el-form-item>
 
         <el-form-item label="任务等级" class="search-item">
           <el-select
               v-model="searchForm.questLevel"
-              placeholder="请选择任务等级"
+              placeholder="请选择"
               clearable
               class="search-select"
+              style="width: 125px;"
           >
             <el-option
                 v-for="(label, value) in levelMap"
@@ -45,9 +48,10 @@
         <el-form-item label="任务状态" class="search-item">
           <el-select
               v-model="searchForm.state"
-              placeholder="请选择任务状态"
+              placeholder="请选择"
               clearable
               class="search-select"
+              style="width: 125px;"
           >
             <el-option
                 v-for="(label, value) in statusMap"

@@ -64,7 +64,13 @@
           <span>装备管理</span>
         </template>
       </el-menu-item>
-
+      <!-- 个人主页 -->
+      <el-menu-item index="/workPlace/personal">
+        <template #title>
+          <el-icon><User /></el-icon>
+          <span>个人主页</span>
+        </template>
+      </el-menu-item>
       <!-- 设施管理 -->
       <el-menu-item index="/workPlace/facility">
         <el-icon><OfficeBuilding /></el-icon>
@@ -96,6 +102,10 @@ import {
 } from '@element-plus/icons-vue'
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
+import {findByName} from "@/api/user.ts";
+import {ElMessage} from "element-plus";
+
+const Me = ref()
 
 // 获取当前路由
 const route = useRoute()
@@ -118,6 +128,24 @@ onMounted(() => {
         updateDefaultActive();
       }
   );
+
+  //获取信息
+  const myName = localStorage.getItem('username');
+  if(!myName) {
+    ElMessage.error('请先登录！')
+  }else {
+    findByName(myName).then((res)=>{
+      if(res.code === 200){
+        Me.value = res.data;
+        ElMessage.success(`用户信息获取成功！欢迎回来 ${Me.value?.username}`)
+      }else{
+        ElMessage.error(res.msg);
+      }
+    }).catch((err)=>{
+      console.log(err);
+      ElMessage.error(`发送错误：${err.msg}`)
+    })
+  }
 })
 
 const handleOpen = (key: string, keyPath: string[]) => {

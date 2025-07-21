@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import {MessageBox, Message, Reading, StarFilled, Refresh, Delete} from "@element-plus/icons-vue"
-import {deleteEmail, findEmailById, findEmailBySenderId, findAllEmail, updateEmailState, } from '@/api/email'
+import {  readAllEmail, countUnreadEmail , deleteEmail, findEmailById, findEmailBySender, findAllEmail, updateEmailState, } from '@/api/email'
 
 interface Email{
   id: number,
@@ -24,9 +24,38 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const filterstate = ref<'已读邮件' | '未读邮件' | null>(null)
 const filterPriority = ref<'D' | 'C' | 'B' | 'A' | 'O5' | null>(null)
+const searchSender = ref('') // 新增发送者搜索变量
+
 
 // 计算属性
 const total = ref(0)
+
+
+const unreadCount = ref(0) // 未读邮件数量
+
+// 获取未读邮件数量
+const fetchUnreadCount = () => {
+  countUnreadEmail().then(res => {
+    if (res.code === 200) {
+      unreadCount.value = res.data
+    }
+  })
+}
+
+// 一键已读所有邮件
+const markAllAsRead = () => {
+  readAllEmail().then(res => {
+    if (res.code === 200) {
+      ElMessage.success('所有邮件已标记为已读')
+      // 刷新邮件列表和未读数量
+      fetchUnreadCount()
+      catchEmails()
+
+    }
+  }).catch(err => {
+    ElMessage.error('操作失败：' + err.msg)
+  })
+}
 
 // 获取邮件
 const catchEmails = () =>{
@@ -36,6 +65,7 @@ const catchEmails = () =>{
       emails.value = response.data.list;
       total.value = response.data.total;
       ElMessage.success('邮件更新成功')
+      fetchUnreadCount() // 更新未读数量
     }
   }).catch((error) => {
     ElMessage.error(error.msg)
@@ -47,6 +77,7 @@ onMounted(() => {
   // emails.value = generateEmails()
   catchEmails()
   filteredEmails.value = [...emails.value]
+  fetchUnreadCount() // 初始加载未读数量
 })
 
 // 邮件时间显示方法
@@ -66,17 +97,34 @@ const formatDate = (dateString: string) => {
   }
 }
 
+// 修改 filterEmails 方法
 const filterEmails = () => {
-
+  if (searchSender.value) {
+    // 使用发送者搜索
+    findEmailBySender(searchSender.value, currentPage.value, pageSize.value).then(response => {
+      if (response.code === 200) {
+        filteredEmails.value = response.data.list;
+        total.value = response.data.total;
+      }
+    }).catch(error => {
+      ElMessage.error(error.msg);
+    });
+  } else {
+    // 使用普通搜索
+    catchEmails();
+  }
 }
 
+// 修改 markAsRead 方法
 const markAsRead = (email: Email) => {
-  const update: Email = {
-    ...email,
-    state: 0,
-  }
-  updateEmail(update)
-  ElMessage.success('邮件标记为已读')
+  const newState = email.state === 0 ? 1 : 0; // 切换状态
+  updateEmailState(email.id, newState).then(() => {
+    email.state = newState; // 更新本地状态
+    fetchUnreadCount(); // 更新未读计数
+    ElMessage.success(`邮件已标记为${newState === 0 ? '未读' : '已读'}`);
+  }).catch(error => {
+    ElMessage.error('状态更新失败: ' + error.msg);
+  });
 }
 
 const handleDeletEmail = (email: Email) => {
@@ -110,9 +158,17 @@ const handleDeletEmail = (email: Email) => {
       })
 }
 
+// 修改 viewEmailDetail 方法
 const viewEmailDetail = (email: Email) => {
-  selectedEmail.value = email
-  detailDialogVisible.value = true
+  // 如果邮件未读，则标记为已读
+  if (email.state === 0) {
+    updateEmailState(email.id, 1).then(() => {
+      email.state = 1;
+      fetchUnreadCount();
+    });
+  }
+  selectedEmail.value = email;
+  detailDialogVisible.value = true;
 }
 </script>
 
@@ -128,10 +184,27 @@ const viewEmailDetail = (email: Email) => {
         align-items: center;">
         <div class="header-title">
           <el-icon class="header-icon"><MessageBox /></el-icon>
-          <h2>收件箱 <span class="email-count">({{ total }} 封邮件)</span></h2>
+          <h2>收件箱 <span class="email-count">({{ total }} 封邮件, 未读: {{ unreadCount }})
+          </span>
+          </h2>
         </div>
 
         <div class="header-actions">
+          <el-button @click="markAllAsRead">
+            <el-icon><Reading /></el-icon> 一键已读
+          </el-button>
+          <el-input
+              v-model="searchSender"
+              placeholder="搜索发送者..."
+              clearable
+              class="search-input"
+              @input="filterEmails"
+          >
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
+
           <el-select v-model="filterstate" placeholder="状态筛选" @change="filterEmails">
             <el-option label="未读邮件" value="未读邮件" />
             <el-option label="已读邮件" value="已读邮件" />

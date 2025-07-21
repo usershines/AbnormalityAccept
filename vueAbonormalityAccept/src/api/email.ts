@@ -12,6 +12,7 @@ interface Email{
     sendTime: Date,
 }
 
+
 export function findAllEmail(pageNumber: number, pageSize: number){
     return request.get('/email/list',{
         params:{
@@ -43,6 +44,25 @@ export function findEmailBySender(senderName:string , pageNumber:number, pageSiz
     });
 }
 
-export function updateEmailState(emailId: number, state: number){
-    return request.put(`/email/${emailId}`, )
+export function updateEmailState(emailId: number,state:number){
+    return request.put(`/email/${emailId}/state?state=${state}`, )
+}
+
+//查询自己已发送的历史邮件
+export function findEmailOneself(pageNumber:number, pageSize:number){
+    return request.get(`/email/history`,{
+        params:{
+            pageNum: pageNumber,
+            pageSize: pageSize,
+        }
+    })
+}
+
+//统计未读邮件数量
+export function countUnreadEmail(){
+    return request.get(`/email/countUnRead`)
+}
+//一键已读邮件
+export function readAllEmail(){
+    return request.get('/email/readAll')
 }

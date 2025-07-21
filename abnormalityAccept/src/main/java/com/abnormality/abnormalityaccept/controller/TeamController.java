@@ -21,6 +21,7 @@ package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.annotation.Level;
 import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.dto.request.TeamRequest;
 import com.abnormality.abnormalityaccept.dto.request.TeamUpdateRequest;
 import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.TeamParam;
@@ -70,8 +71,8 @@ public class TeamController {
     @Operation(summary = "创建小队")
     @PostMapping("/add")
     @Level(allowLevel = {5})
-    public Result<String> createTeam(@RequestBody Team team, @RequestParam Long leaderId){
-        if(teamService.createTeam(team, leaderId)) return Result.ok("创建成功");
+    public Result<String> createTeam(@RequestBody TeamRequest  teamRequest){
+        if(teamService.createTeam(teamRequest)) return Result.ok("创建成功");
         return Result.error("创建失败");
     }
 

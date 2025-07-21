@@ -87,7 +87,7 @@
             <if test="resolvingByTeamId != null">
                 AND resolving_by_team_id LIKE CONCAT('%',{resolvingByTeamId},'%')
             </if>
-            <if test="state != null and state != ''">
+            <if test="state != null ">
                 AND state = #{state}
             </if>
 

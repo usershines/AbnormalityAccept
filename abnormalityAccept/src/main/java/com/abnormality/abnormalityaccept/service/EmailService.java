@@ -30,4 +30,11 @@ public interface EmailService {
 
     //查询自己发送过的邮件
     PageInfo<Email> findEmailOneself(Long Id, Integer pageNum, Integer pageSize);
+
+    //统计未读邮件数量
+    Integer countUnreadEmail(Long receiverId);
+
+    //一键已读功能
+    boolean readAllEmail(Long receiverId);
+
 }

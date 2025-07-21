@@ -81,12 +81,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean updateEmailState(Long id , Integer state, Long receiverId) {
-        Email email = emailMapper.findEmailById(id, receiverId);
         if(state != 1 && state != 0) throw new RuntimeException("状态值错误");
-        else {
-            email.setState(state);
-            return true;
-        }
+        return emailMapper.updateEmailState(id, state, receiverId) ;
     }
 
     @Override
@@ -94,6 +90,17 @@ public class EmailServiceImpl implements EmailService {
         PageHelper.startPage(pageNum, pageSize);
         List<Email> emailList = emailMapper.selectList(new QueryWrapper<Email>().eq("sender_id", Id));
         return PageInfo.of(emailList);
+    }
+
+    @Override
+    public Integer countUnreadEmail(Long receiverId) {
+         Long count = emailMapper.selectCount(new QueryWrapper<Email>().eq("receiver_id", receiverId).eq("state", 0));
+         return count.intValue();
+    }
+
+    @Override
+    public boolean readAllEmail(Long receiverId) {
+        return emailMapper.readAllEmail(receiverId) ;
     }
 
 }

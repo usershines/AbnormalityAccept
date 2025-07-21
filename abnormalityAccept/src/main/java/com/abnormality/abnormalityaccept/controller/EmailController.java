@@ -2,14 +2,12 @@ package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.EmailAddRequest;
-import com.abnormality.abnormalityaccept.dto.request.StateRequest;
 import com.abnormality.abnormalityaccept.entity.Email;
 import com.abnormality.abnormalityaccept.entity.JwtPayload;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.EmailService;
 import com.abnormality.abnormalityaccept.service.UserService;
 import com.abnormality.abnormalityaccept.util.AopUtil;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -71,7 +69,7 @@ public class EmailController {
     }
     @Operation(summary = "根据发送者名称查询邮件")
     @GetMapping("/sender/")
-    public Result<PageInfo<Email>> findEmailBySenderId(@RequestParam String senderName,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+    public Result<PageInfo<Email>> findEmailBySender(@RequestParam String senderName,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
         Long senderId =  userService.findUserByName(senderName).getId();
         Long receiverId =  userService.getUserIdByToken();
         PageInfo<Email> emailList = emailService.findEmailBySenderId(senderId,pageNum,pageSize,receiverId);
@@ -87,11 +85,10 @@ public class EmailController {
         return Result.ok(emailList);
     }
 
-    @Operation(summary = "读取邮件")
+    @Operation(summary = "更改邮件状态")
     @PutMapping("/{id}/state")
-    public Result<String> updateEmailState(@PathVariable Long id,@RequestBody StateRequest stateRequest){
+    public Result<String> updateEmailState(@PathVariable Long id,@RequestParam Integer state){
         Long receiverId = userService.getUserIdByToken();
-        Integer state = stateRequest.getState();
         boolean update = emailService.updateEmailState(id,state,receiverId);
         return update ? Result.ok("更新成功") : Result.error("更新失败");
     }
@@ -103,6 +100,22 @@ public class EmailController {
         PageInfo<Email> emailList = emailService.findEmailOneself(Id,pageNum,pageSize);
         if(emailList.getList()==null||emailList.getList().isEmpty()) return Result.error(Code.NOT_FOUND.getCode(),"没有发送的文件");
         return Result.ok(emailList);
+    }
+
+    @Operation(summary = "统计未读邮件数目")
+    @GetMapping("/countUnRead")
+    public Result<Integer> countUnreadEmail() {
+        Long receiverId = userService.getUserIdByToken();
+        Integer count = emailService.countUnreadEmail(receiverId);
+        return Result.ok(count);
+    }
+
+    @Operation(summary = "一键已读")
+    @GetMapping("/readAll")
+    public Result<String> readAllEmail() {
+        Long receiverId = userService.getUserIdByToken();
+        boolean result = emailService.readAllEmail(receiverId);
+        return result ? Result.ok("已读成功") : Result.error("已读失败");
     }
 
 }

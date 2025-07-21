@@ -82,6 +82,8 @@ public interface UserService {
 
     PageInfo<User> findByFacilityId(Long facilityId, Integer pageNum, Integer pageSize);
 
+    boolean updateUserIsActive(Long userId, Integer isActive);
+
 //
 //
 

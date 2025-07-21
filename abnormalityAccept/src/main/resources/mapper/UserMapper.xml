@@ -30,7 +30,6 @@
         select
         <include refid="Base_User"/>
         from user
-        where   is_active = 1
 
     </select>
 
@@ -38,7 +37,7 @@
         select
         <include refid="Base_User"/>
         from user
-        where id=#{id} and is_active = 1
+        where id=#{id} and
     </select>
 
     <select id="findUserByTeamId" resultMap="Base_User_List">

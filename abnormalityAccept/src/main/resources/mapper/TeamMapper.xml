@@ -105,10 +105,10 @@
                 AND level = #{level}
             </if>
             <if test="resolvingQuestId != null">
-                AND resolving_quest_id LIKE CONCAT('%', #{resolving_quest_id}, '%')
+                AND resolving_quest_id LIKE CONCAT('%', #{resolvingQuestId}, '%')
             </if>
             <if test="resolvingQuestName != null and resolvingQuestName !=''">
-                AND resolving_quest_name LIKE CONCAT('%', #{resolving_quest_name}, '%')
+                AND resolving_quest_name LIKE CONCAT('%', #{resolvingQuestName}, '%')
             </if>
             <if test="leaderId != null">
                 AND leader_id = #{leaderId}

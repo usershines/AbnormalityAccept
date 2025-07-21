@@ -110,8 +110,8 @@ public class EquipmentController {
     }
 
     @Operation(summary = "分页多条件查询")
-    @GetMapping("/conditions")
-    public Result<PageInfo<Equipment>> findEquipmentByConditions(EquipmentParam equipmentParam) {
+    @PostMapping("/conditions")
+    public Result<PageInfo<Equipment>> findEquipmentByConditions(@RequestBody EquipmentParam equipmentParam) {
         PageInfo<Equipment> equipmentList = equipmentService.findEquipmentByConditions(equipmentParam);
         if(equipmentList == null || equipmentList.getList().isEmpty()) {
             return Result.error(Code.NOT_FOUND.getCode(), "未查询到相关装备");

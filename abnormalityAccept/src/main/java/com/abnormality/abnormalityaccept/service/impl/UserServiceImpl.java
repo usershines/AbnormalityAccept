@@ -256,6 +256,15 @@ public class UserServiceImpl implements UserService {
         return PageInfo.of(userList);
     }
 
+
+    @Override
+    public boolean updateUserIsActive(Long userId, Integer isActive){
+        User user = userMapper.selectById(userId);
+        user.setIsActive(isActive);
+        return userMapper.updateUserAll(user) > 0;
+    }
+
+
     /**
      * 更新指定用户的密码。
      *
@@ -274,6 +283,9 @@ public class UserServiceImpl implements UserService {
         int result = userMapper.updateById( user);
         return result > 0;
     }
+
+
+
 
     /**
      * 用户登录方法，验证用户名和密码并生成 JWT Token。

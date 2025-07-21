@@ -23,9 +23,9 @@
         class="search-select"
         style="width: 100px;"
       >
-        <el-option label="类型1" value="1"></el-option>
-        <el-option label="类型2" value="2"></el-option>
-        <el-option label="类型3" value="3"></el-option>
+        <el-option label="类型1" value=1></el-option>
+        <el-option label="类型2" value=2></el-option>
+        <el-option label="类型3" value=3></el-option>
       </el-select>
     </el-form-item>
     <el-form-item label="装备状态" class="search-item">
@@ -62,6 +62,12 @@
     </el-form-item>
     <el-form-item>
       <el-button
+          @click="handleSearch"
+          class="reset-button"
+      >
+        <i class="iconfont icon-reset"></i> 搜索
+      </el-button>
+      <el-button
         @click="handleReset"
         class="reset-button"
       >
@@ -79,7 +85,7 @@
 
   <!-- 数据表格区域 - 严格展示指定属性 -->
   <el-table
-    :data="currentTableData"
+    :data="eqList"
     border
     style="width: 100%"
     class="containment-table"
@@ -167,7 +173,7 @@
     :page-sizes="[10, 20, 30]"
     :page-size="pageSize"
     layout="total, sizes, prev, pager, next, jumper"
-    :total="filteredData.length"
+    :total="total"
     prev-text="上一页"
     next-text="下一页"
     class="containment-pagination"
@@ -314,7 +320,7 @@
 import { reactive, ref, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
 import * as equipmentApi from '@/api/equipment';
-import { type Equipment } from '@/api/equipment';
+import  type { Equipment , EquipmentParam} from '@/api/equipment';
 
 
 // 新增装备弹窗相关（严格包含指定属性）
@@ -356,11 +362,13 @@ const createRules = reactive<FormRules>({
 });
 
 const initData=async()=>{
-  equipmentApi.getEquipmentList(pageSize.value,pageSize.value).then(res=>{
+  equipmentApi.getEquipmentList(currentPage.value,pageSize.value).then(res=>{
     console.log(res)
-    if(res.data.code==200){
+    if(res.code===200){
       eqList.value=res.data.list;
+      total.value = res.data.total;
       ElMessage.success('装备数据获取成功')
+      console.log(eqList.value);
     }
   }).catch(err=> {
     console.log(err)
@@ -396,48 +404,27 @@ const submitCreate = async() => {
 };
 
 // 搜索表单数据（仅包含指定属性相关字段）
-const searchForm = reactive({
-  name: '',
-  type: '',
-  state: '',
-  id: '',
-  masterId: '' // 新增持有者ID搜索字段
-});
+const searchForm = ref<EquipmentParam>({
+  id: null,
+  type: null,
+  name: null,
+  state: null,
+  applicationRequirement: null,
+  masterId: null,
+  description: null,
 
-// 原始表格数据（严格符合属性定义）
-const originTableData = ref([
-  {
-    id: 1,
-    name: '装备A',
-    type: 'T1',
-    state: '状态1',
-    applicationRequirement: '需授权使用',
-    masterId: 101,
-    description: '基础作战装备'
-  },
-  {
-    id: 2,
-    name: '装备B',
-    type: 'T2',
-    state: '维修中',
-    applicationRequirement: '仅限专业人员操作',
-    masterId: 102,
-    description: '精密探测装备'
-  },
-  {
-    id: 3,
-    name: '装备C',
-    type: 'T3',
-    state: '封存',
-    applicationRequirement: '禁止私自启用',
-    masterId: 103,
-    description: '备用应急装备'
-  }
-]);
+  // 多值查询参数
+  stateList: null,
+  typeList: null,
+
+  pageNum: null,
+  pageSize: null,
+});
 
 // 分页相关数据
 const currentPage = ref(1);
 const pageSize = ref(10);
+const total = ref(0);
 
 // 详情弹窗相关
 const detailDialogVisible = ref(false);
@@ -488,12 +475,44 @@ const tableRowStyle = ({ rowIndex }: { rowIndex: number }) => ({
 });
 
 // 搜索与重置方法
-const handleSearch = () => { currentPage.value = 1; };
-const handleReset = () => { Object.keys(searchForm).forEach(key => searchForm[key as keyof typeof searchForm] = ''); currentPage.value = 1; };
+const handleSearch = () => {
+  searchForm.value.pageNum = currentPage.value;
+  searchForm.value.pageSize = pageSize.value;
+  equipmentApi.findEquipmentByConditions(searchForm.value).then(res=>{
+    if(res.code===200){
+      eqList.value = res.data.list;
+      total.value = res.data.total;
+      ElMessage.success('搜索成功')
+    }else{
+      ElMessage.error(`搜索失败：${res.msg}`)
+    }
+  }).catch(err=>{
+    console.log(err)
+    ElMessage.error(`搜索失败${err.msg}`)
+  })
+};
+const handleReset = () => {
+  searchForm.value = {
+    id: null,
+    type: null,
+    name: null,
+    state: null,
+    applicationRequirement: null,
+    masterId: null,
+    description: null,
+
+    // 多值查询参数
+    stateList: null,
+    typeList: null,
+
+    pageNum: null,
+    pageSize: null,
+  }
+  currentPage.value = 1; };
 
 // 分页方法
-const handleSizeChange = (val: number) => { pageSize.value = val; currentPage.value = 1; };
-const handleCurrentChange = (val: number) => { currentPage.value = val; };
+const handleSizeChange = (val: number) => { pageSize.value = val; currentPage.value = 1; initData() };
+const handleCurrentChange = (val: number) => { currentPage.value = val; initData()};
 
 // 详情、编辑、删除方法
 const handleDetail = (row: any) => { selectedEquipment.value = row; detailDialogVisible.value = true; };
@@ -519,11 +538,13 @@ const handleDelete = (row: any) => {
   ).then(async() => {
     const index = eqList.value.findIndex(item => item.id === row.id);
     if (index !== -1) {
-      const result =(await equipmentApi.deleteEquipment(row.id)).data;
+      const result =await equipmentApi.deleteEquipment(row.id);
       if (result.code===200) {
         ElMessage.warning(`已删除装备: ${row.name}`);
         // if (currentTableData.value.length === 0 && currentPage.value > 1) currentPage.value--;
         initData();
+      }else {
+        ElMessage.error(`删除失败：${result.msg}`)
       }
       
       

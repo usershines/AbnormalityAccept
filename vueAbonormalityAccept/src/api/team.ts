@@ -26,18 +26,20 @@ export interface TeamUpdateRequest {
 export interface TeamParam {
     id: number | null;
     name: string | null;
-    status: 0 | null;
+    status: number | null;
     resolvingQuestId: number | null;
+    resolvingQuestName: string | null;
     level:  number | null;
     description: string | null;
     leaderId: number | null;
+    isActive: 1;
 
     //范围查询参数
     minLevel: number | null;
     maxLevel: number | null;
 
     //状态
-    statusList: number[] | null;
+    stateList: number[] | null;
 
     //分页
     pageNum: number | null;
@@ -102,6 +104,15 @@ export function removeMember(teamId: number, memberId: number) {
 
 // 小队条件查询
 export function findTeamByCondition(team: TeamParam){
+    console.log('try to find')
+    console.log(team)
+    if((team.stateList === null) && (team.status != null)) {
+        console.log('find！！！！')
+        team.status = Number(team.status)
+        team.stateList = []
+        team.stateList.push(team.status)
+        console.log(team)
+    }
     if(team.minLevel === null) team.minLevel = 1;
     if(team.maxLevel === null) team.maxLevel = 5;
     return request.get('/team/conditions',{

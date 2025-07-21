@@ -27,7 +27,7 @@ public class TeamParam {
     private Integer maxLevel;
 
     //多值查询参数
-    private List<Integer> stateList;
+    private List<Integer> statusList;
 
     private Integer pageNum;
     private Integer pageSize;

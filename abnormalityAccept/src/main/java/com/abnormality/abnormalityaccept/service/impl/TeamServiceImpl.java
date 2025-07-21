@@ -187,8 +187,45 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @Level(allowLevel = 5)
     public PageInfo<Team> findTeamByConditions(TeamParam teamParam) {
+
+        QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(teamParam.getId())){
+            queryWrapper.eq("id",teamParam.getId());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getName())){
+            queryWrapper.like("name",teamParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getLevel())){
+            queryWrapper.eq("level",teamParam.getLevel());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getStatus())){
+            queryWrapper.eq("status",teamParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getDescription())){
+            queryWrapper.like("description",teamParam.getDescription());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getLeaderId())){
+            queryWrapper.eq("leader_id",teamParam.getLeaderId());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getMinLevel()))
+        {
+            queryWrapper.ge("level",teamParam.getMinLevel());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getMaxLevel()))
+        {
+            queryWrapper.le("level",teamParam.getMaxLevel());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getResolvingQuestId())){
+            queryWrapper.eq("resolving_quest_id",teamParam.getResolvingQuestId());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getResolvingQuestName())){
+            queryWrapper.eq("resolving_quest_name",teamParam.getResolvingQuestName());
+        }
+        if(ObjectUtil.isNotEmpty(teamParam.getStatusList())){
+            queryWrapper.in("status",teamParam.getStatusList());
+        }
         PageHelper.startPage(teamParam.getPageNum(),teamParam.getPageSize());
-        List<Team> teamList = teamMapper.findTeamByConditions(teamParam);
+        List<Team> teamList = teamMapper.selectList(queryWrapper);
         return PageInfo.of(teamList);
     }
 

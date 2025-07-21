@@ -17,6 +17,12 @@
       <el-container>
         <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
+            <div class="color-legend">
+              <span class="legend-item warning">初级</span>
+              <span class="legend-item danger">中级</span>
+              <span class="legend-item info">高级</span>
+              <span class="legend-item safe">O5权限</span>
+            </div>
             <h3 style="text-align: center; margin-left: 130px; color: #333; font-size: 20px; font-weight: 600;">用户</h3>
             <div class="avatar">
               <el-image :src="userAvatar" style="border-radius: 50%; overflow: hidden;" />
@@ -25,6 +31,7 @@
           <el-table
               :data="userTableData"
               style="width: 100%;height: 600px; border-radius: 8px; overflow: hidden;"
+              :row-class-name="userColor"
           >
             <el-table-column prop="username" label="用户名" width="180" />
             <el-table-column prop="level" label="权限等级" width="180" />
@@ -33,6 +40,12 @@
 
         <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
+            <div class="color-legend">
+              <span class="legend-item safe">安全</span>
+              <span class="legend-item">正常</span>
+              <span class="legend-item warning">警告</span>
+              <span class="legend-item danger">危险</span>
+            </div>
             <h3 style="text-align: center; margin-left: 110px; color: #333; font-size: 20px; font-weight: 600;">异想体</h3>
             <div class="avatar">
               <el-image :src="abnormalityAvatar" style="border-radius: 50%; overflow: hidden;" />
@@ -43,13 +56,19 @@
               style="width: 100%;height: 600px; border-radius: 8px; overflow: hidden;"
               :row-class-name="abnormalityColor"
           >
-            <el-table-column prop="num" label="编号" width="180" />
             <el-table-column prop="name" label="名称" width="180" />
+            <el-table-column prop="level" label="级别" width="180" />
           </el-table>
         </el-card>
 
         <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
+            <div class="color-legend">
+              <span class="legend-item safe">空闲</span>
+              <span class="legend-item warning">任务中</span>
+              <span class="legend-item danger">无法行动</span>
+              <span class="legend-item info">未知</span>
+            </div>
             <h3 style="text-align: center; margin-left: 100px; color: #333; font-size: 20px; font-weight: 600;">机动小队</h3>
             <div class="avatar">
               <el-image :src="teamAvatar" style="border-radius: 50%; overflow: hidden;" />
@@ -67,6 +86,12 @@
 
         <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
+            <div class="color-legend">
+              <span class="legend-item info">信息提示</span>
+              <span class="legend-item safe">安全</span>
+              <span class="legend-item warning">警告</span>
+              <span class="legend-item danger">危险</span>
+            </div>
             <h3 style="text-align: center; margin-left: 130px; color: #333; font-size: 20px; font-weight: 600;">设施</h3>
             <div class="avatar">
               <el-image :src="facilityAvatar" style="border-radius: 50%; overflow: hidden;" />
@@ -121,6 +146,7 @@ import {getUserList} from "@/api/user.ts";
 import {getFacilityList} from "@/api/facility.ts";
 import {getTeamList} from "@/api/team.ts";
 import {ElMessage} from "element-plus";
+import {useRoute} from "vue-router";
 
 const noticeVisible = ref(false);
 
@@ -431,8 +457,8 @@ const teamColor = (row) =>{
   switch (row.row.status){
     case 0: return 'safe'
     case 1: return 'warning'
-    case 2: return 'info'
-    case 3: return 'danger'
+    case 2: return 'danger'
+    case 3: return 'info'
   }
 }
 const facilityColor = (row) =>{
@@ -441,6 +467,15 @@ const facilityColor = (row) =>{
     case 1: return 'safe'
     case 2: return 'warning'
     case 3: return 'danger'
+  }
+}
+const userColor = (row) =>{
+  switch (row.row.level){
+    case 5: return 'safe'
+    case 1: return 'warning'
+    case 2: return 'danger'
+    case 3: return 'info'
+    case 4: return 'info'
   }
 }
 
@@ -593,6 +628,37 @@ const formatDate = (dateString: string) => {
 .el-table .info{
   background-color: #add8e6 !important;
 }
+
+.color-legend {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.legend-item {
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.legend-item.safe {
+  background-color: #90ee90;
+}
+
+.legend-item.warning {
+  background-color: #ffd700;
+}
+
+.legend-item.danger {
+  background-color: #ff6347;
+}
+
+.legend-item.info {
+  background-color: #add8e6;
+}
 </style>
 
 <style scoped>
@@ -637,6 +703,7 @@ const formatDate = (dateString: string) => {
 
 .tableCard{
   margin: 10px;
+  position: relative;
 }
 
 .avatar{

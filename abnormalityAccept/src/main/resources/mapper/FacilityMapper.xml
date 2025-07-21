@@ -59,11 +59,11 @@
         <include refid="Base_Facility"/>
         FROM facilitiy
         <where>
-            <if test="id !=null and "> AND id LIKE CONCAT('%', #{id}, '%')</if>
+            <if test="id !=null  "> AND id LIKE CONCAT('%', #{id}, '%')</if>
             <if test="facilityName != null and facilityName != ''">
                 AND facility_name LIKE CONCAT('%', #{facilityName}, '%')
             </if>
-            <if test="level != null and level != ''">AND level = #{level} </if>
+            <if test="level != null ">AND level = #{level} </if>
             <if test="managerId != null"> AND manager_id LIKE CONCAT('%', #{managerId}, '%')</if>
             <if test="managerName != null and managerName != ''">
                 AND manager_name LIKE CONCAT('%', #{managerName}, '%')

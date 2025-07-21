@@ -24,7 +24,7 @@ public class EquipmentParam {
     private List<Integer> stateList;
     private List<Integer> typeList;
 
-    private Integer pageNUm;
+    private Integer pageNum;
     private Integer pageSize;
 
 }

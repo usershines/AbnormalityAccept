@@ -108,9 +108,9 @@ public class TeamController {
         return Result.error("删除失败");
     }
     @Operation(summary = "分页多条件查询")
-    @GetMapping("/conditions")
+    @PostMapping("/conditions")
     @Level(allowLevel = {5})
-    public Result<PageInfo<Team>> findTeamByConditions(TeamParam teamParam){
+    public Result<PageInfo<Team>> findTeamByConditions(@RequestBody TeamParam teamParam){
         PageInfo<Team> teamList = teamService.findTeamByConditions(teamParam);
         if(teamList.getList() ==null || teamList.getList().isEmpty() ) return Result.error(Code.ERROR.getCode(),"未查询到相关小队");
         return Result.ok(teamList);

@@ -112,14 +112,21 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="status" label="状态" width="120">
           <template #header>
             <span><i class="iconfont icon-status"></i> 状态</span>
           </template>
           <template #default="scope">
-            <el-tag :type="scope.row.isActive ? 'success' : 'danger'" class="status-tag">
-              {{ scope.row.status ? '启用' : '停用' }}
-            </el-tag>
+            <div class="switch-container">
+              <el-switch
+                  v-if="isDataReady"
+                  v-model="scope.row.isActive"
+                  style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+                  :active-value="1"
+                  :inactive-value="0"
+                  @change="handleStatusChange(scope.row)"
+              />
+            </div>
           </template>
         </el-table-column>
 
@@ -159,13 +166,6 @@
                 class="edit-btn"
             >
               <i class="iconfont icon-edit"></i> 编辑
-            </el-button>
-            <el-button
-                type="text"
-                class="delete-btn"
-                @click="handleDelete(scope.row)"
-            >
-              <i class="iconfont icon-delete"></i> 删除
             </el-button>
           </template>
         </el-table-column>
@@ -363,7 +363,8 @@
 import {reactive, ref, computed, onMounted} from 'vue';
 import * as UserApi from "@/api/user.ts";
 import type {UserParamsRequest,EditSubordinateRequest,User} from "@/api/user.ts";
-import {ElMessage, type FormInstance, type FormRules} from 'element-plus';
+import {ElMessage,ElMessageBox, FormInstance, type FormRules} from 'element-plus';
+import * as equipmentApi from "@/api/equipment.ts";
 
 // 新建用户弹窗相关
 const createDialogVisible = ref(false);
@@ -764,43 +765,63 @@ const submitEdit = () => {
 }
 
 // 添加删除方法
-const handleDelete = (row: any) => {
+const handleStatusChange= (row: any) => {
   ElMessageBox.confirm(
-      '是否确认删除id为'+row.id+'的用户'+row.username,
+      '是否确认停用id为' + row.id + '的用户' + row.username,
       '警告',
       {
-        confirmButtonText: '删除',
+        confirmButtonText: '停用',
         cancelButtonText: '取消',
         type: 'warning',
       }
   )
-      .then(() => {
-        UserApi.deleteUser(row.id).then((response) => {
-          if(response.code === 200) {
-            ElMessage({
-              type: 'success',
-              message: '删除成功',
-            })
+      .then(async () => {
+        const index = tableData.value.findIndex(item => item.id === row.id);
+        if (index !== -1) {
+          const result = await UserApi.deleteUser(row.id);
+          if (result.code === 200) {
+            ElMessage.warning(`已停用用户: ${row.name}`);
+            catchData();
+          } else {
+            ElMessage.error(`停用失败：${result.msg}`)
           }
-          else {
-            ElMessage.error('删除失败'+response.message);
-          }
-        }).catch((e) => {
-          ElMessage.error('删除失败'+e.message);
-        })
-      })
-      .catch(() => {
-        ElMessage({
-          type: 'info',
-          message: '取消删除',
-        })
-      })
-};
 
+
+        }
+      }).catch(() => {
+    ElMessage.info('已取消停用');
+  });
+  };
+
+
+//         }
+//         UserApi.deleteUser(row.id).then((response) => {
+//           if(response.code === 200) {
+//             ElMessage({
+//               type: 'success',
+//               message: '删除成功',
+//             })
+//           }
+//           else {
+//             ElMessage.error('删除失败'+response.message);
+//           }
+//         }).catch((e) => {
+//           ElMessage.error('删除失败'+e.message);
+//         })
+//       })
+//       .catch(() => {
+//         ElMessage({
+//           type: 'info',
+//           message: '取消删除',
+//         })
+//       })
+// };
+const isDataReady=ref(false)
 // 生命周期钩子
-onMounted(() =>{
+onMounted(async () =>{
   // 初始化表单
-  catchData()
+ await catchData();
+ isDataReady.value = true;
 
 })
 </script>

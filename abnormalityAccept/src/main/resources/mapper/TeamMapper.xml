@@ -133,7 +133,9 @@
                 AND level &lt;= #{maxLevel}
             </if>
 
-           AND is_actice = 1;
+            <if test="isActive != null">
+                AND is_actice = #{isActive}
+            </if>
         </where>
     </select>
 

@@ -74,7 +74,7 @@
   <div class="quest-cards">
     <el-row :gutter="30">
       <el-col
-          v-for="item in currentTableData"
+          v-for="item in originTableData"
           :key="item.id"
           :xs="24"
           :sm="12"
@@ -100,7 +100,7 @@
               />
             </div>
             <div class="card-title-wrap">
-              <h3 class="quest-name">{{ item.name }}</h3>
+              <h3 class="quest-name">{{ item.questName }}</h3>
               <el-tag
                   :type="getLevelTagType(item.level)"
                   class="clearance-level"
@@ -164,7 +164,7 @@
       :page-sizes="[8, 16, 24]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="filteredData.length"
+      :total="total"
       prev-text="上一页"
       next-text="下一页"
       class="containment-pagination"
@@ -174,7 +174,7 @@
   <!-- 任务详情弹窗 - 任务单元报告风格 -->
   <el-dialog
       v-model="detailDialogVisible"
-      :title="`${selectedQuest?.name} - 任务档案`"
+      :title="`${selectedQuest?.questName} - 任务档案`"
       width="70%"
       class="containment-dialog"
   >
@@ -189,7 +189,7 @@
         <div class="header-content">
           <el-avatar :size="80" :src="selectedQuest.avatar" class="detail-avatar" />
           <div class="header-info">
-            <h2 class="quest-title">{{ selectedQuest.name }}</h2>
+            <h2 class="quest-title">{{ selectedQuest.questName }}</h2>
             <div class="info-row">
               <span><i class="iconfont icon-id"></i> 编号：{{ selectedQuest.id }}</span>
               <span><i class="iconfont icon-security"></i> 等级：
@@ -208,7 +208,7 @@
               <span><i class="iconfont icon-assignee"></i> 负责人：{{ selectedQuest.assignee }}</span>
             </div>
             <div class="info-row description">
-              <span><i class="iconfont icon-description"></i> 描述：{{ selectedQuest.description }}</span>
+              <span><i class="iconfont icon-description"></i> 描述：{{ selectedQuest.questDescription }}</span>
             </div>
           </div>
         </div>
@@ -261,8 +261,11 @@
         label-width="120px"
         class="quest-form"
     >
+      <el-form-item label="任务编号" prop="questCode">
+        <el-input v-model="formData.questCode" placeholder="请输入任务编号"></el-input>
+      </el-form-item>
       <el-form-item label="任务名称" prop="name">
-        <el-input v-model="formData.name" placeholder="请输入任务名称"></el-input>
+        <el-input v-model="formData.questName" placeholder="请输入任务名称"></el-input>
       </el-form-item>
 
       <el-form-item label="任务等级" prop="level">
@@ -333,8 +336,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted, nextTick } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import {computed, nextTick, onMounted, reactive, ref} from 'vue';
+import {ElMessage, ElMessageBox} from 'element-plus';
+import {getQuestList,deleteQuest,createQuest,updateQuest,searchQuests} from "@/api/quest.ts";
 
 // 按钮点击打印函数
 const handleButtonClick = (buttonName: string, action?: any) => {
@@ -342,14 +346,26 @@ const handleButtonClick = (buttonName: string, action?: any) => {
   if (action !== undefined) action; // 执行按钮原有动作
 };
 
+// const handleSubmit = () => {
+//
+// }
+
+
 // 模拟数据库连接
 const simulateDatabaseConnection = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-      ElMessage.success('数据库连接成功');
-    }, 200);
-  });
+  try {
+    getQuestList(currentPage.value, pageSize.value).then((response) => {
+      if(response.code == 200) {
+        originTableData.value = response.data.list;
+        total.value = response.data.total;
+        console.log(response.data);
+        ElMessage.success("数据更新成功")
+      }
+    });
+  }catch (error) {
+    //console.error('完整错误信息:', error);
+    ElMessage.error('获取任务列表失败')
+  }
 };
 
 // 定义任务历史接口
@@ -360,17 +376,34 @@ interface QuestHistory {
 }
 
 // 定义任务接口
+// interface Quest {
+//   id: number;
+//   name: string;
+//   level: string;
+//   status: string;
+//   deadline: string;
+//   assignee: string;
+//   avatar: string;
+//   description: string;
+//   progress: number;
+//   history: QuestHistory[];
+// }
+
 interface Quest {
-  id: number;
-  name: string;
+  id:number
+  questCode:String
+  questName:String
   level: string;
   status: string;
   deadline: string;
   assignee: string;
   avatar: string;
-  description: string;
-  progress: number;
+  resolvingByTeamId:number
+  resolvingByTeamName:String
+  questDescription:String
   history: QuestHistory[];
+  progress: number;
+  state:number
 }
 
 // 搜索表单数据
@@ -386,6 +419,7 @@ const originTableData = ref<Quest[]>([]);
 // 分页相关数据
 const currentPage = ref(1);
 const pageSize = ref(8);
+const total = ref(0);
 
 // 弹窗相关
 const detailDialogVisible = ref(false);
@@ -396,8 +430,8 @@ const formDialogVisible = ref(false);
 const formRef = ref();
 const dialogType = ref<'create' | 'edit'>('create');
 const formData = reactive({
-  id: 0,
-  name: '',
+  questCode: '',
+  questName: '',
   level: '中级',
   status: '未开始',
   deadline: '',
@@ -410,7 +444,8 @@ const formData = reactive({
 
 // 表单验证规则
 const formRules = reactive({
-  name: [
+  questCode: [{required: true,message: '请输入任务名称', trigger: 'blur'}],
+  questName: [
     { required: true, message: '请输入任务名称', trigger: 'blur' },
     { min: 2, max: 50, message: '任务名称长度在 2 到 50 个字符', trigger: 'blur' }
   ],
@@ -435,105 +470,48 @@ const formRules = reactive({
 // 模拟从数据库获取任务数据
 const fetchQuestsFromDatabase = async () => {
   await simulateDatabaseConnection();
-  return [
-    {
-      id: 1,
-      name: '项目A任务',
-      level: '高级',
-      status: '进行中',
-      deadline: '2024-12-31',
-      assignee: '张三',
-      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      description: '完成项目A的核心功能开发',
-      progress: 60,
-      history: [
-        { date: '2024-01-01', action: '任务开始', comment: '项目A任务正式启动' },
-        { date: '2024-03-15', action: '完成部分功能', comment: '已完成部分核心功能开发' }
-      ]
-    },
-    {
-      id: 2,
-      name: '项目B任务',
-      level: '中级',
-      status: '未开始',
-      deadline: '2025-06-30',
-      assignee: '李四',
-      avatar: 'https://cube.elemecdn.com/e/f5/3f28f2a7e22d5c5c3d7b9e0e7b3e9png.png',
-      description: '进行项目B的需求调研',
-      progress: 0,
-      history: []
-    },
-    {
-      id: 3,
-      name: '项目C任务',
-      level: '低级',
-      status: '已完成',
-      deadline: '2023-12-31',
-      assignee: '王五',
-      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      description: '完成项目C的测试报告',
-      progress: 100,
-      history: [
-        { date: '2023-11-15', action: '开始测试', comment: '对项目C进行全面测试' },
-        { date: '2023-12-31', action: '完成报告', comment: '测试报告已完成' }
-      ]
-    },
-    {
-      id: 4,
-      name: '项目D任务',
-      level: '高级',
-      status: '已取消',
-      deadline: '2024-06-30',
-      assignee: '赵六',
-      avatar: 'https://cube.elemecdn.com/9/c2/f0ee85ea9d6311a9c385c457a8e78epng.png',
-      description: '由于需求变更，该任务已取消',
-      progress: 30,
-      history: [
-        { date: '2024-01-15', action: '任务开始', comment: '项目D任务启动' },
-        { date: '2024-03-01', action: '需求变更', comment: '由于业务需求变更，该任务暂停' },
-        { date: '2024-04-15', action: '任务取消', comment: '正式取消该任务' }
-      ]
-    },
-    {
-      id: 5,
-      name: '项目E任务',
-      level: '中级',
-      status: '进行中',
-      deadline: '2025-03-15',
-      assignee: '孙七',
-      avatar: 'https://cube.elemecdn.com/0/6f/e35ff375812e6b0020b6b4e8f6bcpng.png',
-      description: '开发项目E的用户界面',
-      progress: 45,
-      history: [
-        { date: '2024-10-01', action: '任务开始', comment: '项目E的UI开发任务启动' },
-        { date: '2024-12-15', action: '完成原型设计', comment: 'UI原型设计已完成' }
-      ]
-    },
-    {
-      id: 6,
-      name: '项目F任务',
-      level: '低级',
-      status: '未开始',
-      deadline: '2025-09-30',
-      assignee: '周八',
-      avatar: 'https://cube.elemecdn.com/2/fd/0fc7d30583f48206768a7584e7cef1epng.png',
-      description: '编写项目F的文档',
-      progress: 0,
-      history: []
-    }
-  ];
+
 };
 
 // 初始化数据
 onMounted(async () => {
-  const quests = await fetchQuestsFromDatabase();
-  originTableData.value = quests;
+  originTableData.value = await fetchQuestsFromDatabase()
 });
 
+// 加载任务数据（支持搜索和分页）
+const loadQuestData = async (isSearch = false) => {
+  try {
+    let response;
+    if (isSearch) {
+      // 搜索时调用条件查询接口
+      response = await searchQuests({
+        pageNum: currentPage.value,
+        pageSize: pageSize.value,
+        questName: searchForm.name, // 修改为与后端参数匹配
+        level: searchForm.level,
+        status: searchForm.status
+      });
+    } else {
+      // 非搜索时加载全部数据
+      response = await getQuestList(currentPage.value, pageSize.value);
+    }
+
+    if (response.code === 200) {
+      originTableData.value = response.data.list;
+      total.value = response.data.total;
+      ElMessage.success(isSearch ? '搜索成功' : '数据加载成功');
+    } else {
+      ElMessage.error(response.msg || '数据加载失败');
+    }
+  } catch (error) {
+    console.error('数据请求失败:', error);
+    ElMessage.error('网络错误，请稍后重试');
+  }
+};
 // 实现搜索过滤功能
 const filteredData = computed(() => {
   return originTableData.value.filter(item => {
-    const nameMatch = searchForm.name ? item.name.includes(searchForm.name) : true;
+    const nameMatch = searchForm.name ? item.questName.includes(searchForm.name) : true;
     const levelMatch = searchForm.level ? item.level === searchForm.level : true;
     const statusMatch = searchForm.status ? item.status === searchForm.status : true;
     return nameMatch && levelMatch && statusMatch;
@@ -583,6 +561,7 @@ const getProgressColor = (status: string) => {
 const handleSearch = () => {
   handleButtonClick('搜索');
   currentPage.value = 1;
+  loadQuestData(true);
 };
 
 // 重置方法
@@ -592,67 +571,58 @@ const handleReset = () => {
   searchForm.level = '';
   searchForm.status = '';
   currentPage.value = 1;
+  loadQuestData();
 };
 
 // 每页条数改变
 const handleSizeChange = (val: number) => {
   handleButtonClick(`分页-每页${val}条`);
   pageSize.value = val;
-  currentPage.value = 1;
+  simulateDatabaseConnection()
 };
 
 // 当前页改变
 const handleCurrentChange = (val: number) => {
   handleButtonClick(`分页-第${val}页`);
   currentPage.value = val;
+  simulateDatabaseConnection()
 };
 
 // 查看详情方法
 const handleDetail = (row: Quest) => {
-  handleButtonClick(`查看详情-${row.name}`);
+  handleButtonClick(`查看详情-${row.questName}`);
   selectedQuest.value = { ...row };
   detailDialogVisible.value = true;
 };
 
 // 编辑方法
 const handleEdit = (row: Quest) => {
-  handleButtonClick(`编辑-${row.name}`);
+  handleButtonClick(`编辑-${row.questName}`);
   dialogType.value = 'edit';
   Object.assign(formData, row);
   formDialogVisible.value = true;
 };
 
 // 添加删除方法
-const handleDelete = (row: Quest) => {
-  handleButtonClick(`删除-${row.name}`);
-  ElMessageBox.confirm(
-      `确定要删除任务 ${row.name} 吗？`,
-      '删除确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-  ).then(() => {
-    const index = originTableData.value.findIndex(item => item.id === row.id);
-    if (index !== -1) {
-      originTableData.value.splice(index, 1);
-      ElMessage.success(`已删除任务: ${row.name}`);
-      if (currentTableData.value.length === 0 && currentPage.value > 1) {
-        currentPage.value -= 1;
-      }
+const handleDelete = async (row: Quest) => {
+  try {
+    await ElMessageBox.confirm(`确定删除任务 ${row.questName} 吗？`, '删除确认');
+    const response = await deleteQuest(row.id);
+    if (response.code === 200) {
+      ElMessage.success(response.message);
+      // 重新加载数据
+      simulateDatabaseConnection();
     }
-  }).catch(() => {
+  } catch (error) {
     // 取消操作
-  });
+  }
 };
 
 // 打开新建任务弹窗
 const openCreateDialog = () => {
   handleButtonClick('新建任务');
   dialogType.value = 'create';
-  formData.id = Math.max(0, ...originTableData.value.map(item => item.id)) + 1;
-  formData.name = '';
+  formData.questName = '';
   formData.level = '中级';
   formData.status = '未开始';
   formData.deadline = '';
@@ -669,38 +639,25 @@ const openCreateDialog = () => {
 };
 
 // 提交表单
-const handleSubmit = () => {
-  formRef.value?.validate((valid: boolean) => {
-    if (!valid) return;
+const handleSubmit = async () => {
+  try {
+    const form = { ...formData };
+    let response;
 
     if (dialogType.value === 'create') {
-      const newQuest: Quest = {
-        ...formData,
-        history: [{
-          date: new Date().toISOString().split('T')[0],
-          action: '任务创建',
-          comment: '任务被创建'
-        }]
-      };
-
-      originTableData.value.unshift(newQuest);
-      ElMessage.success('任务创建成功');
+      response = await createQuest(form ); // 需要获取当前用户ID
     } else {
-      const index = originTableData.value.findIndex(item => item.id === formData.id);
-      if (index !== -1) {
-        formData.history.push({
-          date: new Date().toISOString().split('T')[0],
-          action: '任务更新',
-          comment: '任务被更新'
-        });
-
-        originTableData.value.splice(index, 1, { ...formData });
-        ElMessage.success('任务更新成功');
-      }
+      response = await updateQuest(form);
     }
 
-    formDialogVisible.value = false;
-  });
+    if (response.code === 200) {
+      ElMessage.success(response.message);
+      formDialogVisible.value = false;
+      simulateDatabaseConnection();
+    }
+  } catch (error) {
+    ElMessage.error('操作失败');
+  }
 };
 </script>
 

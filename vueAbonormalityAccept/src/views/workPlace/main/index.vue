@@ -89,7 +89,10 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
+import {findByName} from "@/api/user.ts";
+import type {User} from "@/api/user.ts";
+import {ElMessage} from "element-plus";
 
 const dialogVisible = ref(false);
 const selectedVideo = ref({ id: '', status: '', src: '', level: '' });
@@ -114,6 +117,8 @@ const videoHeight = ref(240);
 const dialogVideoWidth = ref(800);
 const dialogVideoHeight = ref(600);
 
+const Me = ref<User>()
+
 // 获取重要度文本
 const getLevelText = (level: string) => {
   const levelMap = {
@@ -132,6 +137,15 @@ function enlargeVideo(video: any) {
 const handleDialogClose = () => {
   dialogVisible.value = false;
 };
+
+onMounted(() =>{
+  const myName = localStorage.getItem('username');
+  if(!myName) {
+    ElMessage.error('请先登录！')
+  }else {
+    Me.value = findByName(myName)
+  }
+})
 </script>
 
 <style scoped>

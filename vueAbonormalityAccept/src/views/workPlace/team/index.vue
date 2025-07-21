@@ -238,8 +238,11 @@
               </el-tag>
             </template>
           </el-table-column>
-<!--          <el-table-column>
-            <button>-->
+          <el-table-column>
+            <template #default="scope">
+              <button @click="handleDeleteMember(scope.row.id)"> 移除</button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
     </div>
@@ -263,7 +266,7 @@
   >
     <div style="display: flex">
       <el-input v-model="memberAddId" placeholder="在这里输入用户ID"/>
-      <el-button>添加为成员</el-button>
+      <el-button @click="handleAddMemberWith(memberAddId)">添加为成员</el-button>
     </div>
     <el-table :data="memberList" stripe style="width: 100%">
       <el-table-column prop="username" label="名称" width="180" />
@@ -454,7 +457,7 @@ const handleDetail = async (row: Team) => {
       const res = await TeamApi.getMemberList(teamId);
       console.log(res);
       if (res.code === 200 && res.data != null) {
-        selectedTeamMembers.value.push(res.data);
+        selectedTeamMembers.value = res.data;
       } else if (res.code === 501) {
         ElMessage.error(`权限不足，无法获取成员ID: ${teamId} 的信息`);
       } else {
@@ -537,8 +540,12 @@ const handleAddMember = () =>{
   catchMemberNoTeam()
 }
 
-const handleAddMemberWith = (userId: number) => {
+const handleAddMemberWith = (userId: number | null) => {
   const teamId = selectedTeam.value?.id
+  if( userId === null  ){
+    ElMessage('用户id为空！')
+    return;
+  }
   console.log('向队伍',teamId,'中添加用户',userId)
   if(teamId === null){
     ElMessage.error('无法获取队伍id')
@@ -554,12 +561,44 @@ const handleAddMemberWith = (userId: number) => {
       ElMessage.error('添加该用户失败:'+err.msg)
     })
   }
-}
-
-// 移除小队成员
-const removeMember = () =>{
 
 }
+
+const handleDeleteMember = (userId: number) => {
+  if (userId === null || selectedTeam.value?.id === null) {
+    ElMessage.error('用户不存在')
+    return
+  }
+  ElMessageBox.confirm(
+      'proxy will permanently delete the file. Continue?',
+      'Warning',
+      {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+  )
+      .then(() => {
+        TeamApi.removeMember(selectedTeam.value.id,userId).then(res=>{
+          if (res.code === 200) {
+            ElMessage({
+              type: 'success',
+              message: '删除成功，请刷新页面',
+            })
+          }
+        }).catch((err) => {
+          console.log(err)
+          ElMessage.error('删除服务器错误：'+err.msg)
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: 'Delete canceled',
+        })
+      })
+}
+
 </script>
 <style scoped>
 /* 弹窗样式增强 */

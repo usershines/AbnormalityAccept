@@ -91,7 +91,7 @@ export function addMember(teamId: number, memberId: number) {
 
 // 移除队员
 export function removeMember(teamId: number, memberId: number) {
-    return request.post('/team/removeMember',{
+    return request.post('/team/removeMember',{},{
         params:{
             teamId: teamId,
             userId: memberId
@@ -103,10 +103,6 @@ export function removeMember(teamId: number, memberId: number) {
 export function findTeamByCondition(team: TeamParam){
     if(team.minLevel === null) team.minLevel = 1;
     if(team.maxLevel === null) team.maxLevel = 5;
-    if(team.statusList === null) {
-        if(team.status !== null)         team.statusList = [team.status];
-        else team.statusList = [0,1,2,3]
-    }
     return request.get('/team/conditions',{
         params: team
     })
@@ -123,5 +119,5 @@ export function deleteTeam(teamId: number) {
 
 // 获取小队成员
 export function getMemberList(teamId: number) {
-    return request.get(`/${teamId}/members`)
+    return request.get(`/team/${teamId}/members`)
 }

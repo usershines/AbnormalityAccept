@@ -82,7 +82,7 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public PageInfo<Equipment> findEquipmentByConditions(EquipmentParam equipmentParam) {
-        PageHelper.startPage(equipmentParam.getPageNUm(),equipmentParam.getPageSize());
+        PageHelper.startPage(equipmentParam.getPageNum(),equipmentParam.getPageSize());
         List<Equipment> EquipmentList = equipmentMapper.findEquipmentByConditions(equipmentParam);
         return new PageInfo<>(EquipmentList);
     }

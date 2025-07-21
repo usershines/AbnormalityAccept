@@ -18,10 +18,10 @@
     <el-form-item label="设施等级" class="search-item">
       <el-select
         v-model="searchForm.level"
-        placeholder="请选择设施等级"
+        placeholder="请选择"
         clearable
         class="search-select"
-        style="width: 150px;"
+        style="width: 100px;"
       >
         <el-option label="1级" value="1"></el-option>
         <el-option label="2级" value="2"></el-option>
@@ -39,13 +39,13 @@
         style="width: 120px;"
       ></el-input>
     </el-form-item>
-    <el-form-item label="负责人ID" class="search-item">
+    <el-form-item label="负责人姓名" class="search-item">
       <el-input
-        v-model="searchForm.managerId"
-        placeholder="请输入负责人ID"
+        v-model="searchForm.managerName"
+        placeholder="请输入负责人姓名"
         clearable
         class="search-input"
-        style="width: 125px;"
+        style="width: 140px;"
       ></el-input>
     </el-form-item>
     <el-form-item>
@@ -55,6 +55,16 @@
       >
         <i class="iconfont icon-reset"></i> 重置
       </el-button>
+
+
+      <el-button
+          type="primary"
+          @click="handleSearch"
+          class="search-button"
+      >搜索
+      </el-button>
+
+
       <el-button
         type="primary"
         @click="handleCreate"
@@ -69,12 +79,13 @@
   <div class="facility-cards">
     <el-row :gutter="20">
       <el-col
-        v-for="item in currentTableData"
+        v-for="item in originTableData"
         :key="item.id"
         :xs="24" :sm="12" :md="8" :lg="6"
         class="card-col"
       >
         <el-card
+            :data="originTableData"
           class="containment-card"
           :body-style="{ padding: '16px' }"
           @click="handleDetail(item)"
@@ -88,12 +99,30 @@
             </div>
             <div class="card-title">
               <h3 class="facility-name">{{ item.facilityName }}</h3>
+
               <el-tag
                 :type="getLevelTagType(item.level)"
                 class="clearance-level"
               >
                 <i class="iconfont icon-security"></i> {{ item.level }}级设施
               </el-tag>
+
+              <el-tag
+                  :type="item.isActive === 1 ? 'success' : 'danger'"
+                  class="status-tag"
+              >
+                <i class="iconfont icon-status"></i> {{ item.isActive === 1 ? '启用' : '停用' }}
+              </el-tag>
+
+              <el-button
+                  type="text"
+                  size="small"
+                  @click.stop="handleEdit(item)"
+                  class="edit-btn"
+              >
+                <i class="iconfont icon-edit"></i> 编辑
+              </el-button>
+
             </div>
           </div>
           <div class="card-content">
@@ -106,8 +135,8 @@
               <span class="value address-text">{{ item.facilityAddress }}</span>
             </div>
             <div class="info-item">
-              <span class="label"><i class="iconfont icon-manager"></i> 负责人ID：</span>
-              <span class="value">{{ item.managerId }}</span>
+              <span class="label"><i class="iconfont icon-manager"></i> 负责人姓名：</span>
+              <span class="value">{{ item.managerName }}</span>
             </div>
             <div class="info-item">
               <span class="label"><i class="iconfont icon-staff"></i> 人员数量：</span>
@@ -135,14 +164,7 @@
             >
               <i class="iconfont icon-scp-list"></i> 异想体
             </el-button>
-            <el-button
-              type="text"
-              size="small"
-              @click.stop="handleEdit(item)"
-              class="edit-btn"
-            >
-              <i class="iconfont icon-edit"></i> 编辑
-            </el-button>
+
           </div>
         </el-card>
       </el-col>
@@ -157,7 +179,7 @@
     :page-sizes="[8, 16, 24]"
     :page-size="pageSize"
     layout="total, sizes, prev, pager, next, jumper"
-    :total="filteredData.length"
+    :total="total"
     prev-text="上一页"
     next-text="下一页"
     class="containment-pagination"
@@ -227,19 +249,18 @@
       class="containment-table"
     >
       <el-table-column prop="id" label="人员ID" width="100"></el-table-column>
-      <el-table-column prop="name" label="姓名" width="150"></el-table-column>
-      <el-table-column prop="role" label="职位"></el-table-column>
-      <el-table-column prop="clearanceLevel" label="权限等级">
+      <el-table-column prop="username" label="姓名" width="150"></el-table-column>
+      <el-table-column prop="level" label="权限等级">
         <template #default="scope">
-          <el-tag :type="getLevelTagType(scope.row.clearanceLevel)" class="clearance-tag">
-            {{ scope.row.clearanceLevel }}级
+          <el-tag :type="getLevelTagType(scope.row.level)" class="clearance-tag">
+            {{ scope.row.level }}级
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="状态">
+      <el-table-column prop="introduction" label="个人简介">
         <template #default="scope">
-          <el-tag :type="getStatusTagType(scope.row.status)" class="status-tag">
-            {{ scope.row.status }}
+          <el-tag :type="getStatusTagType(scope.row.introduction)" class="introduction-tag">
+            {{ scope.row.introduction}}
           </el-tag>
         </template>
       </el-table-column>
@@ -262,21 +283,21 @@
     class="containment-dialog"
   >
     <el-table
-      :data="filteredScps"
+      :data="filteredScp"
       border
       style="width: 100%"
       class="containment-table"
     >
-      <el-table-column prop="scpId" label="SCP编号" width="150"></el-table-column>
+      <el-table-column prop="id" label="异想体编号" width="150"></el-table-column>
       <el-table-column prop="name" label="名称" width="200"></el-table-column>
-      <el-table-column prop="riskLevel" label="危险等级">
+      <el-table-column prop="level" label="危险等级">
         <template #default="scope">
-          <el-tag :type="getRiskTagType(scope.row.riskLevel)" class="risk-tag">
-            {{ scope.row.riskLevel }}
+          <el-tag :type="getRiskTagType(scope.row.level)" class="risk-tag">
+            {{ scope.row.level }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="containmentStatus" label="收容状态"></el-table-column>
+      <el-table-column prop="description" label="异想体简介"></el-table-column>
       <el-table-column prop="lastCheck" label="上次检查" width="180"></el-table-column>
     </el-table>
     <template #footer>
@@ -319,6 +340,18 @@
       <el-form-item label="负责人ID">
         <el-input v-model="editForm.managerId"></el-input>
       </el-form-item>
+
+      <div class="switch-container">
+        <span class="label-text">设施状态:</span>
+          <el-switch
+              v-model="editForm.isActive"
+              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+              :active-value="1"
+              :inactive-value="0"
+
+          />
+      </div>
+
     </el-form>
     <template #footer>
       <el-button @click="editDialogVisible = false">取消</el-button>
@@ -356,6 +389,7 @@
       <el-form-item label="负责人ID">
         <el-input v-model="createForm.managerId"></el-input>
       </el-form-item>
+
     </el-form>
     <template #footer>
       <el-button @click="createDialogVisible = false">取消</el-button>
@@ -367,6 +401,18 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import * as userApi from '@/api/user';
+import * as facilityApi from '@/api/facility'
+import * as abnormality from '@/api/abnormality'
+import router from '@/router';
+import type {User} from '@/api/user.ts';
+import {findUser} from "@/api/user";
+import {findFacility} from "@/api/facility";
+
+
+
+
+const total = ref(0);
 
 // 定义核心接口
 interface Facility {
@@ -375,14 +421,30 @@ interface Facility {
   facilityAddress: string;
   level: number;
   managerId: number;
+  managerName: string;
+  isActive: number;
   avatar: string;
 }
+const facility = ref<Facility>(
+    {
+      id: 0,
+      facilityName: '',
+      facilityAddress: '',
+      level: 0,
+      managerId: 0,
+      managerName: '',
+      isActive:1,
+      avatar: ''
+    }
+);
+
+
+
 
 interface Staff {
   id: number;
   facilityId: number;
   name: string;
-  role: string;
   clearanceLevel: number;
   status: string;
 }
@@ -397,11 +459,18 @@ interface SCP {
 }
 
 // 搜索表单数据
-const searchForm = reactive({
+const searchForm = ref({
+  id:null,
   facilityName: '',
-  level: '',
+  level:null,
   facilityAddress: '',
-  managerId: ''
+  managerId:null,
+  managerName: '',
+  isActive:'',
+  pageNum:1,
+  pageSize:10,
+  minLevel:null ,
+  maxLevel:null
 });
 
 // 原始数据
@@ -420,61 +489,70 @@ const currentFacilityId = ref(0);
 const currentFacilityName = ref('');
 const editDialogVisible = ref(false);
 const editForm = ref<Facility>({
-  id: 0,
+  id:0,
   facilityName: '',
   facilityAddress: '',
   level: 0,
   managerId: 0,
+  managerName: '',
+  isActive:1,
   avatar: ''
 });
+const createFormRef = ref();
 const editFormRef = ref();
 const createDialogVisible = ref(false);
-const createForm = ref<Facility>({
-  id: 0,
+const createForm = reactive({
+  id:0 ,
   facilityName: '',
   facilityAddress: '',
   level: 0,
   managerId: 0,
+  managerName: '',
+  isActive:1,
   avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 });
-const createFormRef = ref();
 
-// 模拟数据初始化
-const initData = () => {
-  // 设施数据
-  originTableData.value = [
-    {
-      id: 1,
-      facilityName: 'Site-19',
-      facilityAddress: '美国·罗得岛州',
-      level: 5,
-      managerId: 101,
-      avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
-    },
-    {
-      id: 2,
-      facilityName: 'Site-17',
-      facilityAddress: '美国·亚利桑那州',
-      level: 4,
-      managerId: 102,
-      avatar: 'https://cube.elemecdn.com/e/f5/3f28f2a7e22d5c5c3d7b9e0e7b3e9png.png'
-    },
-    {
-      id: 3,
-      facilityName: 'Area-01',
-      facilityAddress: '美国·华盛顿州',
-      level: 5,
-      managerId: 103,
-      avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+
+// 数据初始化
+const initData = async() => {
+  facilityApi.getFacilityList(currentPage.value, pageSize.value).then((response) => {
+    console.log(response)
+    if(response.code === 200) {
+      originTableData.value = response.data.list;
+      total.value = response.data.total;
+      ElMessage.success('数据更新成功')
+      console.log('获取数据',response)
+    }else{
+      ElMessage.error('发生错误：',response.message);
     }
-  ];
+  }).catch((e) => {
+        console.log('错误',e)
+        ElMessage.error(e.message);
+      }
+
+)
+  // getFacilitystaffList(currentPage.value, pageSize.value).then((response) => {
+  //   console.log(response)
+  //   if(response.code === 200) {
+  //     originTableData.value = response.data.list;
+  //     total.value = response.data.total;
+  //     ElMessage.success('数据更新成功')
+  //     console.log('获取数据',response)
+  //   }else{
+  //     ElMessage.error('发生错误：',response.message);
+  //   }
+  // }).catch((e) => {
+  //       console.log('错误',e)
+  //       ElMessage.error(e.message);
+  //     }
+  // )
 
   // 工作人员数据
   staffList.value = [
-    { id: 1001, facilityId: 1, name: 'Dr. Bright', role: '高级研究员', clearanceLevel: 4, status: '在岗' },
-    { id: 1002, facilityId: 1, name: 'MTF-ε11队长', role: '安保主管', clearanceLevel: 3, status: '任务中' },
-    { id: 1003, facilityId: 2, name: 'Dr. Clef', role: '异常研究员', clearanceLevel: 4, status: '在岗' },
-    { id: 1004, facilityId: 3, name: 'O5-13', role: '站点主管', clearanceLevel: 5, status: '在岗' }
+    { id: 1001, facilityId: 1, name: 'Dr. Bright', clearanceLevel: 4, status: '在岗' },
+    { id: 1002, facilityId: 1, name: 'MTF-ε11队长',  clearanceLevel: 3, status: '任务中' },
+    { id: 1003, facilityId: 2, name: 'Dr. Clef', clearanceLevel: 4, status: '在岗' },
+    { id: 1004, facilityId: 3, name: 'O5-13',  clearanceLevel: 5, status: '在岗' }
   ];
 
   // 异想体数据
@@ -484,8 +562,35 @@ const initData = () => {
     { scpId: 'SCP-096', facilityId: 2, name: '羞涩的人', riskLevel: 'Euclid', containmentStatus: '稳定', lastCheck: '2023-09-29 16:45' },
     { scpId: 'SCP-999', facilityId: 3, name: '痒痒怪', riskLevel: 'Safe', containmentStatus: '稳定', lastCheck: '2023-10-01 09:20' }
   ];
+
+
 };
 
+//获取设施人员
+const getFacilityUser=async(facilityId: number)=>{
+  const staffRes = await userApi.findByFacilityId(facilityId,1,10)
+  console.log(staffRes)
+  if(staffRes.code==200){
+    ElMessage.success('信息加载成功');
+    filteredStaff.value = staffRes.data.list;
+  }else{
+    ElMessage.error('加载失败，请重试');
+
+  }
+}
+//获取设施收容异想体
+const getFacilityAbnormality=async(facilityId: number)=>{
+  const scpRes= await abnormality.findByFacilityId(facilityId,1,10)
+  console.log(scpRes)
+  if(scpRes.code==200){
+    ElMessage.success('信息加载成功');
+    filteredScp.value =scpRes.data.list ;
+  }else{
+    ElMessage.error('加载失败，请重试');
+
+  }
+
+}
 // 初始化数据
 onMounted(() => {
   initData();
@@ -493,41 +598,45 @@ onMounted(() => {
 });
 
 // 搜索过滤
-const filteredData = computed(() => {
-  return originTableData.value.filter(item => {
-    const nameMatch = searchForm.facilityName
-      ? item.facilityName.includes(searchForm.facilityName)
-      : true;
-    const levelMatch = searchForm.level
-      ? item.level === parseInt(searchForm.level)
-      : true;
-    const addressMatch = searchForm.facilityAddress
-      ? item.facilityAddress.includes(searchForm.facilityAddress)
-      : true;
-    const managerMatch = searchForm.managerId
-      ? item.managerId.toString().includes(searchForm.managerId)
-      : true;
-    return nameMatch && levelMatch && addressMatch && managerMatch;
-  });
-});
-
+const handleSearch = () => {
+  console.log('搜索表单',searchForm.value);
+  searchForm.value.pageNum = currentPage.value;
+  searchForm.value.pageSize = pageSize.value;
+  findFacility(searchForm.value).then((response) => {
+    if(response.code === 200) {
+      originTableData.value = response.data.list;
+      total.value = response.data.total;
+      ElMessage.success('搜索成功')
+    }else {
+      ElMessage.error('搜索出错'+response.msg)
+    }
+  }).catch((e) => {
+    console.log('error', e)
+    ElMessage.error('服务器错误',e.msg);
+  })
+}
 // 分页数据
-const currentTableData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  return filteredData.value.slice(start, end);
-});
+
+const handleSizeChange = (val: number) => {
+  pageSize.value = val;
+  currentPage.value = 1;
+  initData(); // 重新加载数据
+};
+
+// 当前页码改变
+const handleCurrentChange = (val: number) => {
+  currentPage.value = val;
+  initData(); // 重新加载数据
+};
+
 
 // 筛选当前设施的工作人员
-const filteredStaff = computed(() => {
-  return staffList.value.filter(item => item.facilityId === currentFacilityId.value);
-});
+const filteredStaff = ref<any[]>([
 
-// 筛选当前设施的异想体
-const filteredScps = computed(() => {
-  return scpList.value.filter(item => item.facilityId === currentFacilityId.value);
-});
+])
+const filteredScp = ref<any[]>([
 
+])
 // 工具方法：获取人员数量
 const getStaffCount = (facilityId: number) => {
   return staffList.value.filter(item => item.facilityId === facilityId).length;
@@ -555,14 +664,10 @@ const getRiskTagType = (level: string) => {
 };
 
 // 事件处理方法
-const handleSearch = () => { currentPage.value = 1; };
 const handleReset = () => {
   Object.keys(searchForm).forEach(key => searchForm[key as keyof typeof searchForm] = '');
   currentPage.value = 1;
 };
-
-const handleSizeChange = (val: number) => { pageSize.value = val; currentPage.value = 1; };
-const handleCurrentChange = (val: number) => { currentPage.value = val; };
 
 const handleDetail = (row: Facility) => {
   selectedFacility.value = row;
@@ -572,12 +677,14 @@ const handleDetail = (row: Facility) => {
 const handleStaffList = (facilityId: number) => {
   currentFacilityId.value = facilityId;
   currentFacilityName.value = originTableData.value.find(f => f.id === facilityId)?.facilityName || '';
+  getFacilityUser(facilityId)
   staffDialogVisible.value = true;
 };
 
 const handleScpList = (facilityId: number) => {
   currentFacilityId.value = facilityId;
   currentFacilityName.value = originTableData.value.find(f => f.id === facilityId)?.facilityName || '';
+  getFacilityAbnormality(facilityId)
   scpDialogVisible.value = true;
 };
 
@@ -587,39 +694,52 @@ const handleEdit = (row: Facility) => {
 };
 
 const saveEdit = () => {
-  const index = originTableData.value.findIndex(item => item.id === editForm.value.id);
-  if (index !== -1) {
-    originTableData.value[index] = { ...editForm.value };
-    ElMessage.success('设施信息更新成功');
-    editDialogVisible.value = false;
-  }
+  console.log('提交编辑表单',editForm.value);
+  facilityApi.updateFacility(editForm.value).then((response) => {
+    if(response.code === 200) {
+      originTableData.value = response.data.list;
+      ElMessage.success('数据更新成功')
+      console.log('获取数据',response)
+    }
+  }).catch((e) => {
+        console.log('错误',e)
+        ElMessage.error(e.msg);
+      }
+  )
 };
 
 const handleCreate = () => {
+  createDialogVisible.value = true;};
   // 重置表单
-  createForm.value = {
-    id: 0,
-    facilityName: '',
-    facilityAddress: '',
-    level: 0,
-    managerId: 0,
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
-  };
-  createDialogVisible.value = true;
-};
-
 const saveCreate = () => {
-  // 生成新ID
-  const newId = Math.max(0, ...originTableData.value.map(item => item.id)) + 1;
-  createForm.value.id = newId;
+  if (!createFormRef.value) return;
+  createFormRef.value.validate((valid) => {
+    if (valid) {
+      // 创建新设施对象
+      const newFacility = {
+        ...createForm
+      };
 
-  // 添加到列表
-  originTableData.value.push({ ...createForm.value });
+          facilityApi.addFacility(newFacility).then((response) => {
+        if (response.code === 200) {
+          console.log("新建设施成功:", newFacility);
+          ElMessage.success('新建设施成功');
+          createDialogVisible.value = false;
+          initData()
+          createFormRef.value.resetFields();
+        }
+          }).catch((error) => {
+            console.log('服务器错误',error);
+            ElMessage.error('服务器错误')
+          })
+    }
+  })
+}
 
-  // 提示并关闭弹窗
-  ElMessage.success('新建设施成功');
-  createDialogVisible.value = false;
-};
+
+
+
+
 </script>
 
 <style scoped>

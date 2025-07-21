@@ -108,6 +108,8 @@ export const findByName=async (name:string)=>{
     })
 }
 
+
+
 // 更新密码
 export const updatePassword=async(body:any)=>{
     return request.post('/user/updatePassword', body)
@@ -116,6 +118,15 @@ export const updatePassword=async(body:any)=>{
 // id查询
 export function findUserById(id:number){
     return request.get(`/user/${id}`)
+}
+export const findByFacilityId  =async (id:number,pageNum: number, pageSize: number)=>{
+    return request.get(`/user/findByFacilityId`,{
+        params:{
+            facilityId: id,
+            pageNum: pageNum,
+            pageSize: pageSize,
+        }
+    })
 }
 
 // 编辑下属用户

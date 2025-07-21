@@ -57,11 +57,11 @@ export function deleteAbnormality(id: number) {
 }
 
 // 条件查询异想体
-export function findAbnormality(abnormality: AbnormalityParam){
-    if(abnormality.minLevel === null) abnormality.minLevel = 1;
-    if(abnormality.maxLevel === null) abnormality.maxLevel = 5;
+export function findAbnormalityByConditions(params:any){
+    // if(abnormality.minLevel === null) abnormality.minLevel = 1;
+    // if(abnormality.maxLevel === null) abnormality.maxLevel = 5;
     return request.get('/abnormality/conditions', {
-        params:abnormality
+        params,
     })
 }
 

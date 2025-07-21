@@ -75,11 +75,11 @@
           clearable
           class="search-select"
         >
-          <el-option label="Keter" value="Keter" />
-          <el-option label="Euclid" value="Euclid" />
-          <el-option label="Safe" value="Safe" />
-          <el-option label="Thaumiel" value="Thaumiel" />
-          <el-option label="Neutralized" value="Neutralized" />
+          <el-option label="安全" value="1" />
+          <el-option label="未解明" value="2" />
+          <el-option label="灭世" value="3" />
+          <el-option label="机密" value="4" />
+          <el-option label="无效化" value="5" />
         </el-select>
       </el-form-item>
 
@@ -322,8 +322,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import {getAbnormalityList, getAbnormalityById, addAbnormality, deleteAbnormality, updateAbnormality} from "@/api/abnormality.ts";
-import { ElMessage, ElMessageBox, type UploadProps } from 'element-plus';
+import {getAbnormalityList, getAbnormalityById, addAbnormality, deleteAbnormality, updateAbnormality,findAbnormalityByConditions} from "@/api/abnormality.ts";
+import { ElMessage, ElMessageBox, type UploadProps, } from 'element-plus';
 
 // 表格数据表单
 const tableData = ref<abnormality[]>([
@@ -501,14 +501,16 @@ const abnormalityFormRef = ref(null)
 
 // 筛选条件表单
 const filterForm = ref({
-  id: 0,
+  id: null,
   name: '',
-  level: 0,
-  description: '',
-  manageMethod: '',
-  notes: '',
-  facilityId: 0,
-  imageName: "",
+  level: null,
+  pageNum: 1,
+  pageSize: 10
+  // description: '',
+  // manageMethod: '',
+  // notes: '',
+  // facilityId: 0,
+  // imageName: "",
 })
 
 // 定义异想体
@@ -532,7 +534,7 @@ const newAbnormalityForm  = ref({
   manageMethod: '',
   notes: '',
   facilityId: 0,
-  imgName: "",
+  imgeName: "",
 })
 
 // 异想体表单规则
@@ -571,14 +573,16 @@ const tableHeaderStyle = () => {
 
 const resetFilter = () => {
   filterForm.value = {
-    id: 0,
+    id: null,
     name: '',
-    level: 0,
-    description: '',
-    manageMethod: '',
-    notes: '',
-    facilityId: 0,
-    imageName: "",
+    level: null,
+    pageNum: 1,
+    pageSize: 10
+    // description: '',
+    // manageMethod: '',
+    // notes: '',
+    // facilityId: 0,
+    // imageName: "",
   }
   catchData()
 }
@@ -632,13 +636,17 @@ const submitAbnormality = async() => {
 const handleSizeChange = (val: number) => {
   pageSize.value = val
   console.log(val)
-  catchData()
+  // catchData()
+  const hasSearch = !!filterForm.value.id || !!filterForm.value.name || filterForm.value.level !== null;
+  hasSearch ? handleSearch() : catchData();
 }
 
 const handleCurrentChange = (val: number) => {
   console.log(val)
   pageNum.value = val
-  catchData()
+  // catchData()
+  const hasSearch = !!filterForm.value.id || !!filterForm.value.name || filterForm.value.level !== null;
+  hasSearch ? handleSearch() : catchData();
 }
 
 const getClearLevel = (value: number) => {
@@ -668,7 +676,7 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
   imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   console.log(response)
   if(response.code === 200) {
-    newAbnormalityForm.value.imgName = response.data
+    newAbnormalityForm.value.imgeName = response.data
     ElMessage.success("图片上传成功")
   }else{
     ElMessage.error(response.msg)
@@ -703,18 +711,23 @@ const getLevelType = (value:number) => {
 
 // 搜索
 const handleSearch = () => {
-  getAbnormalityById(filterForm.value.id).then((res)=>{
-    if(res.code === 200){
-      tableData.value =  res.data.list
-      ElMessage.success('搜索结果更新成功')
-    }else {
-      ElMessage.error(res.msg)
+  console.log('搜索表单', filterForm.value);
+  filterForm.value.pageNum = pageNum.value;
+  filterForm.value.pageSize = pageSize.value;
+  findAbnormalityByConditions(filterForm.value).then((response) => {
+    if (response.code === 200) {
+      tableData.value = response.data.list;
+      total.value = response.data.total;
+      ElMessage.success('搜索成功');
+    } else {
+      ElMessage.error('搜索出错' + response.msg);
     }
-  }).catch((err)=>{
-    console.log(err)
-    ElMessage.error(err.msg)
-  })
+  }).catch((e) => {
+    console.log('error', e);
+    ElMessage.error('服务器错误', e.msg);
+  });
 }
+
 </script>
 
 <style scoped>

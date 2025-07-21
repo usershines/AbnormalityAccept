@@ -11,20 +11,20 @@ export interface Equipment {
   description: string;
 }
 export interface EquipmentParam {
-  id?: number | null;
-  type?: number | null;
-  name?: string | null;
-  state?: number | null;
-  applicationRequirement?: string | null;
-  masterId?: number | null;
-  description?: string | null;
+  id: number | null;
+  type: number | null;
+  name: string | null;
+  state: number | null;
+  applicationRequirement: string | null;
+  masterId: number | null;
+  description: string | null;
 
   // 多值查询参数
-  stateList?: number[] | null;
-  typeList?: number[] | null;
+  stateList: number[] | null;
+  typeList: number[] | null;
 
-  pageNum?: number | null;
-  pageSize?: number | null;
+  pageNum: number | null;
+  pageSize: number | null;
 }
 
 
@@ -93,4 +93,10 @@ export function searchEquipmentByName(name: string) {
       name: name,
     }
   });
+}
+
+export function findEquipmentByConditions(Params: EquipmentParam){
+  return request.get('/equipment/conditions', {
+    params: Params,
+  })
 }

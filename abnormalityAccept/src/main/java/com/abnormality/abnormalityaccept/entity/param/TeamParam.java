@@ -16,6 +16,7 @@ public class TeamParam {
     private String name;
     private Integer status;
     private Long resolvingQuestId;
+    private Long resolvingQuestName;
     private Integer level;
     private String description;
     private Long leaderId;

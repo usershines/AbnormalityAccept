@@ -63,6 +63,10 @@ const router = createRouter({
               path: 'equipment',
               component: Equipment,
             },
+            {
+              path:'personal',
+              component:PersonalPage ,
+            }
 
           ]
         },
@@ -95,11 +99,7 @@ const router = createRouter({
             },
           ]
         },
-        {
-          path:'personal',
-          name: 'personal',
-          component:PersonalPage ,
-        }
+
       ]
     },
     {

@@ -64,7 +64,13 @@
           <span>装备管理</span>
         </template>
       </el-menu-item>
-
+      <!-- 个人主页 -->
+      <el-menu-item index="/workPlace/personal">
+        <template #title>
+          <el-icon><User /></el-icon>
+          <span>个人主页</span>
+        </template>
+      </el-menu-item>
       <!-- 设施管理 -->
       <el-menu-item index="/workPlace/facility">
         <el-icon><OfficeBuilding /></el-icon>

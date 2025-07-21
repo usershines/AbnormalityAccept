@@ -1,192 +1,197 @@
 <template>
-  <!-- 搜索表单区域 - 暗色主题 -->
-  <el-form
-      :model="searchForm"
-      inline
-      class="search-form"
-      style="margin-bottom: 16px;"
-  >
-    <el-form-item label="任务名称" class="search-item">
-      <el-input
-          v-model="searchForm.questName"
-          placeholder="请输入任务名称"
-          clearable
-          class="search-input"
-      ></el-input>
-    </el-form-item>
+  <el-card style="margin-top: -20px; height: 750px">
+    <!-- 搜索表单区域 - 暗色主题 -->
+    <template #header>
+      <el-form
+          :model="searchForm"
+          inline
+          style="margin-bottom: -25px;"
+      >
+        <el-form-item label="任务名称" class="search-item">
+          <el-input
+              v-model="searchForm.questName"
+              placeholder="请输入任务名称"
+              clearable
+              class="search-input"
+          ></el-input>
+        </el-form-item>
 
 
-    <el-form-item label="任务代号" class="search-item">
-      <el-input
-          v-model="searchForm.questCode"
-          placeholder="请输入任务代号"
-          clearable
-          class="search-input"
-      ></el-input>
-    </el-form-item>
+        <el-form-item label="任务代号" class="search-item">
+          <el-input
+              v-model="searchForm.questCode"
+              placeholder="请输入任务代号"
+              clearable
+              class="search-input"
+          ></el-input>
+        </el-form-item>
 
-    <el-form-item label="任务等级" class="search-item">
-      <el-select
-          v-model="searchForm.questLevel"
-          placeholder="请选择任务等级"
-          clearable
-          class="search-select"
-      >
-        <el-option
-            v-for="(label, value) in levelMap"
-            :key="value"
-            :label="label"
-            :value="Number(value)"
-        ></el-option>
-      </el-select>
-    </el-form-item>
+        <el-form-item label="任务等级" class="search-item">
+          <el-select
+              v-model="searchForm.questLevel"
+              placeholder="请选择任务等级"
+              clearable
+              class="search-select"
+          >
+            <el-option
+                v-for="(label, value) in levelMap"
+                :key="value"
+                :label="label"
+                :value="Number(value)"
+            ></el-option>
+          </el-select>
+        </el-form-item>
 
-    <el-form-item label="任务状态" class="search-item">
-      <el-select
-          v-model="searchForm.state"
-          placeholder="请选择任务状态"
-          clearable
-          class="search-select"
-      >
-        <el-option
-            v-for="(label, value) in statusMap"
-            :key="value"
-            :label="label"
-            :value="Number(value)"
-        ></el-option>
-      </el-select>
-    </el-form-item>
+        <el-form-item label="任务状态" class="search-item">
+          <el-select
+              v-model="searchForm.state"
+              placeholder="请选择任务状态"
+              clearable
+              class="search-select"
+          >
+            <el-option
+                v-for="(label, value) in statusMap"
+                :key="value"
+                :label="label"
+                :value="Number(value)"
+            ></el-option>
+          </el-select>
+        </el-form-item>
 
-    <el-form-item>
-      <el-button
-          type="primary"
-          @click="handleSearch"
-          class="search-button"
-      >
-        <i class="iconfont icon-search"></i> 搜索
-      </el-button>
-      <el-button
-          @click="handleReset"
-          class="reset-button"
-      >
-        <i class="iconfont icon-reset"></i> 重置
-      </el-button>
-      <el-button
-          type="primary"
-          @click="openCreateDialog"
-          style="border-radius: 8px; padding: 8px 20px;"
-      >
-        <i class="iconfont icon-plus"></i> 新建任务
-      </el-button>
-    </el-form-item>
-  </el-form>
+        <el-form-item>
+          <el-button
+              type="primary"
+              @click="handleSearch"
+              class="search-button"
+          >
+            <i class="iconfont icon-search"></i> 搜索
+          </el-button>
+          <el-button
+              @click="handleReset"
+              class="reset-button"
+          >
+            <i class="iconfont icon-reset"></i> 重置
+          </el-button>
+          <el-button
+              type="primary"
+              @click="openCreateDialog"
+              style="border-radius: 8px; padding: 8px 20px;"
+          >
+            <i class="iconfont icon-plus"></i> 新建任务
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </template>
 
-  <!-- 卡片列表区域 - 任务单元风格 -->
-  <div class="quest-cards">
-    <el-row :gutter="30">
-      <el-col
-          v-for="item in originTableData"
-          :key="item.id"
-          :xs="24"
-          :sm="12"
-          :md="8"
-          :lg="6"
-          class="card-col"
-      >
-        <el-card
-            class="containment-card"
-            :body-style="{ padding: '20px' }"
-            @dblclick="handleDetail(item)"
-        >
-          <!-- 卡片头部：头像 + 标题 + 等级标签 -->
-          <div class="card-header">
-            <div class="avatar-container">
-              <div class="security-badge">
-                <i class="iconfont icon-lock"></i>
+    <template #default>
+      <!-- 卡片列表区域 - 任务单元风格 -->
+      <div class="quest-cards">
+        <el-row :gutter="10">
+          <el-col
+              v-for="item in originTableData"
+              :key="item.id"
+              :span="6"
+              class="card-col"
+          >
+            <el-card
+                class="containment-card"
+                @click="handleDetail(item)"
+            >
+              <!-- 卡片头部：头像 + 标题 + 等级标签 -->
+              <div class="card-header">
+                <div class="avatar-container">
+                  <div class="security-badge">
+                    <i class="iconfont icon-lock"></i>
+                  </div>
+                  <el-avatar
+                      :size="64"
+                      src="selectedQuest.avatar"
+                      class="quest-avatar"
+                  />
+                </div>
+                <div class="info-item">
+                  <span class="label"><i class="iconfont icon-questCode"></i> 任务代号：</span>
+                  <span class="value">{{ item.questCode }}</span>
+                </div>
               </div>
-              <el-avatar
-                  :size="64"
-                  src="selectedQuest.avatar"
-                  class="quest-avatar"
-              />
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-questCode"></i> 任务代号：</span>
-              <span class="value">{{ item.questCode }}</span>
-            </div>
-          </div>
 
-          <!-- 卡片内容：编号、状态、截止日期、负责人 -->
-          <div class="card-content">
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-questName"></i> 任务名称：</span>
-              <span class="value">{{ item.questName }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-id"></i> 序号：</span>
-              <span class="value">{{ item.id }}</span>
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-level"></i> 等级：</span>
-              <el-tag :type="getLevelTagType(item.questLevel)" class="level-tag">
-                {{ levelMap[item.questLevel] || '未知' }}
-              </el-tag>
-            </div>
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-status"></i> 状态：</span>
-              <el-tag :type="getStatusTagType(item.state)" class="status-tag">
-                {{ statusMap[item.state] || '未知' }}
-              </el-tag>
-            </div>
+              <!-- 卡片内容：编号、状态、截止日期、负责人 -->
+              <div class="card-content">
+                <div class="info-item">
+                  <span class="label"><i class="iconfont icon-questName"></i> 任务名称：</span>
+                  <span class="value">{{ item.questName }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label"><i class="iconfont icon-id"></i> 序号：</span>
+                  <span class="value">{{ item.id }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label"><i class="iconfont icon-level"></i> 等级：</span>
+                  <el-tag :type="getLevelTagType(item.questLevel)" class="level-tag">
+                    {{ levelMap[item.questLevel] || '未知' }}
+                  </el-tag>
+                </div>
+                <div class="info-item">
+                  <span class="label"><i class="iconfont icon-status"></i> 状态：</span>
+                  <el-tag :type="getStatusTagType(item.state)" class="status-tag">
+                    {{ statusMap[item.state] || '未知' }}
+                  </el-tag>
+                </div>
 
-            <div class="info-item">
-              <span class="label"><i class="iconfont icon-resolvingByTeamName"></i> 执行小队：</span>
-              <span class="value">{{ item.resolvingByTeamName }}</span>
-            </div>
-<!--            <div class="info-item">-->
-<!--              <span class="label"><i class="iconfont icon-description"></i> 描述：</span>-->
-<!--              <span class="value">{{ item.questDescription }}</span>-->
-<!--            </div>-->
-          </div>
+                <div class="info-item">
+                  <span class="label"><i class="iconfont icon-resolvingByTeamName"></i> 执行小队：</span>
+                  <span class="value">{{ item.resolvingByTeamName }}</span>
+                </div>
+                <!--            <div class="info-item">-->
+                <!--              <span class="label"><i class="iconfont icon-description"></i> 描述：</span>-->
+                <!--              <span class="value">{{ item.questDescription }}</span>-->
+                <!--            </div>-->
+              </div>
 
-          <!-- 操作按钮 -->
-          <div class="card-actions">
-            <el-button
-                type="text"
-                size="small"
-                @click.stop="handleEdit(item)"
-                class="edit-btn"
-            >
-              <i class="iconfont icon-edit"></i> 编辑
-            </el-button>
-            <el-button
-                type="text"
-                size="small"
-                class="delete-btn"
-                @click.stop="handleDelete(item)"
-            >
-              <i class="iconfont icon-delete"></i> 删除
-            </el-button>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-  </div>
+              <!-- 操作按钮 -->
+              <div class="card-actions">
+                <el-button
+                    type="text"
+                    size="small"
+                    @click.stop="handleEdit(item)"
+                    class="edit-btn"
+                >
+                  <i class="iconfont icon-edit"></i> 编辑
+                </el-button>
+                <el-button
+                    type="text"
+                    size="small"
+                    class="delete-btn"
+                    @click.stop="handleDelete(item)"
+                >
+                  <i class="iconfont icon-delete"></i> 删除
+                </el-button>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </div>
+    </template>
 
-  <!-- 分页组件区域 -->
-  <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      :page-sizes="[8, 16, 24]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      prev-text="上一页"
-      next-text="下一页"
-      class="containment-pagination"
-  >
-  </el-pagination>
+
+    <!-- 分页组件区域 -->
+    <template #footer>
+      <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[8, 16, 24]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          prev-text="上一页"
+          next-text="下一页"
+          class="containment-pagination"
+      >
+      </el-pagination>
+    </template>
+  </el-card>
+
 
   <!-- 任务详情弹窗 - 任务单元报告风格 -->
   <el-dialog
@@ -208,13 +213,13 @@
           <div class="header-info">
             <h2 class="quest-title">{{ selectedQuest.questName }}</h2>
             <div class="info-row">
-              <span><i class="iconfont icon-questCode"></i> 任务代号：{{ selectedQuest.questCode }}</span>
-              <span><i class="iconfont icon-questLevel"></i> 等级：
+              <span>任务代号：{{ selectedQuest.questCode }}</span>
+              <span style="margin-top: 5px">等级：
               <el-tag :type="getLevelTagType(selectedQuest.questLevel)" class="level-tag">
                 {{ levelMap[selectedQuest.questLevel] || '未知' }}
               </el-tag>
             </span>
-              <span><i class="iconfont icon-state"></i> 状态：
+              <span style="margin-top: 5px">状态：
               <el-tag :type="getStatusTagType(selectedQuest.state)" class="state-tag">
                 {{ statusMap[selectedQuest.state] || '未知' }}
               </el-tag>
@@ -281,20 +286,20 @@
 
       <el-form-item label="任务等级" prop="questLevel">
         <el-radio-group v-model="createForm.questLevel">
-          <el-radio :label="1">D级</el-radio>
-          <el-radio :label="2">C级</el-radio>
-          <el-radio :label="3">B级</el-radio>
-          <el-radio :label="4">A级</el-radio>
-          <el-radio :label="5">S级</el-radio>
+          <el-radio :label=1>D级</el-radio>
+          <el-radio :label=2>C级</el-radio>
+          <el-radio :label=3>B级</el-radio>
+          <el-radio :label=4>A级</el-radio>
+          <el-radio :label=5>S级</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <el-form-item label="任务状态" prop="state">
         <el-radio-group v-model="createForm.state">
-          <el-radio :label="0">未开始</el-radio>
-          <el-radio :label="1">进行中</el-radio>
-          <el-radio :label="2">已完成</el-radio>
-          <el-radio :label="3">已取消</el-radio>
+          <el-radio :label=0>未开始</el-radio>
+          <el-radio :label=1>进行中</el-radio>
+          <el-radio :label=2>已完成</el-radio>
+          <el-radio :label=3>已取消</el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -404,6 +409,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted, nextTick } from 'vue';
+import {Tooltip} from 'element-ui'
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   getQuestList,
@@ -912,6 +918,8 @@ const handleEditSubmit = async () => {
 
 .header-info {
   color: #c0d1f2;
+  display: flex;
+  flex-direction: column;
 }
 
 .quest-title {
@@ -920,11 +928,13 @@ const handleEditSubmit = async () => {
 }
 
 .info-row {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 5px;
 }
 
 .description {
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .detail-section {
@@ -964,13 +974,8 @@ const handleEditSubmit = async () => {
   border-bottom: 1px solid #304878;
 }
 
-/* 卡片样式 */
-.quest-cards {
-  padding: 20px;
-}
-
 .card-col {
-  margin-bottom: 30px;
+  margin-bottom: 0px;
 }
 
 .containment-card {
@@ -978,6 +983,8 @@ const handleEditSubmit = async () => {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
   border: none;
+  height: 300px;
+  margin-top: 5px;
 }
 
 .containment-card:hover {
@@ -1042,8 +1049,7 @@ const handleEditSubmit = async () => {
 
     .label {
       color: #999;
-      width: 60px;
-      text-align: right;
+
       margin-right: 8px;
       i {
         margin-right: 4px;
@@ -1053,6 +1059,10 @@ const handleEditSubmit = async () => {
     .value {
       color: #666;
       flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 200px;
     }
 
     .status-tag {
@@ -1084,9 +1094,9 @@ const handleEditSubmit = async () => {
 
 /* 分页样式 */
 .containment-pagination {
-  margin-top: 20px;
+  margin-top: -10px;
   display: flex;
-  justify-content: center;
+  justify-content: right;
 }
 </style>
 

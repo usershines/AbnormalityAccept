@@ -679,6 +679,7 @@ const handleReset = () => {
     maxLevel:null
   }
   currentPage.value = 1;
+  initData()
 };
 
 const handleDetail = (row: Facility) => {
@@ -722,7 +723,7 @@ const saveEdit = () => {
 
 const handleCreate = () => {
   createDialogVisible.value = true;};
-  // 重置表单
+
 const saveCreate = () => {
   if (!createFormRef.value) return;
   createFormRef.value.validate((valid) => {

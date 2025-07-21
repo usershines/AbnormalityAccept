@@ -15,6 +15,7 @@ public class FacilityParam {
     private String facilityAddress;
     private Integer level;
     private Long managerId;
+    private String managerName;
 
     //范围查询参数
     private Integer minLevel;

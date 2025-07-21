@@ -29,7 +29,7 @@
           <el-menu-item index="/email/inbox">
             <el-icon><MessageBox /></el-icon>
             <span>收件箱</span>
-            <span class="unread-count">12</span>
+            <span v-if="unreadCount > 0" class="unread-count">{{ unreadCount }}</span>
           </el-menu-item>
 
           <el-menu-item index="/email/sent">
@@ -69,6 +69,32 @@
 import {
   MessageBox, Promotion, Edit, Delete, Warning
 } from '@element-plus/icons-vue'
+
+import { countUnreadEmail } from '@/api/email'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+
+const unreadCount = ref(0) // 未读邮件数量
+let timer: number // 定时器
+
+onMounted(() => {
+  fetchUnreadCount()
+  // 每30秒刷新一次未读数量
+  timer = setInterval(fetchUnreadCount, 30000)
+})
+
+onBeforeUnmount(() => {
+  clearInterval(timer)
+})
+
+const fetchUnreadCount = () => {
+  countUnreadEmail().then(res => {
+    if (res.code === 200) {
+      unreadCount.value = res.data
+    }
+  }).catch(err => {
+    console.error('获取未读邮件数量失败', err)
+  })
+}
 
 const handleOpen = (key: string, keyPath: string[]) => {
   console.log('展开菜单:', key, keyPath)

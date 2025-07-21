@@ -66,7 +66,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {Promotion, Search, Refresh} from '@element-plus/icons-vue'
-import {findEmailBySender} from "@/api/email.ts";
+import {findEmailOneself} from "@/api/email.ts";
 import {ElMessage} from "element-plus";
 
 // 邮件类型定义
@@ -93,18 +93,17 @@ const total = ref(0)
 
 // 刷新方法 获取数据
 const catchData = () => {
-  if (username.value !== '') {
-    findEmailBySender(username.value,currentPage.value, pageSize.value).then((res) => {
-      if(res.code === 200){
-        emails.value =  res.data.list
-        total.value =  res.data.total
-        ElMessage.success('获取邮件成功')
-      }
-    }).catch(e => {
-      ElMessage.error(e.msg)
-      console.log(e)
-    })
-  }
+  // 使用新的接口 findEmailOneself
+  findEmailOneself(currentPage.value, pageSize.value).then((res) => {
+    if(res.code === 200){
+      emails.value =  res.data.list
+      total.value =  res.data.total
+      ElMessage.success('获取邮件成功')
+    }
+  }).catch(e => {
+    ElMessage.error(e.msg)
+    console.log(e)
+  })
 }
 
 // 清空搜索栏

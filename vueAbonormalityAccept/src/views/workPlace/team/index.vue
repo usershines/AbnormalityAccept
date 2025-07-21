@@ -25,11 +25,11 @@
               clearable
               class="search-select"
           >
-            <el-option label="O5议会" value="5"></el-option>
-            <el-option label="A级" value="4"></el-option>
-            <el-option label="B级" value="3"></el-option>
-            <el-option label="C级" value="2"></el-option>
-            <el-option label="D级" value="1"></el-option>
+            <el-option label="O5议会" value=5></el-option>
+            <el-option label="A级" value=4></el-option>
+            <el-option label="B级" value=3></el-option>
+            <el-option label="C级" value=2></el-option>
+            <el-option label="D级" value=1></el-option>
           </el-select>
         </el-form-item>
 
@@ -40,10 +40,10 @@
               clearable
               class="search-select"
           >
-            <el-option label="空闲" value="0"></el-option>
-            <el-option label="任务中" value="1"></el-option>
-            <el-option label="无法活动" value="2"></el-option>
-            <el-option label="未知" value="3"></el-option>
+            <el-option label="空闲" value=0></el-option>
+            <el-option label="任务中" value=1></el-option>
+            <el-option label="无法活动" value=2></el-option>
+            <el-option label="未知" value=3></el-option>
           </el-select>
         </el-form-item>
 
@@ -402,12 +402,14 @@ const searchForm = ref<TeamParam>({
   name: '',
   status: null,
   resolvingQuestId: null,
+  resolvingQuestName: null,
   level: null,
   description: '',
   leaderId: null,
   minLevel: 1,
   maxLevel: 5,
-  statusList: null,
+  isActive: 1,
+  stateList: null,
   pageNum: pageNum.value,
   pageSize: pageSize.value,
 });
@@ -417,6 +419,7 @@ const handleSearch = () => {
   searchForm.value.pageNum = pageNum.value;
   searchForm.value.pageSize = pageSize.value;
 
+  console.log(searchForm.value);
   TeamApi.findTeamByCondition(searchForm.value).then((res) => {
     if (res.code === 200) {
       teamTableData.value = res.data.list;
@@ -472,12 +475,14 @@ const handleReset = () => {
     name: '',
     status: null,
     resolvingQuestId: null,
+    resolvingQuestName: null,
     level: null,
     description: '',
     leaderId: null,
     minLevel: 1,
     maxLevel: 5,
-    statusList: null,
+    isActive: 1,
+    stateList: null,
     pageNum: pageNum.value,
     pageSize: pageSize.value,
   };

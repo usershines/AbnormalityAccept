@@ -1,50 +1,5 @@
 <template>
-  <el-main class="page-container">
-    <div class="page-header">
-      <h2>异想体列表</h2>
-      <div>
-        <el-button type="success" @click="showCreateDialog" class="create-button">
-          <el-icon><Plus /></el-icon> 新建异想体
-        </el-button>
-      </div>
-    </div>
-
-<!--
-    <el-row :gutter="20" class="mb-20">
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Keter 级</h3>
-            <p class="stat-value">{{ levelCounts.Keter }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Euclid 级</h3>
-            <p class="stat-value">{{ levelCounts.Euclid }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Safe 级</h3>
-            <p class="stat-value">{{ levelCounts.Safe }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Thaumiel 级</h3>
-            <p class="stat-value">{{ levelCounts.Thaumiel }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
--->
+  <el-card style="height: 770px;margin-top: -30px">
 
     <!-- 搜索表单区域 -->
     <el-form :inline="true" :model="filterForm" class="search-form">
@@ -75,11 +30,11 @@
           clearable
           class="search-select"
         >
-          <el-option label="Keter" value="Keter" />
-          <el-option label="Euclid" value="Euclid" />
-          <el-option label="Safe" value="Safe" />
-          <el-option label="Thaumiel" value="Thaumiel" />
-          <el-option label="Neutralized" value="Neutralized" />
+          <el-option label="安全" value="1" />
+          <el-option label="未解明" value="2" />
+          <el-option label="灭世" value="3" />
+          <el-option label="机密" value="4" />
+          <el-option label="无效化" value="5" />
         </el-select>
       </el-form-item>
 
@@ -89,6 +44,9 @@
         </el-button>
         <el-button @click="resetFilter" class="reset-button">
           <i class="iconfont icon-reset"></i> 重置
+        </el-button>
+        <el-button type="success" @click="showCreateDialog" class="create-button">
+          <el-icon><Plus /></el-icon> 新建异想体
         </el-button>
       </el-form-item>
     </el-form>
@@ -316,15 +274,15 @@
         </el-button>
       </template>
     </el-dialog>
-  </el-main>
+  </el-card>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
-import {getAbnormalityList, getAbnormalityById, addAbnormality, deleteAbnormality, updateAbnormality} from "@/api/abnormality.ts";
-import { ElMessage, ElMessageBox, type UploadProps } from 'element-plus';
-
+import {getAbnormalityList, getAbnormalityById, addAbnormality, deleteAbnormality, updateAbnormality,findAbnormalityByConditions} from "@/api/abnormality.ts";
+import { ElMessage, ElMessageBox, type UploadProps} from 'element-plus';
+import type { FormInstance } from 'element-plus';
 // 表格数据表单
 const tableData = ref<abnormality[]>([
   {
@@ -496,19 +454,22 @@ const currentAbnormality = ref({
   facilityId: 0,
   imageName: "",
 })
-const abnormalityFormRef = ref(null)
+// 定义表单引用，指定类型为 FormInstance | null
+const abnormalityFormRef = ref<FormInstance | null>(null);
 
 
 // 筛选条件表单
 const filterForm = ref({
-  id: 0,
+  id: null,
   name: '',
-  level: 0,
-  description: '',
-  manageMethod: '',
-  notes: '',
-  facilityId: 0,
-  imageName: "",
+  level: null,
+  pageNum: 1,
+  pageSize: 10
+  // description: '',
+  // manageMethod: '',
+  // notes: '',
+  // facilityId: 0,
+  // imageName: "",
 })
 
 // 定义异想体
@@ -525,14 +486,14 @@ interface abnormality {
 
 // 新异想体表单
 const newAbnormalityForm  = ref({
-  id: 0,
+  // id: 0,
   name: '',
   level: 0,
   description: '',
   manageMethod: '',
   notes: '',
   facilityId: 0,
-  imgName: "",
+  imgeName: "",
 })
 
 // 异想体表单规则
@@ -571,14 +532,16 @@ const tableHeaderStyle = () => {
 
 const resetFilter = () => {
   filterForm.value = {
-    id: 0,
+    id: null,
     name: '',
-    level: 0,
-    description: '',
-    manageMethod: '',
-    notes: '',
-    facilityId: 0,
-    imageName: "",
+    level: null,
+    pageNum: 1,
+    pageSize: 10
+    // description: '',
+    // manageMethod: '',
+    // notes: '',
+    // facilityId: 0,
+    // imageName: "",
   }
   catchData()
 }
@@ -619,26 +582,53 @@ const handleDeleteAbnormality = (item:any) => {
 })}
 
 const submitAbnormality = async() => {
-  const res=await addAbnormality(newAbnormalityForm.value)
-  if(res.code === 200){
-    ElMessage.success('添加成功')
-    catchData()
-    creatDialogVisible.value = false
-  }else{
-    ElMessage.error('添加失败'+res.msg)
-  }
-}
+  if (!abnormalityFormRef.value) return;
 
+  // 先验证表单
+  abnormalityFormRef.value.validate(async (valid: boolean) => {
+    if (!valid) {
+      ElMessage.warning('请填写完整信息');
+      return;
+    }
+    console.log('提交参数:', newAbnormalityForm.value);
+    try {
+      // 提交数据
+      const res = await addAbnormality(newAbnormalityForm.value);
+
+      if (res.code === 200) {
+        ElMessage.success('添加成功');
+        catchData(); // 刷新数据
+        creatDialogVisible.value = false;
+
+        // // 重置表单，避免下次打开时保留旧数据
+        // abnormalityFormRef.value.resetFields();
+      } else {
+        ElMessage.error('添加失败: ' + res.msg);
+      }
+    } catch (error) {
+      ElMessage.error('服务器错误: ' + (error as any).msg || '未知错误');
+    }
+  });
+}
+// 在关闭对话框时重置表单
+const closeDialog = () => {
+  creatDialogVisible.value = false;
+  abnormalityFormRef.value?.resetFields();
+};
 const handleSizeChange = (val: number) => {
   pageSize.value = val
   console.log(val)
-  catchData()
+  // catchData()
+  const hasSearch = !!filterForm.value.id || !!filterForm.value.name || filterForm.value.level !== null;
+  hasSearch ? handleSearch() : catchData();
 }
 
 const handleCurrentChange = (val: number) => {
   console.log(val)
   pageNum.value = val
-  catchData()
+  // catchData()
+  const hasSearch = !!filterForm.value.id || !!filterForm.value.name || filterForm.value.level !== null;
+  hasSearch ? handleSearch() : catchData();
 }
 
 const getClearLevel = (value: number) => {
@@ -668,7 +658,7 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
   imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   console.log(response)
   if(response.code === 200) {
-    newAbnormalityForm.value.imgName = response.data
+    newAbnormalityForm.value.imgeName = response.data
     ElMessage.success("图片上传成功")
   }else{
     ElMessage.error(response.msg)
@@ -703,18 +693,23 @@ const getLevelType = (value:number) => {
 
 // 搜索
 const handleSearch = () => {
-  getAbnormalityById(filterForm.value.id).then((res)=>{
-    if(res.code === 200){
-      tableData.value =  res.data.list
-      ElMessage.success('搜索结果更新成功')
-    }else {
-      ElMessage.error(res.msg)
+  console.log('搜索表单', filterForm.value);
+  filterForm.value.pageNum = pageNum.value;
+  filterForm.value.pageSize = pageSize.value;
+  findAbnormalityByConditions(filterForm.value).then((response) => {
+    if (response.code === 200) {
+      tableData.value = response.data.list;
+      total.value = response.data.total;
+      ElMessage.success('搜索成功');
+    } else {
+      ElMessage.error('搜索出错' + response.msg);
     }
-  }).catch((err)=>{
-    console.log(err)
-    ElMessage.error(err.msg)
-  })
+  }).catch((e) => {
+    console.log('error', e);
+    ElMessage.error('服务器错误', e.msg);
+  });
 }
+
 </script>
 
 <style scoped>
@@ -734,7 +729,6 @@ const handleSearch = () => {
 
 .page-header h2 {
   margin: 0;
-  color: #e0e7ff;
 }
 
 .mb-20 {

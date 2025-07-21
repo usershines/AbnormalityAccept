@@ -201,6 +201,7 @@
         <div style="display: flex;margin-top: -30px;align-items: center">
           <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers?.length.toString() }}人)</h3>
           <el-button style="margin-left: 50px" @click="handleAddMember">添加用户</el-button>
+          <el-button style="margin-left: 50px" @click="handleDetail(selectedTeam)">刷新列表</el-button>
         </div>
         <el-table
           :data="selectedTeamMembers"

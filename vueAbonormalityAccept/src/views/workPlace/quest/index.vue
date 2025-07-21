@@ -1,15 +1,4 @@
 <template>
-  <!-- 顶部操作栏 -->
-  <div style="padding: 0 20px 20px;">
-    <el-button
-        type="primary"
-        @click="openCreateDialog"
-        style="border-radius: 8px; padding: 8px 20px;"
-    >
-      <i class="iconfont icon-plus"></i> 新建任务
-    </el-button>
-  </div>
-
   <!-- 搜索表单区域 - 暗色主题 -->
   <el-form
       :model="searchForm"
@@ -81,6 +70,13 @@
           class="reset-button"
       >
         <i class="iconfont icon-reset"></i> 重置
+      </el-button>
+      <el-button
+          type="primary"
+          @click="openCreateDialog"
+          style="border-radius: 8px; padding: 8px 20px;"
+      >
+        <i class="iconfont icon-plus"></i> 新建任务
       </el-button>
     </el-form-item>
   </el-form>

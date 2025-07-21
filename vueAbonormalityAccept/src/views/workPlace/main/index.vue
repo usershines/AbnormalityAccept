@@ -1,5 +1,5 @@
 <template>
-  <el-card style="height: 770px;margin-top: -40px">
+  <el-card style="margin-top: -20px; height: 770px">
     <el-container>
       <el-aside>
         <el-card style="height: 500px;margin-top: 40px">
@@ -10,8 +10,9 @@
           </template>
           <template #default>
             <div style="display: flex;flex-direction: column;align-items: center">
-              <h2>Dr.bright</h2>
-              <h4>职务: 研究员</h4>
+              <h2>{{Me?.username}}</h2>
+              <h4>等级: {{Me?.level}}</h4>
+              <h3>{{Me?.introduction}}</h3>
             </div>
           </template>
         </el-card>
@@ -56,6 +57,8 @@
         </div>
       </el-main>
     </el-container>
+
+  </el-card>
     <el-dialog
         v-model="dialogVisible"
         width="80%"
@@ -85,7 +88,6 @@
         ></video>
       </template>
     </el-dialog>
-  </el-card>
 </template>
 
 <script setup lang="ts">
@@ -143,7 +145,17 @@ onMounted(() =>{
   if(!myName) {
     ElMessage.error('请先登录！')
   }else {
-    Me.value = findByName(myName)
+    findByName(myName).then((res)=>{
+      if(res.code === 200){
+        Me.value = res.data;
+        ElMessage.success(`用户信息获取成功！欢迎回来 ${Me.value?.username}`)
+      }else{
+        ElMessage.error(res.msg);
+      }
+    }).catch((err)=>{
+      console.log(err);
+      ElMessage.error(`发送错误：${err.msg}`)
+    })
   }
 })
 </script>
@@ -153,7 +165,7 @@ onMounted(() =>{
 .scroll-container {
   height: 700px;
   overflow-y: auto;
-  padding: 0 4px; /* 增加左右内边距 */
+  padding: 0 4px 10px; /* 增加左右内边距 */
 }
 
 /* 自定义滚动条样式 */

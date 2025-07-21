@@ -1,50 +1,5 @@
 <template>
-  <el-main class="page-container">
-    <div class="page-header">
-      <h2>异想体列表</h2>
-      <div>
-        <el-button type="success" @click="showCreateDialog" class="create-button">
-          <el-icon><Plus /></el-icon> 新建异想体
-        </el-button>
-      </div>
-    </div>
-
-<!--
-    <el-row :gutter="20" class="mb-20">
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Keter 级</h3>
-            <p class="stat-value">{{ levelCounts.Keter }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Euclid 级</h3>
-            <p class="stat-value">{{ levelCounts.Euclid }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Safe 级</h3>
-            <p class="stat-value">{{ levelCounts.Safe }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
-          <div class="stat-content">
-            <h3>Thaumiel 级</h3>
-            <p class="stat-value">{{ levelCounts.Thaumiel }} <span class="stat-label">个</span></p>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
--->
+  <el-card style="height: 770px;margin-top: -30px">
 
     <!-- 搜索表单区域 -->
     <el-form :inline="true" :model="filterForm" class="search-form">
@@ -89,6 +44,9 @@
         </el-button>
         <el-button @click="resetFilter" class="reset-button">
           <i class="iconfont icon-reset"></i> 重置
+        </el-button>
+        <el-button type="success" @click="showCreateDialog" class="create-button">
+          <el-icon><Plus /></el-icon> 新建异想体
         </el-button>
       </el-form-item>
     </el-form>
@@ -316,7 +274,7 @@
         </el-button>
       </template>
     </el-dialog>
-  </el-main>
+  </el-card>
 </template>
 
 <script setup lang="ts">
@@ -734,7 +692,6 @@ const handleSearch = () => {
 
 .page-header h2 {
   margin: 0;
-  color: #e0e7ff;
 }
 
 .mb-20 {

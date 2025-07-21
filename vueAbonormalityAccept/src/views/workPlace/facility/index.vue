@@ -665,7 +665,19 @@ const getRiskTagType = (level: string) => {
 
 // 事件处理方法
 const handleReset = () => {
-  Object.keys(searchForm).forEach(key => searchForm[key as keyof typeof searchForm] = '');
+  searchForm.value = {
+    id:null,
+    facilityName: '',
+    level:null,
+    facilityAddress: '',
+    managerId:null,
+    managerName: '',
+    isActive:'',
+    pageNum:1,
+    pageSize:10,
+    minLevel:null ,
+    maxLevel:null
+  }
   currentPage.value = 1;
 };
 

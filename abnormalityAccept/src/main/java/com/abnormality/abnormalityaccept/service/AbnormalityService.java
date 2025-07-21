@@ -24,6 +24,7 @@ public interface AbnormalityService {
 
     // 查询异想体（多条件）
     PageInfo<Abnormality> findAbnormalityByConditions(AbnormalityParam abnormalityParam);
+    PageInfo<Abnormality> findAbnormalityByFacilityId(Long facilityId, Integer pageNum, Integer pageSize);
 
 //    // 获取异想体详情
 //    Abnormality getAbnormalityDetails(Long id);

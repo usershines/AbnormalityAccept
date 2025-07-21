@@ -180,8 +180,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean updateUser(UpdateUserOneSelfRequest updateUserOneSelfRequest, Long UserId) {
-        if(Objects.equals(userMapper.selectById(UserId).getUsername(), updateUserOneSelfRequest.getUsername()))
-            throw new ServiceException(Code.ERROR,"新用户名不能和旧用户名重复");
         if(updateUserOneSelfRequest.getUsername() == null) throw new ServiceException(Code.ERROR,"用户名不能为空");
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", updateUserOneSelfRequest.getUsername() ));
         if(!Objects.equals(user.getId(), UserId))
@@ -226,15 +224,22 @@ public class UserServiceImpl implements UserService {
         String leaderName = editSubordinateRequest.getLeaderName();
         if(subordinateLevel == null) throw new ServiceException(Code.ERROR,"等级不能为空");
         if(leaderName == null) throw new ServiceException(Code.ERROR,"上级领导不能为空");
+
+        User newLeader = userMapper.selectOne(new QueryWrapper<User>().eq("username",leaderName));
+        if(newLeader == null || ObjectUtil.isNull( newLeader)) throw new ServiceException(Code.NOT_FOUND, "新的上级领导不存在");
+
         if(subordinateLevel<1 || subordinateLevel>5) throw new ServiceException(Code.BAD_REQUEST, "非法参数");
         User editedUser = userMapper.selectById(editSubordinateRequest.getSubordinateId());
+
+        if(newLeader.getLevel()< editSubordinateRequest.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "上级等级必须高于该用户");
+
         User editor = userMapper.selectById(editorId);
-        if(editedUser == null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
         if(editedUser.getLevel()>=editor.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "不能修改等级比自己高的用户信息");
+
+
         editedUser.setLevel(subordinateLevel);
         editedUser.setLeaderName(leaderName);
-        User leader = userMapper.selectOne(new QueryWrapper<User>().eq("username",leaderName));
-        editedUser.setLeaderId(leader.getId());
+        editedUser.setLeaderId(newLeader.getId());
         return userMapper.editSubordinate(editedUser)>0;
     }
 
@@ -491,6 +496,20 @@ public class UserServiceImpl implements UserService {
         String token = AopUtil.getToken();
         String username = JwtPayload.fromToken(token).getUsername();
         return userMapper.findUserByName(username).getId();
+    }
+
+    @Override
+    public PageInfo<User> findByFacilityId(Long facilityId, Integer pageNum, Integer pageSize) {
+        if(ObjectUtil.isEmpty(pageNum)){
+            pageNum = 1;
+        }
+        if(ObjectUtil.isEmpty(pageSize)){
+            pageSize = 10;
+        }
+
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> userList = userMapper.selectList(new QueryWrapper<User>().eq("facility_id", facilityId));
+        return PageInfo.of(userList);
     }
 
 }

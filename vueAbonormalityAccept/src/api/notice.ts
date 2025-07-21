@@ -10,5 +10,10 @@ export interface Notice {
 
 // 获取所有公告
 export function findAllNotice(){
-    return request.get('notice/list')
+    return request.get('notice/list',{
+        params:{
+            pageNum:1,
+            pageSize:10,
+        }
+    })
 }

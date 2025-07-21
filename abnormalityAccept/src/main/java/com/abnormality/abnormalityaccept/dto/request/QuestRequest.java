@@ -12,6 +12,7 @@ import lombok.Data;
 public class QuestRequest {
     private String questCode;
     private String questName;
+    private Integer questLevel;
     private Long resolvingByTeamId;
     private String resolvingByTeamName;
     private String questDescription;

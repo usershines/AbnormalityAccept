@@ -52,7 +52,7 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      * 修改下属数据
      */
-    int editSubordinate(@Param("user") User user  );
+    int editSubordinate(@Param("user") User user );
 
     /**
      * 删除数据,逻辑删除

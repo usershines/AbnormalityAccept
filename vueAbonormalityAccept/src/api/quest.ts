@@ -1,6 +1,6 @@
 import request from "@/utils/requests.ts";
 
-interface Quest{
+export interface Quest{
     id: number;
     questCode: String;
     questName: string;

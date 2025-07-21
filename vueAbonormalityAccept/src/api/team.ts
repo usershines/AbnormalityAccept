@@ -4,7 +4,6 @@ import request from "@/utils/requests.ts";
 export interface Team {
     id: number;
     name: string;
-    members: number[];
     status: number;
     resolvingQuestId: number;
     level:  number;
@@ -120,4 +119,9 @@ export function deleteTeam(teamId: number) {
             id: teamId,
         }
     });
+}
+
+// 获取小队成员
+export function getMemberList(teamId: number) {
+    return request.get(`/${teamId}/members`)
 }

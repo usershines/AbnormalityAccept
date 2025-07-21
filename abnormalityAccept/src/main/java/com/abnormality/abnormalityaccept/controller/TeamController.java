@@ -42,7 +42,6 @@ import java.util.List;
 @Tag(name = "机动小队管理", description = "包含小队创建、更新、任务指派等接口")
 @RequiredArgsConstructor
 public class TeamController {
-
     private final TeamService teamService;
 
     @Operation(summary = "查询所有小队")

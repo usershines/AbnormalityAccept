@@ -405,6 +405,7 @@
 import {reactive, ref, computed, onMounted} from 'vue';
 import {getUserList, updateUser, addUser, deleteUser, findUser} from "@/api/user.ts";
 import type {UserParamsRequest} from "@/api/user.ts";
+import { ElMessage } from 'element-plus';
 
 // 新建用户弹窗相关
 const createDialogVisible = ref(false);
@@ -646,13 +647,13 @@ const tableData = ref([
 
 
 // 分页相关数据
-const currentPageNum = ref(1);
+const currentPage = ref(1);
 const pageSize = ref(10);
 const total = ref(0);
 
 // 获取数据
 const catchData = () => {
-  getUserList(currentPageNum.value, pageSize.value).then((response) => {
+  getUserList(currentPage.value, pageSize.value).then((response) => {
     if(response.code === 200) {
       tableData.value = response.data.list;
       total.value = response.data.total;
@@ -675,7 +676,6 @@ const selectedUser = ref<any>(null);
 // 实现搜索过滤功能
 const handleSearch = () => {
   console.log('搜索表单',searchForm.value);
-  currentPage.value = 1;
   searchForm.value.pageNum = currentPage.value;
   searchForm.value.pageSize = pageSize.value;
   findUser(searchForm.value).then((response) => {
@@ -740,23 +740,23 @@ const tableHeaderStyle = () => {
 
 // 重置方法
 const handleReset = () => {
-  searchForm.username = '';
-  searchForm.level = '';
-  searchForm.facilityId = null;
-  searchForm.id = null;
+  searchForm.value.username = null;
+  searchForm.value.level = null;
+  searchForm.value.facilityId = null;
+  searchForm.value.id = null;
   catchData()
 };
 
 // 每页条数改变
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
-  catchData()
+  handleSearch()
 };
 
 // 当前页改变
 const handleCurrentChange = (val: number) => {
   currentPage.value = val;
-  catchData()
+  handleSearch()
 };
 
 // 查看详情方法

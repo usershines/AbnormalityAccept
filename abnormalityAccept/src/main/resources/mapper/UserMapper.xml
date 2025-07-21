@@ -138,48 +138,19 @@
 
     <update id="updateUserAll">
         UPDATE user
-        <set>
-            <if test="user.username != null">
-                username = #{user.username},
-            </if>
-            <if test="user.email != null">
-                email = #{user.email},
-            </if>
-            <if test="user.password != null">
+            set username = #{user.username},
                 password = #{user.password},
-            </if>
-
-            <if test="user.level != null">
+                email = #{user.email},
                 level = #{user.level},
-            </if>
-            <if test="user.teamId != null">
                 team_id = #{user.teamId},
-            </if>
-            <if test="user.inviterId != null">
                 inviter_id = #{user.inviterId},
-            </if>
-            <if test="user.inviterName != null">
                 inviter_name = #{user.inviterName},
-            </if>
-            <if test="user.leaderId != null">
                 leader_id = #{user.leaderId},
-            </if>
-            <if test="user.leaderName != null">
                 leader_name = #{user.leaderName},
-            </if>
-            <if test="user.facilityId != null">
                 facility_id = #{user.facilityId},
-            </if>
-            <if test="user.facilityName != null">
                 facility_name = #{user.facilityName},
-            </if>
-            <if test="user.introduction != null">
                 introduction = #{user.introduction},
-            </if>
-            <if test="user.isActive != null">
-                is_active = #{user.isActive},
-            </if>
-        </set>
+                is_active = #{user.isActive}
         WHERE id = #{user.id}
     </update>
 
@@ -191,8 +162,8 @@
                 facility_id = #{user.facilityId},
                 facility_name = #{user.facilityName},
                 leader_id = #{user.leaderId},
-                leader_name = #{user.leaderName},
-        where id = #{id} and is_active = 1
+                leader_name = #{user.leaderName}
+        where id = #{user.id} and is_active = 1
     </update>
 
     <!-- 专门修改密码 -->

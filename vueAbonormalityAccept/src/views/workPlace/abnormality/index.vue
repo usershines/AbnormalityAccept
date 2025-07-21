@@ -323,8 +323,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import {getAbnormalityList, getAbnormalityById, addAbnormality, deleteAbnormality, updateAbnormality,findAbnormalityByConditions} from "@/api/abnormality.ts";
-import { ElMessage, ElMessageBox, type UploadProps, } from 'element-plus';
-
+import { ElMessage, ElMessageBox, type UploadProps} from 'element-plus';
+import type { FormInstance } from 'element-plus';
 // 表格数据表单
 const tableData = ref<abnormality[]>([
   {
@@ -496,7 +496,8 @@ const currentAbnormality = ref({
   facilityId: 0,
   imageName: "",
 })
-const abnormalityFormRef = ref(null)
+// 定义表单引用，指定类型为 FormInstance | null
+const abnormalityFormRef = ref<FormInstance | null>(null);
 
 
 // 筛选条件表单
@@ -527,7 +528,7 @@ interface abnormality {
 
 // 新异想体表单
 const newAbnormalityForm  = ref({
-  id: 0,
+  // id: 0,
   name: '',
   level: 0,
   description: '',
@@ -623,16 +624,39 @@ const handleDeleteAbnormality = (item:any) => {
 })}
 
 const submitAbnormality = async() => {
-  const res=await addAbnormality(newAbnormalityForm.value)
-  if(res.code === 200){
-    ElMessage.success('添加成功')
-    catchData()
-    creatDialogVisible.value = false
-  }else{
-    ElMessage.error('添加失败'+res.msg)
-  }
-}
+  if (!abnormalityFormRef.value) return;
 
+  // 先验证表单
+  abnormalityFormRef.value.validate(async (valid: boolean) => {
+    if (!valid) {
+      ElMessage.warning('请填写完整信息');
+      return;
+    }
+    console.log('提交参数:', newAbnormalityForm.value);
+    try {
+      // 提交数据
+      const res = await addAbnormality(newAbnormalityForm.value);
+
+      if (res.code === 200) {
+        ElMessage.success('添加成功');
+        catchData(); // 刷新数据
+        creatDialogVisible.value = false;
+
+        // // 重置表单，避免下次打开时保留旧数据
+        // abnormalityFormRef.value.resetFields();
+      } else {
+        ElMessage.error('添加失败: ' + res.msg);
+      }
+    } catch (error) {
+      ElMessage.error('服务器错误: ' + (error as any).msg || '未知错误');
+    }
+  });
+}
+// 在关闭对话框时重置表单
+const closeDialog = () => {
+  creatDialogVisible.value = false;
+  abnormalityFormRef.value?.resetFields();
+};
 const handleSizeChange = (val: number) => {
   pageSize.value = val
   console.log(val)

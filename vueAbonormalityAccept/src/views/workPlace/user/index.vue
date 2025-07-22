@@ -142,7 +142,7 @@
 
         <el-table-column prop="facilityName" label="所在设施" width="150">
           <template #header>
-            <span><i class="iconfont icon-location"></i> 所在地</span>
+            <span><i class="iconfont icon-location"></i> 所在设施ID</span>
           </template>
         </el-table-column>
 
@@ -231,7 +231,7 @@
         <el-input v-model="createForm.email" placeholder="请输入邮箱"></el-input>
       </el-form-item>
 
-      <el-form-item label="所在地" prop="location">
+      <el-form-item label="所在设施ID" prop="location">
         <el-input v-model="createForm.facilityName" placeholder="请输入所在地"></el-input>
       </el-form-item>
 
@@ -322,7 +322,7 @@
                 {{ selectedUser.status ? '启用' : '停用' }}
               </el-tag>
             </span>
-            <span class="info-item"><i class="iconfont icon-location"></i> 所在地：<strong>{{ selectedUser.facilityName }}</strong></span>
+            <span class="info-item"><i class="iconfont icon-location"></i> 所在设施ID：<strong>{{ selectedUser.facilityName }}</strong></span>
           </div>
           <div class="info-row">
             <span class="info-item"><i class="iconfont icon-superior"></i> 上级：<strong>{{ selectedUser.leaderName }}</strong></span>

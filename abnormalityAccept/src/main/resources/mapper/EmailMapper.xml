@@ -9,14 +9,16 @@
         <result property="state" column="state" />
         <result property="senderId" column="sender_id" />
         <result property="senderName" column="sender_name" />
+        <result property="senderLevel" column="sender_level" />
         <result property="receiverId" column="receiver_id" />
         <result property="receiverName" column="receiver_name" />
+        <result property="receiverLevel" column="receiver_level" />
         <result property="theme" column="theme" />
         <result property="content" column="content" />
         <result property="sendTime" column="send_time" />
     </resultMap>
     <sql id="Base_Column_List">
-        id, state, sender_id, sender_name , receiver_id, receiver_name, theme, content, send_time
+        id, state, sender_id, sender_name , sender_level, receiver_id, receiver_name, receiver_level, theme, content, send_time
     </sql>
     <select id="findAllEmail" resultMap="Email_Base_Data">
         SELECT
@@ -47,7 +49,7 @@
     </select>
 
     <insert id="addEmail" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO email(state, sender_id, sender_name, receiver_id, receiver_name, theme, content, send_time) VALUES (0, #{senderId}, #{senderName}, #{receiverId}, #{receiverName}, #{theme}, #{content}, #{sendTime})
+        INSERT INTO email(state, sender_id, sender_name, sender_level, receiver_id, receiver_name, receiver_level, theme, content, send_time) VALUES (0, #{senderId}, #{senderName}, #{senderLevel}, #{receiverId}, #{receiverName}, #{receiverLevel}, #{theme}, #{content}, #{sendTime})
     </insert>
 
 

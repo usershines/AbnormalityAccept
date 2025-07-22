@@ -39,7 +39,7 @@ public class EmailController {
         Long receiverId = userService.getUserIdByToken();
         String  username = JwtPayload.fromToken(AopUtil.getToken()).getUsername();
         PageInfo<Email> emailList = emailService.findAllEmail(pageNum,pageSize,receiverId);
-        if(emailList.getList() == null || emailList.getList().isEmpty()) return Result.error("您暂时没有收到过邮件"+receiverId+username);
+        if(emailList.getList() == null || emailList.getList().isEmpty()) return Result.error("您暂时没有收到过邮件");
         return Result.ok(emailList);
     }
 

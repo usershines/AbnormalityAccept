@@ -79,7 +79,7 @@ let timer: number // 定时器
 onMounted(() => {
   fetchUnreadCount()
   // 每30秒刷新一次未读数量
-  timer = setInterval(fetchUnreadCount, 30000)
+  timer = setInterval(fetchUnreadCount, 30000*500)
 })
 
 onBeforeUnmount(() => {

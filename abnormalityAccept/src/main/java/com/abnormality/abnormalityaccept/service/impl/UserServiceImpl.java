@@ -123,11 +123,12 @@ public class UserServiceImpl implements UserService {
      * @return 删除成功返回 true，否则返回 false
      */
     @Override
-    public boolean deleteUserById(Long id , Long editorId) {
+    public boolean deleteUserById(Long id , Long editorId,Integer isActive) {
+        if(isActive!=0 && isActive!=1) throw new ServiceException(Code.ERROR,"非法参数");
         int editorLevel = userMapper.selectById(editorId).getLevel();
-        if(editorLevel<=userMapper.selectById(id).getLevel())throw new ServiceException(Code.FORBIDDEN,"无权删除当前用户");
-        if(userMapper.selectById(id).getLevel()==3 && editorLevel!=5) throw new ServiceException(Code.FORBIDDEN,"无权删除当前用户");
-        int i = userMapper.deleteUserById(id);
+        if(editorLevel<=userMapper.selectById(id).getLevel())throw new ServiceException(Code.FORBIDDEN,"无权启停当前用户");
+        if(userMapper.selectById(id).getLevel()>=3 && editorLevel!=5) throw new ServiceException(Code.FORBIDDEN,"无权启停当前用户");
+        int i = userMapper.deleteUserById(id, isActive);
         return i > 0;
     }
 
@@ -518,7 +519,6 @@ public class UserServiceImpl implements UserService {
         if(ObjectUtil.isEmpty(pageSize)){
             pageSize = 10;
         }
-
         PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.selectList(new QueryWrapper<User>().eq("facility_id", facilityId));
         return PageInfo.of(userList);

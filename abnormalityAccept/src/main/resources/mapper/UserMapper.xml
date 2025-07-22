@@ -30,14 +30,13 @@
         select
         <include refid="Base_User"/>
         from user
-
     </select>
 
     <select id="findUserById" resultMap="Base_User_List">
         select
         <include refid="Base_User"/>
         from user
-        where id=#{id} and
+        where id=#{id}
     </select>
 
     <select id="findUserByTeamId" resultMap="Base_User_List">
@@ -111,12 +110,14 @@
                      1
                  )
     </insert>
+
     <!-- 删除用户 -->
     <update id="deleteUserById">
         update user
-        set is_active = 0
+        set is_active = #{isActive}
         where id = #{id}
     </update>
+
     <!-- 修改用户自己 -->
     <update id="updateUser">
         UPDATE user
@@ -192,7 +193,7 @@
             <if test="minLevel != null"> AND level >= #{minLevel}</if>
             <if test="maxLevel != null"> AND level  &lt;= #{maxLevel}</if>
 
-            <if test="isActive != null">AND is_active =  1</if>
+            <if test="isActive != null">AND is_active = #{isActive}</if>
         </where>
     </select>
 

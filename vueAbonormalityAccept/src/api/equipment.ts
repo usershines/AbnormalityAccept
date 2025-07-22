@@ -96,7 +96,5 @@ export function searchEquipmentByName(name: string) {
 }
 
 export function findEquipmentByConditions(Params: EquipmentParam){
-  return request.get('/equipment/conditions', {
-    params: Params,
-  })
+  return request.post('/equipment/conditions', Params)
 }

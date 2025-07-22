@@ -37,4 +37,8 @@ public interface EmailService {
     //一键已读功能
     boolean readAllEmail(Long receiverId);
 
+    PageInfo<Email> findEmailByState(Integer state, Integer pageNum, Integer pageSize, Long receiverId);
+
+    PageInfo< Email> findEmailBySenderLevel(Integer level, Integer pageNum, Integer pageSize, Long receiverId);
+
 }

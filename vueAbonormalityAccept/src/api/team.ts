@@ -115,9 +115,7 @@ export function findTeamByCondition(team: TeamParam){
     }
     if(team.minLevel === null) team.minLevel = 1;
     if(team.maxLevel === null) team.maxLevel = 5;
-    return request.get('/team/conditions',{
-        params: team
-    })
+    return request.post('/team/conditions',team)
 }
 
 // 删除小队

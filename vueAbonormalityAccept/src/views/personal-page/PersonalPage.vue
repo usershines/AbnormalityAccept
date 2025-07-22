@@ -48,7 +48,7 @@
           <span class="value">{{ user.inviterId || '无' }}</span>
         </div>
         <div class="detail-item">
-          <span class="label">负责人ID：</span>
+          <span class="label">上级ID：</span>
           <span class="value">{{ user.leaderId || '无' }}</span>
         </div>
         <div class="detail-item">
@@ -305,7 +305,7 @@ const handleSavePassword = async () => {
 .page-container {
   padding: 20px;
   background-color: #ffffff;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 240px);
   color: #333333;
 }
 

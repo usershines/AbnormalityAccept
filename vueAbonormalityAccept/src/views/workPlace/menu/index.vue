@@ -4,8 +4,8 @@
       <div class="user-info">
         <el-avatar :size="40" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
         <div class="user-details">
-          <span style="color: white;font-size: 20px;font-weight: bold" >Dr.Bright</span>
-          <span class="user-level">权限等级: O5</span>
+          <span style="color: white;font-size: 20px;font-weight: bold" >{{Me?.username}}</span>
+          <span class="user-level">权限等级: {{Me?.level}}</span>
         </div>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <!-- 用户管理 -->
       <el-menu-item index="/workPlace/user">
         <template #title>
-          <el-icon><User /></el-icon>
+          <el-icon><UserAvatar /></el-icon>
           <span>用户管理</span>
         </template>
       </el-menu-item>
@@ -67,7 +67,7 @@
       <!-- 个人主页 -->
       <el-menu-item index="/workPlace/personal">
         <template #title>
-          <el-icon><User /></el-icon>
+          <el-icon><UserAvatar /></el-icon>
           <span>个人主页</span>
         </template>
       </el-menu-item>
@@ -97,15 +97,15 @@
 
 <script setup lang="ts">
 import {
-  HomeFilled, User, MagicStick, SuitcaseLine,
+  HomeFilled, User as UserAvatar, MagicStick, SuitcaseLine,
   Position, Tickets, OfficeBuilding, Setting, BellFilled
 } from '@element-plus/icons-vue'
 import {onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
-import {findByName} from "@/api/user.ts";
+import {findByName, type User} from "@/api/user.ts";
 import {ElMessage} from "element-plus";
 
-const Me = ref()
+const Me = ref<User>()
 
 // 获取当前路由
 const route = useRoute()
@@ -137,13 +137,12 @@ onMounted(() => {
     findByName(myName).then((res)=>{
       if(res.code === 200){
         Me.value = res.data;
-        ElMessage.success(`用户信息获取成功！欢迎回来 ${Me.value?.username}`)
       }else{
         ElMessage.error(res.msg);
       }
     }).catch((err)=>{
       console.log(err);
-      ElMessage.error(`发送错误：${err.msg}`)
+      ElMessage.error(`发生错误：${err.msg}`)
     })
   }
 })

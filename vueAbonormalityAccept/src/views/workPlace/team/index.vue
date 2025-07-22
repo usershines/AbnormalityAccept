@@ -1,5 +1,5 @@
 <template>
-  <el-card style="margin: -20px 0 0px;height: 750px;">
+  <el-card style="margin: -20px ;height: 750px;">
     <!-- 搜索表单区域 - 暗色主题 -->
 
     <template #header>
@@ -125,6 +125,7 @@
                     </div>
                   </template>
 
+
                   <div style="margin-top: -10px">
                     <div class="info-item">
                       <span class="label">编号：{{ item.id }}</span>
@@ -136,6 +137,19 @@
                       <span class="label">成员：{{ selectedTeamMembers?.values.length }}人</span>
                     </div>
                   </div>
+
+                  <!-- 新增：正在执行的任务 -->
+                  <div class="info-item" v-if="item.resolvingQuestName">
+    <span class="label">
+      <i class="iconfont icon-operation"></i> 正在执行的任务：{{item.resolvingQuestName }}
+    </span>
+                  </div>
+                  <div class="info-item" v-else>
+    <span class="label" style="color: #888;">
+      <i class="iconfont icon-operation"></i> 当前无任务
+    </span>
+                  </div>
+
                 </el-card>
               </el-col>
             </el-row>
@@ -274,11 +288,6 @@
               <span><i class="iconfont icon-name"></i> 姓名</span>
             </template>
           </el-table-column>
-          <el-table-column prop="role" label="职位">
-            <template #header>
-              <span><i class="iconfont icon-role"></i> 职位</span>
-            </template>
-          </el-table-column>
           <el-table-column prop="level" label="权限等级">
             <template #header>
               <span><i class="iconfont icon-security"></i> 权限等级</span>
@@ -289,13 +298,13 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="status" label="状态">
+          <el-table-column prop="introduction" label="简介">
             <template #header>
-              <span><i class="iconfont icon-status"></i> 状态</span>
+              <span><i class="iconfont icon-status"></i> 简介</span>
             </template>
             <template #default="scope">
-              <el-tag :type="getMemberStatusTagType(scope.row.status)" class="status-tag">
-                {{ scope.row.status }}
+              <el-tag :type="getMemberStatusTagType(scope.row.introduction)" class="introduction-tag">
+                {{ scope.row.introduction }}
               </el-tag>
             </template>
           </el-table-column>
@@ -409,21 +418,41 @@ import * as facilityApi from "@/api/facility.ts";
 const userAvatar = ref("/src/assets/pic/user.png");
 // 获取数据
 const catchTeamTableData = () => {
-  TeamApi.getTeamList(pageNum.value, pageSize.value).then((res) => {
+  TeamApi.getTeamList(pageNum.value, pageSize.value).then(async (res) => {
     if (res.code === 200) {
-      teamTableData.value = res.data.list;
+      const teams = res.data.list;
+
+      const teamsWithQuestName = await Promise.all(
+          teams.map(async (team) => {
+            if (team.resolvingQuestId) {
+              try {
+                const questRes = await QuestApi.getQuest(team.resolvingQuestId);
+                if (questRes.code === 200) {
+                  return {
+                    ...team,
+                    resolvingQuestName: questRes.data.questName
+                  };
+                }
+              } catch (err) {
+                console.error('获取任务失败', err);
+              }
+            }
+            return {
+              ...team,
+              resolvingQuestName: null
+            };
+          })
+      );
+
+      teamTableData.value = teamsWithQuestName;
       total.value = res.data.total;
-    } else if (res.code === 501) {
-      ElMessage.error('权限不足，无法获取小队信息');
     } else {
       ElMessage.error('小队信息获取失败：' + res.msg);
     }
   }).catch((err) => {
-    console.log(err);
     ElMessage.error('小队信息获取失败：' + err.msg);
   });
 };
-
 // 队伍表格数据
 const teamTableData = ref<Team[]>([]);
 const teamAvatar = ref("/src/assets/pic/team.png");

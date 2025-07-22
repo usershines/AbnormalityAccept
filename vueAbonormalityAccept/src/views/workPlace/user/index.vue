@@ -280,6 +280,7 @@
     </template>
   </el-dialog>
 
+<!-- 用户详情页 -->
   <el-dialog
       v-model="detailDialogVisible"
       :title="`${selectedUser?.username} - 人员档案`"
@@ -311,7 +312,7 @@
                 {{ selectedUser.status ? '启用' : '停用' }}
               </el-tag>
             </span>
-            <span class="info-item"><i class="iconfont icon-location"></i> 所在地：<strong>{{ selectedUser.location }}</strong></span>
+            <span class="info-item"><i class="iconfont icon-location"></i> 所在地：<strong>{{ selectedUser.facilityName }}</strong></span>
           </div>
           <div class="info-row">
             <span class="info-item"><i class="iconfont icon-superior"></i> 上级：<strong>{{ selectedUser.superior }}</strong></span>

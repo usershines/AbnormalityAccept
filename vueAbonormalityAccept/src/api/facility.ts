@@ -45,7 +45,5 @@ export function updateFacility(facility: any) {
 export function findFacility(facility: FacilityParams){
     if(facility.maxLevel === null) facility.maxLevel = 5;
     if(facility.minLevel === null) facility.minLevel = 1;
-    return request.get('/facility/conditions', {
-        params: facility,
-    })
+    return request.post('/facility/conditions', facility)
 }

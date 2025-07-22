@@ -454,158 +454,7 @@ const searchForm = ref<UserParamsRequest>({
 });
 
 // 原始表格数据（静态）
-const tableData = ref([
-  {
-    id: 1,
-    name: 'O5-13',
-    level: 'O5',
-    email: 'o5-13@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'O5议会',
-    status: 1,
-    description: '监督者议会成员'
-  },
-  {
-    id: 2,
-    name: 'Dr. Bright',
-    level: 'A',
-    email: 'bright@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'O5-13',
-    status: 1,
-    description: '高级研究员，SCP-963持有者'
-  },
-  {
-    id: 3,
-    name: 'Dr. Clef',
-    level: 'A',
-    email: 'clef@scp-foundation.org',
-    location: 'Site-17',
-    superior: 'O5-7',
-    status: 1,
-    description: '异常实体分析专家'
-  },
-  {
-    id: 4,
-    name: 'Dr. Gears',
-    level: 'A',
-    email: 'gears@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'O5-13',
-    status: 0,
-    description: '机械工程与异常收容专家'
-  },
-  {
-    id: 5,
-    name: 'MTF Epsilon-11',
-    level: 'B',
-    email: 'epsilon11@scp-foundation.org',
-    location: '机动部署',
-    superior: 'O5-13',
-    status: 1,
-    description: '九尾狐机动特遣队指挥官'
-  },
-  {
-    id: 6,
-    name: 'D-9341',
-    level: 'D',
-    email: 'd9341@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'Dr. Bright',
-    status: 1,
-    description: 'D级人员，特殊测试对象'
-  },
-  {
-    id: 7,
-    name: 'Dr. Kondraki',
-    level: 'A',
-    email: 'kondraki@scp-foundation.org',
-    location: 'Site-17',
-    superior: 'O5-7',
-    status: 1,
-    description: '摄影与异常实体研究专家'
-  },
-  {
-    id: 8,
-    name: 'Dr. Glass',
-    level: 'B',
-    email: 'glass@scp-foundation.org',
-    location: 'Site-64',
-    superior: 'Dr. Kondraki',
-    status: 1,
-    description: '收容措施优化专家'
-  },
-  {
-    id: 9,
-    name: 'O5-1',
-    level: 'O5',
-    email: 'o5-1@scp-foundation.org',
-    location: 'Area-01',
-    superior: '监督者议会',
-    status: 1,
-    description: '监督者议会首席'
-  },
-  {
-    id: 10,
-    name: 'MTF Alpha-1',
-    level: 'A',
-    email: 'alpha1@scp-foundation.org',
-    location: '机动部署',
-    superior: 'O5议会',
-    status: 1,
-    description: '红右手指挥官'
-  },
-  {
-    id: 11,
-    name: 'Dr. Shaw',
-    level: 'C',
-    email: 'shaw@scp-foundation.org',
-    location: 'Site-81',
-    superior: 'Dr. Glass',
-    status: 1,
-    description: '初级研究员'
-  },
-  {
-    id: 12,
-    name: 'D-9983',
-    level: 'D',
-    email: 'd9983@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'Dr. Bright',
-    status: 0,
-    description: 'D级人员'
-  },
-  {
-    id: 13,
-    name: 'O5-7',
-    level: 'O5',
-    email: 'o5-7@scp-foundation.org',
-    location: 'Area-07',
-    superior: '监督者议会',
-    status: 1,
-    description: '监督者议会成员'
-  },
-  {
-    id: 14,
-    name: 'Dr. Rights',
-    level: 'B',
-    email: 'rights@scp-foundation.org',
-    location: 'Site-15',
-    superior: 'O5-7',
-    status: 1,
-    description: '伦理委员会成员'
-  },
-  {
-    id: 15,
-    username: 'MTF Gamma-5',
-    level: 'B',
-    email: 'gamma5@scp-foundation.org',
-    location: '机动部署',
-    superior: 'O5-13',
-    status: 1,
-    description: '红鲱鱼机动特遣队指挥官'
-  }
-]);
+const tableData = ref([]);
 
 
 // 分页相关数据
@@ -778,15 +627,13 @@ const handleStatusChange= (row: any) => {
       .then(async () => {
         const index = tableData.value.findIndex(item => item.id === row.id);
         if (index !== -1) {
-          const result = await UserApi.deleteUser(row.id);
+          const result = await UserApi.deleteUser(row.id,row.isActive);
           if (result.code === 200) {
             ElMessage.warning(`已停用用户: ${row.name}`);
             catchData();
           } else {
             ElMessage.error(`停用失败：${result.msg}`)
           }
-
-
         }
       }).catch(() => {
     ElMessage.info('已取消停用');

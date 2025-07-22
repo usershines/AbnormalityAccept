@@ -17,30 +17,38 @@
     </el-form-item>
     <el-form-item label="装备类型" class="search-item">
       <el-select
-        v-model="searchForm.type"
-        placeholder="请选择"
-        clearable
-        class="search-select"
-        style="width: 100px;"
+          v-model="searchForm.typeList"
+          placeholder="请选择"
+          multiple
+          clearable
+          collapse-tags
+          collapse-tags-tooltip
+          class="search-select"
+          style="width: 200px;"
       >
-        <el-option label="类型1" value=1></el-option>
-        <el-option label="类型2" value=2></el-option>
-        <el-option label="类型3" value=3></el-option>
+        <el-option label="类型1" :value="1"></el-option>
+        <el-option label="类型2" :value="2"></el-option>
+        <el-option label="类型3" :value="3"></el-option>
       </el-select>
     </el-form-item>
+
     <el-form-item label="装备状态" class="search-item">
       <el-select
-        v-model="searchForm.state"
-        placeholder="请选择"
-        clearable
-        class="search-select"
-        style="width: 120px;"
+          v-model="searchForm.stateList"
+          placeholder="请选择"
+          multiple
+          clearable
+          collapse-tags
+          collapse-tags-tooltip
+          class="search-select"
+          style="width: 200px;"
       >
-        <el-option label="状态1" value="1"></el-option>
-        <el-option label="状态2" value="2"></el-option>
-        <el-option label="状态3" value="3"></el-option>
+        <el-option label="状态1" :value="1"></el-option>
+        <el-option label="状态2" :value="2"></el-option>
+        <el-option label="状态3" :value="3"></el-option>
       </el-select>
     </el-form-item>
+
     <el-form-item label="ID" class="search-item">
       <el-input
         v-model="searchForm.id"
@@ -414,8 +422,8 @@ const searchForm = ref<EquipmentParam>({
   description: null,
 
   // 多值查询参数
-  stateList: null,
-  typeList: null,
+  stateList: [],
+  typeList: [],
 
   pageNum: null,
   pageSize: null,
@@ -502,13 +510,15 @@ const handleReset = () => {
     description: null,
 
     // 多值查询参数
-    stateList: null,
-    typeList: null,
+    stateList: [],
+    typeList: [],
 
     pageNum: null,
     pageSize: null,
   }
-  currentPage.value = 1; };
+  currentPage.value = 1;
+  initData();
+};
 
 // 分页方法
 const handleSizeChange = (val: number) => { pageSize.value = val; currentPage.value = 1; initData() };

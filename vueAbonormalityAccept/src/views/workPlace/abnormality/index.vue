@@ -6,26 +6,27 @@
 
       <el-form-item label="名称" class="search-item" style="width: 180px;">
         <el-input
-          v-model="filterForm.name"
-          placeholder="异想体名称"
-          clearable
-          class="search-input"
-          prefix-icon="el-icon-user"
+            v-model="filterForm.name"
+            placeholder="异想体名称"
+            clearable
+            class="search-input"
+            prefix-icon="el-icon-user"
         ></el-input>
       </el-form-item>
 
       <el-form-item label="危险等级" class="search-item" style="width: 230px;">
         <el-select
-          v-model="filterForm.level"
-          placeholder="请选择危险等级"
-          clearable
-          class="search-select"
+            v-model="filterForm.level"
+            placeholder="请选择危险等级"
+            clearable
+            class="search-select"
         >
-          <el-option label="安全" value="1" />
-          <el-option label="未解明" value="2" />
-          <el-option label="灭世" value="3" />
-          <el-option label="机密" value="4" />
-          <el-option label="无效化" value="5" />
+          <el-option label="无效化" value="1" />
+          <el-option label="安全" value="2" />
+          <el-option label="未解明" value="3" />
+          <el-option label="灭世" value="4" />
+          <el-option label="机密" value="5" />
+
         </el-select>
       </el-form-item>
 
@@ -44,23 +45,23 @@
 
     <!-- 数据表格区域 -->
     <el-table
-      :data="tableData"
-      border
-      style="width: 100%"
-      class="containment-table"
-      :header-cell-style="tableHeaderStyle"
+        :data="tableData"
+        border
+        style="width: 100%"
+        class="containment-table"
+        :header-cell-style="tableHeaderStyle"
     >
-    <el-table-column label="预览图" width="110" >
-      <template #default="scope">
+      <el-table-column label="预览图" width="110" >
+        <template #default="scope">
 
-        <el-image
-          :src="scope.row.imgName"
-          fit="fill"
-          class="abnormality-image"
-        ></el-image>
+          <el-image
+              :src="scope.row.imgName"
+              fit="fill"
+              class="abnormality-image"
+          ></el-image>
 
-      </template>
-    </el-table-column>
+        </template>
+      </el-table-column>
       <el-table-column prop="name" label="名称">
         <template #header>
           <span><i class="iconfont icon-user"></i> 名称</span>
@@ -76,7 +77,7 @@
         </template>
         <template #default="scope">
           <el-tag :type="getLevelType(scope.row.level)" effect="dark" class="clearance-tag">
-            {{ scope.row.level }}
+            {{ getLevelText(scope.row.level) }}
           </el-tag>
         </template>
       </el-table-column>
@@ -93,16 +94,16 @@
         </template>
         <template #default="scope">
           <el-button
-            type="text"
-            @click="viewDetail(scope.row)"
-            class="detail-btn"
+              type="text"
+              @click="viewDetail(scope.row)"
+              class="detail-btn"
           >
             <i class="iconfont icon-detail"></i> 详情
           </el-button>
           <el-button
-            type="text"
-            @click="editAbnormality(scope.row)"
-            class="edit-btn"
+              type="text"
+              @click="editAbnormality(scope.row)"
+              class="edit-btn"
           >
             <i class="iconfont icon-edit"></i> 编辑
           </el-button>
@@ -112,42 +113,42 @@
 
     <!-- 分页组件区域 -->
     <el-pagination
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-      :current-page="pageNum"
-      :page-sizes="[5, 10, 15]"
-      :page-size="pageSize"
-      layout="total, sizes, prev, pager, next, jumper"
-      :total="total"
-      prev-text="上一页"
-      next-text="下一页"
-      class="containment-pagination"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="pageNum"
+        :page-sizes="[5, 10, 15]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        prev-text="上一页"
+        next-text="下一页"
+        class="containment-pagination"
     />
 
     <!-- 新建/编辑对话框 -->
     <el-dialog
-      v-model="creatDialogVisible"
-      title= "新建异想体"
-      width="50%"
-      class="containment-dialog"
+        v-model="creatDialogVisible"
+        title= "新建异想体"
+        width="50%"
+        class="containment-dialog"
     >
       <el-form
-        :model="newAbnormalityForm"
-        ref="abnormalityFormRef"
-        label-width="120px"
-        :rules="rules"
-        label-position="left"
+          :model="newAbnormalityForm"
+          ref="abnormalityFormRef"
+          label-width="120px"
+          :rules="rules"
+          label-position="left"
       >
         <el-form-item label="名称" prop="name">
           <el-input v-model="newAbnormalityForm.name" placeholder="异想体名称" />
         </el-form-item>
         <el-form-item label="危险等级" prop="level">
           <el-select v-model="newAbnormalityForm.level" placeholder="请选择危险等级">
-            <el-option label="灭世" value="4" />
-            <el-option label="未解明" value="3" />
-            <el-option label="安全" value="2" />
-            <el-option label="机密" value="5" />
             <el-option label="无效化" value="1" />
+            <el-option label="安全" value="2" />
+            <el-option label="未解明" value="3" />
+            <el-option label="灭世" value="4" />
+            <el-option label="机密" value="5" />
           </el-select>
         </el-form-item>
         <el-form-item label="异想体图片">
@@ -184,16 +185,16 @@
 
     <!-- 详情弹窗-->
     <el-dialog
-      v-model="detailDialogVisible"
-      :title="currentAbnormality.name"
-      width="60%"
-      class="containment-dialog"
+        v-model="detailDialogVisible"
+        :title="currentAbnormality.name"
+        width="60%"
+        class="containment-dialog"
     >
       <div class="abnormality-detail">
         <div class="security-stamp">
           <div class="stamp-content">
             <div class="stamp-title">SCP FOUNDATION</div>
-            <div class="stamp-level">机密等级: {{ getClearLevel(currentAbnormality.level) }}</div>
+            <div class="stamp-level">机密等级: {{ getLevelText(currentAbnormality.level) }}</div>
           </div>
         </div>
 
@@ -204,7 +205,7 @@
               <span class="info-item"><i class="iconfont icon-id"></i> 异想体名称：<strong>{{ currentAbnormality.name }}</strong></span>
               <span class="info-item"><i class="iconfont icon-security"></i> 危险等级：
                 <el-tag :type="getLevelType(currentAbnormality.level)" effect="dark" class="clearance-tag">
-                  {{ currentAbnormality.level }}
+                  {{ getLevelText(currentAbnormality.level) }}
                 </el-tag>
               </span>
             </div>
@@ -240,7 +241,7 @@
           <div class="security-info">
             <div class="info-card">
               <div class="info-label"><i class="iconfont icon-clearance"></i> 访问权限：</div>
-              <div class="info-value">{{currentAbnormality.level}}</div>
+              <div class="info-value">{{ getLevelText(currentAbnormality.level) }}</div>
             </div>
 
             <div class="info-card">
@@ -253,8 +254,8 @@
 
       <template #footer>
         <el-button
-          @click="detailDialogVisible = false"
-          class="dialog-button"
+            @click="detailDialogVisible = false"
+            class="dialog-button"
         >
           <i class="iconfont icon-close"></i> 关闭
         </el-button>
@@ -341,6 +342,20 @@ const rules = {
   managementMethod: [{ required: true, message: '请输入管理措施', trigger: 'blur' }],
 }
 
+// 级别映射，数字转汉字
+const levelMap = {
+  1: '无效化',
+  2: '安全',
+  3: '未解明',
+  4: '灭世',
+  5: '机密'
+};
+
+// 只在前端显示时转换为汉字，不影响数据处理
+const getLevelText = (value: number) => {
+  return levelMap[value] || '未知';
+};
+
 // 获取数据 刷新
 const catchData = () =>{
   ElMessage.info('正在获取数据')
@@ -415,7 +430,7 @@ const handleDeleteAbnormality = (item:any) => {
     }).catch((err) => {
       ElMessage.info('删除失败：'+err.msg)
     })
-}).catch((err)=>{
+  }).catch((err)=>{
     ElMessage.info('已取消删除')
 
   })
@@ -465,17 +480,6 @@ const handleCurrentChange = (val: number) => {
   // catchData()
   const hasSearch = !!filterForm.value.id || !!filterForm.value.name || filterForm.value.level !== null;
   hasSearch ? handleSearch() : catchData();
-}
-
-const getClearLevel = (value: number) => {
-  switch (value) {
-    case 0: return '无效化';
-    case 1: return '安全';
-    case 2: return '未解明';
-    case 3: return '灭世';
-    case 4: return '机密';
-
-  }
 }
 
 // 初始化
@@ -588,8 +592,6 @@ const handleSearch = () => {
   line-height: 24px;
   border: none;
 }
-
-
 
 .detail-btn {
   color: #4a9cf0;

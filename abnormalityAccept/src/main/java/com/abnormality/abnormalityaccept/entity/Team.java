@@ -25,7 +25,7 @@ public class Team {
     private int status;
 
     private Long resolvingQuestId;
-    private String resolvingQuestName;
+    private String resolvingQuestCode;
 
     private Integer level;
 

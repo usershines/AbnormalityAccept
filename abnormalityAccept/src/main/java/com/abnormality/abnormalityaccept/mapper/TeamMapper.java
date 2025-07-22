@@ -38,4 +38,6 @@ public interface TeamMapper extends BaseMapper<Team> {
 
     List<Team> findTeamByConditions(TeamParam teamParam);
 
+    List<Team> findTeamLeisure();
+
 }

@@ -1,5 +1,6 @@
 package com.abnormality.abnormalityaccept.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.abnormality.abnormalityaccept.dto.request.QuestRequest;
 import com.abnormality.abnormalityaccept.entity.Quest;
 import com.abnormality.abnormalityaccept.entity.Team;
@@ -36,9 +37,19 @@ public class QuestServiceImpl implements QuestService {
 
     @Override
     public boolean addQuest(QuestRequest questRequest, Long sendId) {
-        if(questRequest.getQuestCode() == null || questRequest.getQuestCode().isEmpty()) throw new IllegalArgumentException("任务编号不能为空");
-        if(userMapper.findUserById(sendId).getLevel()< 4) throw new IllegalArgumentException("只有A级用户可以发布任务");
-        return questMapper.addQuest(questRequest);
+        if(questRequest.getQuestCode() == null || questRequest.getQuestCode().isEmpty()) throw new IllegalArgumentException("任务代号不能为空");
+        Quest quest = questMapper.findQuestByQuestCode(questRequest.getQuestCode());
+        if(quest != null || ObjectUtil.isNotEmpty( quest)) throw new IllegalArgumentException("任务代号已存在");
+        if(userMapper.findUserById(sendId).getLevel()< 4) throw new IllegalArgumentException("只有A级以上用户可以发布任务");
+
+        questMapper.addQuest(questRequest);
+
+        Quest newQuest = questMapper.findQuestById(questMapper.findQuestByQuestCode(questRequest.getQuestCode()).getId());
+        Team team = teamMapper.findTeamByName(questRequest.getResolvingByTeamName());
+        team.setResolvingQuestCode(newQuest.getQuestCode());
+        team.setResolvingQuestId(newQuest.getId());
+        team.setStatus(1);
+        return teamMapper.updateTeam(team) > 0;
     }
     /**
      * 分页查询所有通知
@@ -62,9 +73,34 @@ public class QuestServiceImpl implements QuestService {
      */
     @Override
     public boolean updateQuest(Quest quest) {
+        if(quest.getResolvingByTeamName()==null) {
+            Team team = teamMapper.findTeamByResolvingQuestId(quest.getId());
+            team.setResolvingQuestCode(null);
+            team.setResolvingQuestId(null);
+            if(team.getStatus()==0) throw new IllegalArgumentException("数据异常");
+            if(team.getStatus()==1) team.setStatus(0);
+            teamMapper.updateTeam( team);
+        }
+        else{
+            //旧小队相关
+            Team team = teamMapper.findTeamByResolvingQuestId(quest.getId());
+            team.setResolvingQuestCode(null);
+            team.setResolvingQuestId(null);
+            if(team.getStatus()==0) throw new IllegalArgumentException("数据异常");
+            if(team.getStatus()==1) team.setStatus(0);
+            teamMapper.updateTeam(team);
+            //新小队相关
+            Team newTeam = teamMapper.findTeamByName(quest.getResolvingByTeamName());
+            newTeam.setResolvingQuestId(quest.getId());
+            newTeam.setResolvingQuestCode(quest.getQuestCode());
+            newTeam.setStatus(1);
+            teamMapper.updateTeam(newTeam);
+        }
+
+
         List<Team> teamList = teamMapper.selectList(new QueryWrapper<Team>().eq("resolving_quest_id", quest.getId()));
         for(Team team:teamList){
-            team.setResolvingQuestName(quest.getQuestName());
+            team.setResolvingQuestCode(quest.getQuestCode());
             teamMapper.updateTeam(team);
         }
         return questMapper.updateQuest(quest) > 0;
@@ -78,7 +114,7 @@ public class QuestServiceImpl implements QuestService {
         Team team = teamMapper.findTeamByResolvingQuestId(id);
         if(team != null){
             team.setResolvingQuestId(null);
-            team.setResolvingQuestName(null);
+            team.setResolvingQuestCode(null);
             teamMapper.updateTeam(team);
         }
         return questMapper.deleteQuestById(id);
@@ -90,5 +126,7 @@ public class QuestServiceImpl implements QuestService {
         List<Quest> questList = questMapper.findQuestByConditions(questParam);
         return PageInfo.of(questList);
     }
+
+
 
 }

@@ -136,6 +136,16 @@
                       <span class="label">成员：{{ item.memberCount }}人</span>
                     </div>
                   </div>
+                  <div class="info-item" v-if="item.resolvingQuestName">
+    <span class="label">
+      <i class="iconfont icon-operation"></i> 正在执行的任务：{{item.resolvingQuestName }}
+    </span>
+                  </div>
+                  <div class="info-item" v-else>
+    <span class="label" style="color: #888;">
+      <i class="iconfont icon-operation"></i> 当前无任务
+    </span>
+                  </div>
                 </el-card>
               </el-col>
             </el-row>
@@ -274,11 +284,7 @@
               <span><i class="iconfont icon-name"></i> 姓名</span>
             </template>
           </el-table-column>
-          <el-table-column prop="role" label="职位">
-            <template #header>
-              <span><i class="iconfont icon-role"></i> 职位</span>
-            </template>
-          </el-table-column>
+
           <el-table-column prop="level" label="权限等级">
             <template #header>
               <span><i class="iconfont icon-security"></i> 权限等级</span>
@@ -289,13 +295,13 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="status" label="状态">
+          <el-table-column prop="introduction" label="简介">
             <template #header>
-              <span><i class="iconfont icon-status"></i> 状态</span>
+              <span><i class="iconfont icon-status"></i> 简介</span>
             </template>
             <template #default="scope">
-              <el-tag :type="getMemberStatusTagType(scope.row.status)" class="status-tag">
-                {{ scope.row.status }}
+              <el-tag :type="getMemberStatusTagType(scope.row.introduction)" class="introduction-tag">
+                {{ scope.row.introduction }}
               </el-tag>
             </template>
           </el-table-column>
@@ -412,18 +418,38 @@ import type { User } from '@/api/user';
 import {ElMessage, type FormInstance} from 'element-plus';
 import * as facilityApi from "@/api/facility.ts";
 
-
 interface TeamWithMemberCount extends Team {
   memberCount?: number;
 }
 
 const userAvatar = ref("/src/assets/pic/user.png");
-// 获取数据（修改后）
+// 获取数据
 const catchTeamTableData = () => {
-  TeamApi.getTeamList(pageNum.value, pageSize.value).then(async (res) => {
+  TeamApi.getTeamList(pageNum.value, pageSize.value).then((res) => {
     if (res.code === 200) {
       const teams = res.data.list;
       total.value = res.data.total;
+      const teamsWithQuestName = await Promise.all(
+          teams.map(async (team) => {
+            if (team.resolvingQuestId) {
+              try {
+                const questRes = await QuestApi.getQuest(team.resolvingQuestId);
+                if (questRes.code === 200) {
+                  return {
+                    ...team,
+                    resolvingQuestName: questRes.data.questName
+                  };
+                }
+              } catch (err) {
+                console.error('获取任务失败', err);
+              }
+            }
+            return {
+              ...team,
+              resolvingQuestName: null
+            };
+          })
+      );
 
       // 使用 Promise.all 并行获取成员数量
       const countPromises = teams.map(team =>
@@ -439,9 +465,8 @@ const catchTeamTableData = () => {
             return { ...team, memberCount: 0 };
           })
       );
-
-      // 等待所有成员数量请求完成
-      teamTableData.value = await Promise.all(countPromises);
+      teamTableData.value = res.data.list;
+      total.value = res.data.total;
     } else if (res.code === 501) {
       ElMessage.error('权限不足，无法获取小队信息');
     } else {
@@ -753,9 +778,8 @@ const handleAddMember = () =>{
   catchMemberNoTeam()
 }
 
-// 添加成员成功后更新成员数量
 const handleAddMemberWith = (userId: number | null) => {
-  const teamId = selectedTeam.value.id
+  const teamId = selectedTeam.value?.id
   if( userId === null  ){
     ElMessage('用户id为空！')
     return;
@@ -765,7 +789,8 @@ const handleAddMemberWith = (userId: number | null) => {
     ElMessage.error('无法获取队伍id')
     return
   }else {
-    TeamApi.addMember(teamId, userId).then(res => {
+    TeamApi.addMember(teamId, userId).then(res=>{
+      console.log(res)
       if (res.code === 200) {
         ElMessage.success('用户添加成功');
         // 更新当前小队的成员数量
@@ -785,7 +810,9 @@ const handleAddMemberWith = (userId: number | null) => {
       ElMessage.error('添加该用户失败:'+err.msg)
     })
   }
+
 }
+
 const handleDeleteMember = (userId: number) => {
   if (userId === null || selectedTeam.value?.id === null) {
     ElMessage.error('用户不存在')

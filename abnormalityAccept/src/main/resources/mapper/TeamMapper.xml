@@ -10,7 +10,7 @@
         <result property="name" column="name"/>
         <result property="status" column="status"/>
         <result property="resolvingQuestId" column="resolving_quest_id"/>
-        <result property="resolvingQuestName" column="resolving_quest_name"/>
+        <result property="resolvingQuestCode" column="resolving_quest_code"/>
         <result property="level" column="level"/>
         <result property="description" column="description"/>
         <result property="leaderId" column="leader_id"/>
@@ -19,7 +19,7 @@
 
     <!-- 基础字段SQL片段（复用查询字段） -->
     <sql id="Base_Team">
-        id, name, status, resolving_quest_id, resolving_quest_name, level, description, leader_id, is_active
+        id, name, status, resolving_quest_id, resolving_quest_code, level, description, leader_id, is_active
     </sql>
 
     <!-- 1. 查询所有团队 -->
@@ -55,8 +55,8 @@
 
     <!-- 3. 添加团队 -->
     <insert id="addTeam">
-        INSERT INTO team(name, status, resolving_quest_id, resolving_quest_name, level, description, leader_id,is_active)
-        VALUES(#{name}, #{status}, #{resolvingQuestId}, #{resolvingQuestName}, #{level}, #{description}, #{leaderId},1)
+        INSERT INTO team(name, status, resolving_quest_id, resolving_quest_code, level, description, leader_id,is_active)
+        VALUES(#{name}, #{status}, #{resolvingQuestId}, #{resolvingQuestCode}, #{level}, #{description}, #{leaderId},1)
     </insert>
 
     <!-- 4. 更新团队 -->
@@ -65,7 +65,7 @@
         SET name = #{name},
             status = #{status},
             resolving_quest_id = #{resolvingQuestId},
-            resolving_quest_name = #{resolvingQuestName},
+            resolving_quest_code = #{resolvingQuestCode},
             level = #{level},
             description = #{description},
             leader_id = #{leaderId}
@@ -107,8 +107,8 @@
             <if test="resolvingQuestId != null">
                 AND resolving_quest_id LIKE CONCAT('%', #{resolvingQuestId}, '%')
             </if>
-            <if test="resolvingQuestName != null and resolvingQuestName !=''">
-                AND resolving_quest_name LIKE CONCAT('%', #{resolvingQuestName}, '%')
+            <if test="resolvingQuestCode != null and resolvingQuestCode !=''">
+                AND resolving_quest_code LIKE CONCAT('%', #{resolvingQuestCode}, '%')
             </if>
             <if test="leaderId != null">
                 AND leader_id = #{leaderId}
@@ -139,7 +139,12 @@
         </where>
     </select>
 
-
+    <select id="findTeamLeisure" resultMap="Base_Team_List">
+        SELECT
+        <include refid="Base_Team"/>
+        FROM team
+        WHERE status = 0 and resolving_quest_id IS NULL and is_active = 1
+    </select>
 
 
 

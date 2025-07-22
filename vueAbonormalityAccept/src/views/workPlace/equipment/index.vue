@@ -1,216 +1,309 @@
 <template>
-
-
   <div class="content-container">
-  <!-- 搜索表单区域 - 保持暗色主题一致性 -->
-  <el-form
-      :model="searchForm"
-      inline
-      class="search-form"
-      style="margin-bottom: 16px; display: flex; flex-wrap: nowrap; overflow-x: auto;"
-  >
-    <el-form-item label="装备名称" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
-      <el-input
-          v-model="searchForm.name"
-          placeholder="请输入装备名称"
-          clearable
-          class="search-input"
-          style="width: 125px;"
-      ></el-input>
-    </el-form-item>
-    <el-form-item label="装备类型" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
-      <el-select
-          v-model="searchForm.type"
-          placeholder="请选择"
-          clearable
-          class="search-select"
-          style="width: 90px;"
-      >
-        <el-option label="类型1" value=1></el-option>
-        <el-option label="类型2" value=2></el-option>
-        <el-option label="类型3" value=3></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="装备状态" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
-      <el-select
-          v-model="searchForm.state"
-          placeholder="请选择"
-          clearable
-          class="search-select"
-          style="width: 90px;"
-      >
-        <el-option label="状态1" value="1"></el-option>
-        <el-option label="状态2" value="2"></el-option>
-        <el-option label="状态3" value="3"></el-option>
-      </el-select>
-    </el-form-item>
-    <el-form-item label="ID" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
-      <el-input
-          v-model="searchForm.id"
-          placeholder="请输入装备ID"
-          clearable
-          class="search-input"
-          style="width: 110px;"
-      ></el-input>
-    </el-form-item>
-    <!-- 新增持有者ID搜索框 -->
-    <el-form-item label="持有者ID" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
-      <el-input
-          v-model="searchForm.masterId"
-          placeholder="请输入持有者ID"
-          clearable
-          class="search-input"
-          style="width: 125px;"
-      ></el-input>
-    </el-form-item>
-    <el-form-item style="margin-left: auto; flex-shrink: 0;">
-      <el-button
-          @click="handleSearch"
-          class="reset-button"
-      >
-        <i class="iconfont icon-reset"></i> 搜索
-      </el-button>
-      <el-button
-          @click="handleReset"
-          class="reset-button"
-      >
-        <i class="iconfont icon-reset"></i> 重置
-      </el-button>
-      <el-button
-          type="success"
-          @click="handleCreate"
-          class="create-button"
-      >
-        <i class="iconfont icon-add"></i> 新增装备
-      </el-button>
-    </el-form-item>
-  </el-form>
+    <!-- 搜索表单区域 - 保持暗色主题一致性 -->
+    <el-form
+        :model="searchForm"
+        inline
+        class="search-form"
+        style="margin-bottom: 16px; display: flex; flex-wrap: nowrap; overflow-x: auto;"
+    >
+      <el-form-item label="装备名称" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
+        <el-input
+            v-model="searchForm.name"
+            placeholder="请输入装备名称"
+            clearable
+            class="search-input"
+            style="width: 125px;"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="装备类型" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
+        <div style="position: relative;">
+          <el-select
+              v-model="searchForm.type"
+              placeholder="请选择"
+              clearable
+              class="search-select"
+              style="width: 90px;"
+          >
+            <el-option label="类型1" value=1></el-option>
+            <el-option label="类型2" value=2></el-option>
+            <el-option label="类型3" value=3></el-option>
+            <el-option label="类型4" value=4></el-option>
+            <el-option label="类型5" value=5></el-option>
+            <el-option label="类型6" value=6></el-option>
+            <el-option label="类型7" value=7></el-option>
+            <el-option label="类型8" value=8></el-option>
+          </el-select>
+          <span
+              class="info-icon"
+              @mouseenter="showTypeTip = true"
+              @mouseleave="showTypeTip = false"
+          >
+          ⓘ
+        </span>
+          <!-- 类型说明提示框 -->
+          <div
+              v-if="showTypeTip"
+              class="type-tip"
+          >
+            <div class="tip-title">装备类型说明</div>
+            <ul class="tip-list">
+              <li>1 - 收容装备</li>
+              <li>2 - 防护装备</li>
+              <li>3 - 武器装备</li>
+              <li>4 - 特殊装备</li>
+              <li>5 - 探测装备</li>
+              <li>6 - 消耗品</li>
+              <li>7 - 维修装备</li>
+              <li>8 - 医疗装备</li>
+            </ul>
+          </div>
+        </div>
+      </el-form-item>
+      <el-form-item label="装备状态" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
+        <div style="position: relative;">
+          <el-select
+              v-model="searchForm.state"
+              placeholder="请选择"
+              clearable
+              class="search-select"
+              style="width: 90px;"
+          >
+            <el-option label="状态1" value="1"></el-option>
+            <el-option label="状态2" value="2"></el-option>
+          </el-select>
+          <span
+              class="info-icon"
+              @mouseenter="showStateTip = true"
+              @mouseleave="showStateTip = false"
+          >
+          ⓘ
+        </span>
+          <!-- 状态说明提示框 -->
+          <div
+              v-if="showStateTip"
+              class="state-tip"
+          >
+            <div class="tip-title">装备状态说明</div>
+            <ul class="tip-list">
+              <li>1 - 启用</li>
+              <li>2 - 备用/测试</li>
+            </ul>
+          </div>
+        </div>
+      </el-form-item>
+      <el-form-item label="ID" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
+        <el-input
+            v-model="searchForm.id"
+            placeholder="请输入装备ID"
+            clearable
+            class="search-input"
+            style="width: 110px;"
+        ></el-input>
+      </el-form-item>
+      <!-- 新增持有者ID搜索框 -->
+      <el-form-item label="持有者ID" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
+        <el-input
+            v-model="searchForm.masterId"
+            placeholder="请输入持有者ID"
+            clearable
+            class="search-input"
+            style="width: 125px;"
+        ></el-input>
+      </el-form-item>
+      <el-form-item style="margin-left: auto; flex-shrink: 0;">
+        <el-button
+            @click="handleSearch"
+            class="reset-button"
+        >
+          <i class="iconfont icon-reset"></i> 搜索
+        </el-button>
+        <el-button
+            @click="handleReset"
+            class="reset-button"
+        >
+          <i class="iconfont icon-reset"></i> 重置
+        </el-button>
+        <el-button
+            type="success"
+            @click="handleCreate"
+            class="create-button"
+        >
+          <i class="iconfont icon-add"></i> 新增装备
+        </el-button>
+      </el-form-item>
+    </el-form>
 
-  <!-- 数据表格区域 - 严格展示指定属性 -->
-  <el-table
-    :data="eqList"
-    border
-    style="width: 100%"
-    class="containment-table"
-    :header-cell-style="tableHeaderStyle"
-    :row-style="tableRowStyle"
-  >
-    <el-table-column prop="id" label="ID" width="100">
-      <template #header>
-        <span><i class="iconfont icon-id"></i> ID</span>
-      </template>
-    </el-table-column>
-    <el-table-column prop="name" label="名称" width="180">
-      <template #header>
-        <span><i class="iconfont icon-equipment"></i> 名称</span>
-      </template>
-      <template #default="scope">
-        <span class="equipment-name">{{ scope.row.name }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column prop="type" label="类型" width="150">
-      <template #header>
-        <span><i class="iconfont icon-type"></i> 类型</span>
-      </template>
-      <template #default="scope">
-        <el-tag :type="getTypeTagType(scope.row.type)" class="type-tag">
-          {{ scope.row.type }}
-        </el-tag>
-      </template>
-    </el-table-column>
-    <el-table-column prop="state" label="状态" width="150">
-      <template #header>
-        <span><i class="iconfont icon-status"></i> 状态</span>
-      </template>
-      <template #default="scope">
-        <el-tag :type="getStateTagType(scope.row.state)" class="state-tag">
-          {{ scope.row.state }}
-        </el-tag>
-      </template>
-    </el-table-column>
-    <el-table-column prop="masterId" label="持有者ID" width="150">
-      <template #header>
-        <span><i class="iconfont icon-master"></i> 持有者ID</span>
-      </template>
-    </el-table-column>
-    <el-table-column prop="applicationRequirement" label="使用要求" min-width="200">
-      <template #header>
-        <span><i class="iconfont icon-requirement"></i> 使用要求</span>
-      </template>
-    </el-table-column>
-    <el-table-column label="操作" width="220" >
-      <template #header>
-        <span><i class="iconfont icon-operation"></i> 操作</span>
-      </template>
-      <template #default="scope">
-        <el-button
-          type="text"
-          @click="handleDetail(scope.row)"
-          class="detail-btn"
-        >
-          <i class="iconfont icon-detail"></i> 详情
-        </el-button>
-        <el-button
-          type="text"
-          @click="handleEdit(scope.row)"
-          class="edit-btn"
-        >
-          <i class="iconfont icon-edit"></i> 编辑
-        </el-button>
-        <el-button
-          type="text"
-          class="delete-btn"
-          @click="handleDelete(scope.row)"
-        >
-          <i class="iconfont icon-delete"></i> 删除
-        </el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+    <!-- 数据表格区域 - 严格展示指定属性 -->
+    <el-table
+        :data="eqList"
+        border
+        style="width: 100%"
+        class="containment-table"
+        :header-cell-style="tableHeaderStyle"
+        :row-style="tableRowStyle"
+    >
+      <el-table-column prop="id" label="ID" width="100">
+        <template #header>
+          <span><i class="iconfont icon-id"></i> ID</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="name" label="名称" width="180">
+        <template #header>
+          <span><i class="iconfont icon-equipment"></i> 名称</span>
+        </template>
+        <template #default="scope">
+          <span class="equipment-name">{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="type" label="类型" width="150">
+        <template #header>
+          <span><i class="iconfont icon-type"></i> 类型</span>
+        </template>
+        <template #default="scope">
+          <el-tag :type="getTypeTagType(scope.row.type)" class="type-tag">
+            {{ scope.row.type }} {{ getTypeName(scope.row.type) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="state" label="状态" width="150">
+        <template #header>
+          <span><i class="iconfont icon-status"></i> 状态</span>
+        </template>
+        <template #default="scope">
+          <el-tag :type="getStateTagType(scope.row.state)" class="state-tag">
+            {{ scope.row.state }} {{ getStateName(scope.row.state) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="masterId" label="持有者ID" width="150">
+        <template #header>
+          <span><i class="iconfont icon-master"></i> 持有者ID</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="applicationRequirement" label="使用要求" min-width="200">
+        <template #header>
+          <span><i class="iconfont icon-requirement"></i> 使用要求</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="220" >
+        <template #header>
+          <span><i class="iconfont icon-operation"></i> 操作</span>
+        </template>
+        <template #default="scope">
+          <el-button
+              type="text"
+              @click="handleDetail(scope.row)"
+              class="detail-btn"
+          >
+            <i class="iconfont icon-detail"></i> 详情
+          </el-button>
+          <el-button
+              type="text"
+              @click="handleEdit(scope.row)"
+              class="edit-btn"
+          >
+            <i class="iconfont icon-edit"></i> 编辑
+          </el-button>
+          <el-button
+              type="text"
+              class="delete-btn"
+              @click="handleDelete(scope.row)"
+          >
+            <i class="iconfont icon-delete"></i> 删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
 
-  <!-- 分页组件 - 保持收容单元风格 -->
-  <el-pagination
-    @size-change="handleSizeChange"
-    @current-change="handleCurrentChange"
-    :current-page="currentPage"
-    :page-sizes="[10, 20, 30]"
-    :page-size="pageSize"
-    layout="total, sizes, prev, pager, next, jumper"
-    :total="total"
-    prev-text="上一页"
-    next-text="下一页"
-    class="containment-pagination"
-  >
-  </el-pagination>
+    <!-- 分页组件 - 保持收容单元风格 -->
+    <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[10, 20, 30]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        prev-text="上一页"
+        next-text="下一页"
+        class="containment-pagination"
+    >
+    </el-pagination>
   </div>
+
   <!-- 新增装备弹窗 - 严格包含指定属性 -->
   <el-dialog
-    v-model="createDialogVisible"
-    title="新增装备"
-    width="40%"
-    class="containment-dialog"
+      v-model="createDialogVisible"
+      title="新增装备"
+      width="40%"
+      class="containment-dialog"
   >
     <el-form
-      :model="createForm"
-      ref="createFormRef"
-      label-width="120px"
-      label-position="left"
-      :rules="createRules"
+        :model="createForm"
+        ref="createFormRef"
+        label-width="120px"
+        label-position="left"
+        :rules="createRules"
     >
       <el-form-item label="名称" prop="name">
         <el-input v-model="createForm.name"></el-input>
       </el-form-item>
       <el-form-item label="类型" prop="type">
-        <el-input v-model="createForm.type"></el-input>
+        <div style="position: relative;">
+          <el-input v-model="createForm.type" placeholder="1-8的数字"></el-input>
+          <span
+              class="info-icon dialog-icon"
+              @mouseenter="showCreateTypeTip = true"
+              @mouseleave="showCreateTypeTip = false"
+          >
+            ⓘ
+          </span>
+          <div
+              v-if="showCreateTypeTip"
+              class="dialog-tip type-tip"
+          >
+            <div class="tip-title">装备类型说明</div>
+            <ul class="tip-list">
+              <li>1 - 收容装备</li>
+              <li>2 - 防护装备</li>
+              <li>3 - 武器装备</li>
+              <li>4 - 特殊装备</li>
+              <li>5 - 探测装备</li>
+              <li>6 - 消耗品</li>
+              <li>7 - 维修装备</li>
+              <li>8 - 医疗装备</li>
+            </ul>
+          </div>
+        </div>
       </el-form-item>
       <el-form-item label="状态" prop="state">
-        <el-input v-model="createForm.state"></el-input>
+        <div style="position: relative;">
+          <el-input v-model="createForm.state" placeholder="1或2的数字"></el-input>
+          <span
+              class="info-icon dialog-icon"
+              @mouseenter="showCreateStateTip = true"
+              @mouseleave="showCreateStateTip = false"
+          >
+            ⓘ
+          </span>
+          <div
+              v-if="showCreateStateTip"
+              class="dialog-tip state-tip"
+          >
+            <div class="tip-title">装备状态说明</div>
+            <ul class="tip-list">
+              <li>1 - 启用</li>
+              <li>2 - 备用/测试</li>
+            </ul>
+          </div>
+        </div>
       </el-form-item>
       <el-form-item label="使用要求" prop="applicationRequirement">
         <el-input
-          v-model="createForm.applicationRequirement"
-          type="textarea"
-          :rows="2"
+            v-model="createForm.applicationRequirement"
+            type="textarea"
+            :rows="2"
         ></el-input>
       </el-form-item>
       <el-form-item label="负责人ID" prop="masterId">
@@ -218,9 +311,9 @@
       </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-input
-          v-model="createForm.description"
-          type="textarea"
-          :rows="3"
+            v-model="createForm.description"
+            type="textarea"
+            :rows="3"
         ></el-input>
       </el-form-item>
     </el-form>
@@ -232,32 +325,76 @@
 
   <!-- 编辑装备弹窗 -->
   <el-dialog
-    v-model="editDialogVisible"
-    title="编辑装备"
-    width="40%"
-    class="containment-dialog"
+      v-model="editDialogVisible"
+      title="编辑装备"
+      width="40%"
+      class="containment-dialog"
   >
     <el-form
-      :model="editForm"
-      ref="editFormRef"
-      label-width="120px"
-      label-position="left"
-      :rules="createRules"
+        :model="editForm"
+        ref="editFormRef"
+        label-width="120px"
+        label-position="left"
+        :rules="createRules"
     >
       <el-form-item label="名称" prop="name">
         <el-input v-model="editForm.name"></el-input>
       </el-form-item>
       <el-form-item label="类型" prop="type">
-        <el-input v-model="editForm.type"></el-input>
+        <div style="position: relative;">
+          <el-input v-model="editForm.type" placeholder="1-8的数字"></el-input>
+          <span
+              class="info-icon dialog-icon"
+              @mouseenter="showEditTypeTip = true"
+              @mouseleave="showEditTypeTip = false"
+          >
+            ⓘ
+          </span>
+          <div
+              v-if="showEditTypeTip"
+              class="dialog-tip type-tip"
+          >
+            <div class="tip-title">装备类型说明</div>
+            <ul class="tip-list">
+              <li>1 - 收容装备</li>
+              <li>2 - 防护装备</li>
+              <li>3 - 武器装备</li>
+              <li>4 - 特殊装备</li>
+              <li>5 - 探测装备</li>
+              <li>6 - 消耗品</li>
+              <li>7 - 维修装备</li>
+              <li>8 - 医疗装备</li>
+            </ul>
+          </div>
+        </div>
       </el-form-item>
       <el-form-item label="状态" prop="state">
-        <el-input v-model="editForm.state"></el-input>
+        <div style="position: relative;">
+          <el-input v-model="editForm.state" placeholder="1或2的数字"></el-input>
+          <span
+              class="info-icon dialog-icon"
+              @mouseenter="showEditStateTip = true"
+              @mouseleave="showEditStateTip = false"
+          >
+            ⓘ
+          </span>
+          <div
+              v-if="showEditStateTip"
+              class="dialog-tip state-tip"
+          >
+            <div class="tip-title">装备状态说明</div>
+            <ul class="tip-list">
+              <li>1 - 启用</li>
+              <li>2 - 备用/测试</li>
+            </ul>
+          </div>
+        </div>
       </el-form-item>
       <el-form-item label="使用要求" prop="applicationRequirement">
         <el-input
-          v-model="editForm.applicationRequirement"
-          type="textarea"
-          :rows="2"
+            v-model="editForm.applicationRequirement"
+            type="textarea"
+            :rows="2"
         ></el-input>
       </el-form-item>
       <el-form-item label="负责人ID" prop="masterId">
@@ -265,9 +402,9 @@
       </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-input
-          v-model="editForm.description"
-          type="textarea"
-          :rows="3"
+            v-model="editForm.description"
+            type="textarea"
+            :rows="3"
         ></el-input>
       </el-form-item>
     </el-form>
@@ -279,10 +416,10 @@
 
   <!-- 装备详情弹窗 - 仅展示指定属性 -->
   <el-dialog
-    v-model="detailDialogVisible"
-    :title="`${selectedEquipment?.name} - 装备档案`"
-    width="50%"
-    class="containment-dialog"
+      v-model="detailDialogVisible"
+      :title="`${selectedEquipment?.name} - 装备档案`"
+      width="50%"
+      class="containment-dialog"
   >
     <div v-if="selectedEquipment" class="equipment-detail">
       <div class="security-stamp">
@@ -296,10 +433,10 @@
           <h2 class="equipment-name">{{ selectedEquipment.name }}</h2>
           <div class="info-row">
             <span class="info-item"><i class="iconfont icon-id"></i> ID：<strong>{{ selectedEquipment.id }}</strong></span>
-            <span class="info-item"><i class="iconfont icon-type"></i> 类型：<strong>{{ selectedEquipment.type }}</strong></span>
+            <span class="info-item"><i class="iconfont icon-type"></i> 类型：<strong>{{ selectedEquipment.type }} {{ getTypeName(selectedEquipment.type) }}</strong></span>
           </div>
           <div class="info-row">
-            <span class="info-item"><i class="iconfont icon-status"></i> 状态：<strong>{{ selectedEquipment.state }}</strong></span>
+            <span class="info-item"><i class="iconfont icon-status"></i> 状态：<strong>{{ selectedEquipment.state }} {{ getStateName(selectedEquipment.state) }}</strong></span>
             <span class="info-item"><i class="iconfont icon-master"></i> 负责人ID：<strong>{{ selectedEquipment.masterId }}</strong></span>
           </div>
           <div class="info-row description">
@@ -311,6 +448,7 @@
         </div>
       </div>
     </div>
+
     <template #footer>
       <el-button @click="detailDialogVisible = false" class="dialog-button">
         <i class="iconfont icon-close"></i> 关闭
@@ -325,6 +463,13 @@ import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'elem
 import * as equipmentApi from '@/api/equipment';
 import  type { Equipment , EquipmentParam} from '@/api/equipment';
 
+// 类型和状态提示框显示控制
+const showTypeTip = ref(false);
+const showStateTip = ref(false);
+const showCreateTypeTip = ref(false);
+const showCreateStateTip = ref(false);
+const showEditTypeTip = ref(false);
+const showEditStateTip = ref(false);
 
 // 新增装备弹窗相关（严格包含指定属性）
 const createDialogVisible = ref(false);
@@ -342,7 +487,6 @@ const createForm = ref<any>({
 const editDialogVisible = ref(false);
 const editFormRef = ref<FormInstance>();
 const editForm = ref<any>({
-
   name: '',
   type: '',
   state: '',
@@ -353,13 +497,17 @@ const editForm = ref<any>({
 
 const eqList=ref<Equipment[]>([]);
 
-
-
 // 新增装备表单验证规则（仅验证指定属性）
 const createRules = reactive<FormRules>({
   name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-  type: [{ required: true, message: '请输入类型', trigger: 'blur' }],
-  state: [{ required: true, message: '请输入状态', trigger: 'blur' }],
+  type: [
+    { required: true, message: '请输入类型', trigger: 'blur' },
+    { type: 'number', min: 1, max: 8, message: '类型必须是1-8之间的数字', trigger: 'blur' }
+  ],
+  state: [
+    { required: true, message: '请输入状态', trigger: 'blur' },
+    { type: 'number', min: 1, max: 2, message: '状态必须是1或2', trigger: 'blur' }
+  ],
   applicationRequirement: [{ required: true, message: '请输入使用要求', trigger: 'blur' }],
   masterId: [{ required: true, message: '请输入负责人ID', trigger: 'blur' }]
 });
@@ -380,8 +528,8 @@ const initData=async()=>{
 }
 
 onMounted(() => {
-  initData();
-}
+      initData();
+    }
 )
 
 // 打开新增装备弹窗
@@ -400,6 +548,7 @@ const submitCreate = async() => {
       ElMessage.success('新增装备成功');
       createDialogVisible.value = false;
       createFormRef.value?.resetFields();
+      initData();
     } else {
       ElMessage.warning('请填写完整信息');
     }
@@ -436,12 +585,12 @@ const selectedEquipment = ref<any>(null);
 // 搜索过滤（仅基于指定属性）
 const filteredData = computed(() => {
   const filters = {
-  name: (item: Equipment) => !searchForm.name || item.name.includes(searchForm.name),
-  type: (item: Equipment) => !searchForm.type || String(item.type).includes(searchForm.type),
-  state: (item: Equipment) => !searchForm.state || String(item.state).includes(searchForm.state),
-  id: (item: Equipment) => !searchForm.id || item.id.toString().includes(searchForm.id),
-  masterId: (item: Equipment) => !searchForm.masterId || item.masterId.toString().includes(searchForm.masterId),
-};
+    name: (item: Equipment) => !searchForm.value.name || item.name.includes(searchForm.value.name),
+    type: (item: Equipment) => !searchForm.value.type || String(item.type).includes(searchForm.value.type),
+    state: (item: Equipment) => !searchForm.value.state || String(item.state).includes(searchForm.value.state),
+    id: (item: Equipment) => !searchForm.value.id || item.id.toString().includes(searchForm.value.id),
+    masterId: (item: Equipment) => !searchForm.value.masterId || item.masterId.toString().includes(searchForm.value.masterId),
+  };
 
   return eqList.value.filter(item => Object.values(filters).every(filter => filter(item)));
 });
@@ -452,16 +601,52 @@ const currentTableData = computed(() => {
   return filteredData.value.slice(start, start + pageSize.value);
 });
 
+// 获取类型名称
+const getTypeName = (type: number | string) => {
+  const typeMap: Record<string, string> = {
+    '1': '收容装备',
+    '2': '防护装备',
+    '3': '武器装备',
+    '4': '特殊装备',
+    '5': '探测装备',
+    '6': '消耗品',
+    '7': '维修装备',
+    '8': '医疗装备'
+  };
+  return typeMap[String(type)] || '';
+};
+
+// 获取状态名称
+const getStateName = (state: number | string) => {
+  const stateMap: Record<string, string> = {
+    '1': '启用',
+    '2': '备用/测试'
+  };
+  return stateMap[String(state)] || '';
+};
+
 // 类型标签样式映射
 const getTypeTagType = (type: number) => {
-  const typeMap: Record<number, string> = { 1: 'primary', 2: 'success', 3: 'warning' };
+  const typeMap: Record<number, string> = {
+    1: 'primary',
+    2: 'success',
+    3: 'warning',
+    4: 'danger',
+    5: 'info',
+    6: 'default',
+    7: 'info',
+    8: 'success'
+  };
   return typeMap[type] || 'info';
 };
 
 // 状态标签样式映射
-const getStateTagType = (state: string) => {
-  const stateMap: Record<string, string> = { '正常': 'success', '维修中': 'warning', '封存': 'info' };
-  return stateMap[state] || 'danger';
+const getStateTagType = (state: string | number) => {
+  const stateMap: Record<string, string> = {
+    '1': 'success',
+    '2': 'warning'
+  };
+  return stateMap[String(state)] || 'danger';
 };
 
 // 表格样式控制
@@ -511,14 +696,26 @@ const handleReset = () => {
     pageNum: null,
     pageSize: null,
   }
-  currentPage.value = 1; };
+  currentPage.value = 1;
+  initData();
+};
 
 // 分页方法
-const handleSizeChange = (val: number) => { pageSize.value = val; currentPage.value = 1; initData() };
-const handleCurrentChange = (val: number) => { currentPage.value = val; initData()};
+const handleSizeChange = (val: number) => {
+  pageSize.value = val;
+  currentPage.value = 1;
+  initData();
+};
+const handleCurrentChange = (val: number) => {
+  currentPage.value = val;
+  initData();
+};
 
 // 详情、编辑、删除方法
-const handleDetail = (row: any) => { selectedEquipment.value = row; detailDialogVisible.value = true; };
+const handleDetail = (row: any) => {
+  selectedEquipment.value = row;
+  detailDialogVisible.value = true;
+};
 const handleEdit = (row: any) => {
   editForm.value.id = row.id;
   editForm.value.name = row.name;
@@ -531,26 +728,23 @@ const handleEdit = (row: any) => {
 };
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
-    `确定要删除装备: ${row.name} 吗?`,
-    '删除确认',
-    {
-      confirmButtonText: '确认删除',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
+      `确定要删除装备: ${row.name} 吗?`,
+      '删除确认',
+      {
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
   ).then(async() => {
     const index = eqList.value.findIndex(item => item.id === row.id);
     if (index !== -1) {
       const result =await equipmentApi.deleteEquipment(row.id);
       if (result.code===200) {
         ElMessage.warning(`已删除装备: ${row.name}`);
-        // if (currentTableData.value.length === 0 && currentPage.value > 1) currentPage.value--;
         initData();
       }else {
         ElMessage.error(`删除失败：${result.msg}`)
       }
-      
-      
     }
   }).catch(() => {
     ElMessage.info('已取消删除');
@@ -563,7 +757,6 @@ const submitEdit = async() => {
     if (valid) {
       const index = eqList.value.findIndex(item => item.id === editForm.value.id);
       if (index !== -1) {
-        // eqList.value[index] = { ...editForm };
         const res=(await equipmentApi.updateEquipment(editForm.value)).data
         initData()
         ElMessage.success('编辑装备成功');
@@ -637,6 +830,7 @@ const submitEdit = async() => {
   padding: 25px;
   border-radius: 6px;
   border: 1px solid #ccc; /* 加深边框颜色 */
+  position: relative;
 }
 
 .security-stamp {
@@ -737,4 +931,75 @@ const submitEdit = async() => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
 }
 
+/* 类型和状态提示样式 */
+.info-icon {
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #409eff;
+  cursor: help;
+  font-size: 14px;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-icon {
+  right: 10px;
+  top: 50%;
+}
+
+.type-tip, .state-tip {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #e5e6eb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  width: 200px;
+  font-size: 12px;
+}
+
+.type-tip {
+  top: 30px;
+  left: 0;
+}
+
+.state-tip {
+  top: 30px;
+  left: 0;
+  width: 150px;
+}
+
+.dialog-tip {
+  top: 40px;
+  left: 0;
+}
+
+.tip-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.tip-list {
+  padding-left: 16px;
+  margin: 0;
+  color: #666;
+}
+
+.tip-list li {
+  margin-bottom: 3px;
+}
+
+/* 表格标签样式优化 */
+.type-tag, .state-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 </style>

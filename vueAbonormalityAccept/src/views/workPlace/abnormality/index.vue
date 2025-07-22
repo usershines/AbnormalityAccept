@@ -3,17 +3,8 @@
 
     <!-- 搜索表单区域 -->
     <el-form :inline="true" :model="filterForm" class="search-form">
-      <el-form-item label="SCP编号" class="search-item">
-        <el-input
-          v-model="filterForm.id"
-          placeholder="SCP-XXX"
-          clearable
-          class="search-input"
-          prefix-icon="el-icon-key"
-        ></el-input>
-      </el-form-item>
 
-      <el-form-item label="名称" class="search-item">
+      <el-form-item label="名称" class="search-item" style="width: 180px;">
         <el-input
           v-model="filterForm.name"
           placeholder="异想体名称"
@@ -23,7 +14,7 @@
         ></el-input>
       </el-form-item>
 
-      <el-form-item label="危险等级" class="search-item">
+      <el-form-item label="危险等级" class="search-item" style="width: 230px;">
         <el-select
           v-model="filterForm.level"
           placeholder="请选择危险等级"
@@ -59,13 +50,15 @@
       class="containment-table"
       :header-cell-style="tableHeaderStyle"
     >
-    <el-table-column label="预览图">
+    <el-table-column label="预览图" width="110" >
       <template #default="scope">
+
         <el-image
           :src="scope.row.imgName"
-          fit="cover"
+          fit="fill"
           class="abnormality-image"
         ></el-image>
+
       </template>
     </el-table-column>
       <el-table-column prop="name" label="名称">
@@ -113,13 +106,6 @@
           >
             <i class="iconfont icon-edit"></i> 编辑
           </el-button>
-          <el-button
-            type="text"
-            class="delete-btn"
-            @click="handleDeleteAbnormality(scope.row)"
-          >
-            <i class="iconfont icon-delete"></i> 删除
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -129,7 +115,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="pageNum"
-      :page-sizes="[10, 20, 30]"
+      :page-sizes="[5, 10, 15]"
       :page-size="pageSize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
@@ -186,7 +172,7 @@
         <el-form-item label="备注" prop="remarks">
           <el-input v-model="newAbnormalityForm.notes" type="textarea" :rows="2" />
         </el-form-item>
-        <el-form-item label="所在设施" prop="facility">
+        <el-form-item label="所在设施ID" prop="facility">
           <el-input v-model="newAbnormalityForm.facilityId" />
         </el-form-item>
       </el-form>
@@ -196,7 +182,7 @@
       </template>
     </el-dialog>
 
-    <!-- 详情对话框 -->
+    <!-- 详情弹窗-->
     <el-dialog
       v-model="detailDialogVisible"
       :title="currentAbnormality.name"
@@ -213,7 +199,7 @@
 
         <div class="detail-header">
           <div class="header-info">
-            <h2 class="abnormality-name">{{ currentAbnormality.name }}</h2>
+            <h2 class="abnormality-name2">{{ currentAbnormality.name }}</h2>
             <div class="info-row">
               <span class="info-item"><i class="iconfont icon-id"></i> 异想体名称：<strong>{{ currentAbnormality.name }}</strong></span>
               <span class="info-item"><i class="iconfont icon-security"></i> 危险等级：
@@ -285,161 +271,12 @@ import { ElMessage, ElMessageBox, type UploadProps} from 'element-plus';
 import type { FormInstance } from 'element-plus';
 // 表格数据表单
 const tableData = ref<abnormality[]>([
-  {
-    id: 1,
-    name: "设备过热",
-    level: 3,
-    description: "设备温度超过正常范围",
-    manageMethod: "立即停机检查",
-    notes: "检查散热系统",
-    facilityId: 1001,
-    imageName: "overheat.jpg"
-  },
-  {
-    id: 2,
-    name: "电压波动",
-    level: 2,
-    description: "电压值不稳定",
-    manageMethod: "调整电源供应",
-    notes: "检查线路连接",
-    facilityId: 1002,
-    imageName: "voltage.jpg"
-  },
-  {
-    id: 3,
-    name: "传感器故障",
-    level: 1,
-    description: "传感器读数异常",
-    manageMethod: "更换传感器",
-    notes: "型号XYZ-200",
-    facilityId: 1003,
-    imageName: "sensor.jpg"
-  },
-  {
-    id: 4,
-    name: "电机异响",
-    level: 3,
-    description: "电机运行时有异常噪音",
-    manageMethod: "停机检修",
-    notes: "检查轴承和联轴器",
-    facilityId: 1004,
-    imageName: "motor.jpg"
-  },
-  {
-    id: 5,
-    name: "管道泄漏",
-    level: 2,
-    description: "液体管道有泄漏现象",
-    manageMethod: "修复泄漏点",
-    notes: "使用密封胶",
-    facilityId: 1005,
-    imageName: "leak.jpg"
-  },
-  {
-    id: 6,
-    name: "控制系统故障",
-    level: 3,
-    description: "控制系统无法正常工作",
-    manageMethod: "重启系统",
-    notes: "检查程序是否崩溃",
-    facilityId: 1006,
-    imageName: "control.jpg"
-  },
-  {
-    id: 7,
-    name: "传送带打滑",
-    level: 1,
-    description: "传送带运行不稳定",
-    manageMethod: "调整张紧度",
-    notes: "清洁传送带表面",
-    facilityId: 1007,
-    imageName: "conveyor.jpg"
-  },
-  {
-    id: 8,
-    name: "温度传感器异常",
-    level: 2,
-    description: "温度传感器读数波动大",
-    manageMethod: "校准传感器",
-    notes: "使用标准温度源",
-    facilityId: 1008,
-    imageName: "temp-sensor.jpg"
-  },
-  {
-    id: 9,
-    name: "气压不足",
-    level: 2,
-    description: "气压低于设定值",
-    manageMethod: "检查气压系统",
-    notes: "检查压缩机",
-    facilityId: 1009,
-    imageName: "pressure.jpg"
-  },
-  {
-    id: 10,
-    name: "阀门堵塞",
-    level: 1,
-    description: "阀门无法正常开启或关闭",
-    manageMethod: "清理阀门",
-    notes: "使用专用清洁剂",
-    facilityId: 1010,
-    imageName: "valve.jpg"
-  },
-  {
-    id: 11,
-    name: "电流过载",
-    level: 3,
-    description: "电路电流超过额定值",
-    manageMethod: "切断电源",
-    notes: "检查负载和线路",
-    facilityId: 1011,
-    imageName: "current.jpg"
-  },
-  {
-    id: 12,
-    name: "液位异常",
-    level: 2,
-    description: "液体液位超出正常范围",
-    manageMethod: "调整液位",
-    notes: "检查进出液管道",
-    facilityId: 1012,
-    imageName: "liquid-level.jpg"
-  },
-  {
-    id: 13,
-    name: "振动异常",
-    level: 3,
-    description: "设备振动幅度超出标准",
-    manageMethod: "停机检查",
-    notes: "检查基础和固定螺栓",
-    facilityId: 1013,
-    imageName: "vibration.jpg"
-  },
-  {
-    id: 14,
-    name: "信号干扰",
-    level: 1,
-    description: "通信信号受到干扰",
-    manageMethod: "检查屏蔽层",
-    notes: "更换信号线",
-    facilityId: 1014,
-    imageName: "signal.jpg"
-  },
-  {
-    id: 15,
-    name: "轴承磨损",
-    level: 2,
-    description: "轴承运转时有异常摩擦",
-    manageMethod: "更换轴承",
-    notes: "型号ABC-500",
-    facilityId: 1015,
-    imageName: "bearing.jpg"
-  }
+
 ]);
 
 //页面数据
 const pageNum = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(5)
 const total = ref(0)
 const creatDialogVisible = ref(false)
 const detailDialogVisible = ref(false)
@@ -613,11 +450,7 @@ const submitAbnormality = async() => {
     }
   });
 }
-// 在关闭对话框时重置表单
-const closeDialog = () => {
-  creatDialogVisible.value = false;
-  abnormalityFormRef.value?.resetFields();
-};
+
 const handleSizeChange = (val: number) => {
   pageSize.value = val
   console.log(val)
@@ -716,116 +549,6 @@ const handleSearch = () => {
 </script>
 
 <style scoped>
-.page-container {
-  padding: 20px;
-  background-color: #0c1427;
-  min-height: calc(100vh - 60px);
-  color: #e0e7ff;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.page-header h2 {
-  margin: 0;
-}
-
-.mb-20 {
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  background-color: #0d1830;
-  border: 1px solid rgba(93, 139, 244, 0.2);
-}
-
-.stat-content h3 {
-  color: #a0a8c3;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e0e7ff;
-  margin: 0;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #a0a8c3;
-  font-weight: normal;
-}
-
-/* 搜索表单样式 */
-.search-form {
-  background: linear-gradient(135deg, #1a2a4a, #0c1a33);
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid #304878;
-  margin-bottom: 20px;
-}
-
-.search-input, .search-select {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid #304878;
-  color: #e0f0ff;
-  border-radius: 4px;
-  width: 180px;
-}
-
-.search-input:hover, .search-select:hover {
-  border-color: #4a6fb3;
-}
-
-.search-button {
-  background: linear-gradient(to right, #4a6fb3, #3a5a9c);
-  border: none;
-  color: #fff;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.search-button:hover {
-  background: linear-gradient(to right, #5a7fc3, #4a6aac);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(74, 111, 179, 0.4);
-}
-
-.reset-button {
-  background: linear-gradient(to right, #5a5a7c, #4a4a6c);
-  border: none;
-  color: #e0e0ff;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.reset-button:hover {
-  background: linear-gradient(to right, #6a6a8c, #5a5a7c);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(90, 90, 140, 0.4);
-}
-
-.create-button {
-  background: linear-gradient(to right, #4aaf7d, #3a8c5f);
-  border: none;
-  color: #fff;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.create-button:hover {
-  background: linear-gradient(to right, #5abf8d, #4a9c6f);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(74, 175, 125, 0.4);
-}
-
 /* 表格样式 */
 .containment-table {
   background: rgba(10, 20, 41, 0.5);
@@ -841,9 +564,10 @@ const handleSearch = () => {
   font-size: 15px;
 }
 
+/* 修改表格单元格文字颜色为深色 */
 .containment-table :deep(td) {
   background: transparent;
-  color: #e0f0ff;
+  color: #333; /* 修改为深色 */
   border-bottom: 1px solid #304878;
   font-size: 14px;
 }
@@ -865,14 +589,7 @@ const handleSearch = () => {
   border: none;
 }
 
-.status-tag {
-  font-weight: bold;
-  border-radius: 12px;
-  padding: 0 10px;
-  height: 24px;
-  line-height: 24px;
-  border: none;
-}
+
 
 .detail-btn {
   color: #4a9cf0;
@@ -995,9 +712,9 @@ const handleSearch = () => {
 .abnormality-name {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #e0f0ff;
+  color: black;
   font-size: 24px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   border-bottom: 2px solid #4a6fb3;
   padding-bottom: 10px;
 }
@@ -1096,27 +813,16 @@ const handleSearch = () => {
   height: 178px;
   display: block;
 }
-</style>
-
-<style>
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
+.abnormality-image {
+  width: 80px;
+  height: 80px;
+}
+.abnormality-name2 {
+  color: #ffffff; /* 修改为你想要的颜色，例如红色 */
+  font-size: 24px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid #4a6fb3;
+  padding-bottom: 10px;
 }
 
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
-}
 </style>

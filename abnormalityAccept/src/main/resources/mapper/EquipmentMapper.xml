@@ -67,6 +67,12 @@
                 AND master_id = #{masterId}
             </if>
             <if test="description !=null and description !=''">AND description LIKE CONCAT('%', #{description}, '%') </if>
+            <if test="type !=null and type !=''">
+                AND type LIKE CONCAT('%',#{type},'%')
+            </if>
+            <if test="state !=null and state !=''">
+                AND state LIKE CONCAT('%',#{state},'%')
+            </if>
 
             <!-- 多值查询 -->
             <if test="stateList != null and stateList.size()>0"> AND state IN

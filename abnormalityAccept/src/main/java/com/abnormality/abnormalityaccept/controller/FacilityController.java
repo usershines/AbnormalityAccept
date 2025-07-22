@@ -76,8 +76,8 @@ public class FacilityController {
     }
 
     @Operation(summary = "多条件查询设施")
-    @GetMapping("/conditions")
-    public Result<PageInfo<Facility>> findFacilityByConditions(FacilityParam facilityParam){
+    @PostMapping("/conditions")
+    public Result<PageInfo<Facility>> findFacilityByConditions(@RequestBody FacilityParam facilityParam){
         PageInfo<Facility> facilityList = facilityService.findFacilityByConditions(facilityParam);
         if(facilityList.getList() == null || facilityList.getList().isEmpty()) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关设施");
         return Result.ok(facilityList);

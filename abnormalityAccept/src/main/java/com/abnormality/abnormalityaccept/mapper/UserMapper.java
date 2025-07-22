@@ -57,7 +57,7 @@ public interface UserMapper extends BaseMapper<User> {
     /**
      * 删除数据,逻辑删除
      */
-    int deleteUserById(Long id);
+    int deleteUserById(Long id,Integer isActive);
 
     /**
      * 修改自己信息

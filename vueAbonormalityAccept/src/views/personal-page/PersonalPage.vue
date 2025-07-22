@@ -12,14 +12,14 @@
           <h1 class="personal-name">
             用户名：{{ user.username }}
             <el-button
-              icon="Edit"
+              :icon="Edit"
               class="edit-btn"
               @click="dialogFormVisible = true"
             >
               编辑
             </el-button>
             <el-button
-              icon="Key"
+              :icon="Key"
               class="edit-btn"
               @click="dialogPasswordVisible = true"
             >
@@ -148,6 +148,7 @@
 import { ref, reactive,  shallowRef, onMounted } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import * as userApi from '@/api/user.ts';
+import {Edit, Key} from "@element-plus/icons-vue";
 import router from '@/router';
 
 
@@ -237,6 +238,7 @@ const initData=async()=>{
   if (response.code === 200){
     user.value = response.data
   }
+  editUser.value = {...user.value};
 }
 
 onMounted(()=>{

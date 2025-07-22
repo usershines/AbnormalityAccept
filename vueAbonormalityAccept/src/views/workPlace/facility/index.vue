@@ -629,24 +629,50 @@ const filteredStaff = ref<any[]>([
 const filteredScp = ref<any[]>([
 
 ])
-// 工具方法：根据设施ID获取人员数量（真实接口）
-const getStaffCount = async (facilityId: number) => {
-  try {
-    const response = await userApi.findByFacilityId(facilityId, 1, 1);
-    if (response.code === 200) {
-      return response.data.total || 0;
-    } else {
-      console.error('获取人员数量失败:', response.message);
-      return 0;
-    }
-  } catch (e) {
-    console.error('请求错误:', e);
-    return 0;
+const staffCounts = ref<Record<number, number>>({}); // 存储设施ID对应的人员数量
+
+const getStaffCount = (facilityId: number): number => {
+  // 如果已有缓存数据，直接返回
+  if (staffCounts.value[facilityId] !== undefined) {
+    return staffCounts.value[facilityId];
   }
+
+  // 初始化为0并立即返回（避免首次渲染无数据）
+  staffCounts.value[facilityId] = 0;
+
+  // 异步获取数据
+  userApi.findByFacilityId(facilityId, 1, 1)
+      .then(response => {
+        if (response.code === 200) {
+          staffCounts.value[facilityId] = response.data.total;
+        }
+      })
+      .catch(error => {
+        console.error('获取人员数量失败:', error);
+        staffCounts.value[facilityId] = 0; // 出错时重置为0
+      });
+
+  return 0; // 首次调用返回0
 };
+
+const abnormalityCounts = ref<Record<number, number>>({}); //存储设施ID对应的异想体数量
 // 工具方法：获取异想体数量
 const getScpCount = (facilityId: number) => {
-  return scpList.value.filter(item => item.facilityId === facilityId).length;
+  if (abnormalityCounts.value[facilityId] !== undefined) {
+    return abnormalityCounts.value[facilityId];
+  }
+
+  staffCounts.value[facilityId] = 0;
+
+  abnormality.findByFacilityId(facilityId, 1, 1).then(response => {
+      if (response.code === 200) {
+        abnormalityCounts.value[facilityId] = response.data.total;
+      }
+    }).catch((error) => {
+      console.log('获取异想体数量失败', error);
+      abnormalityCounts.value[facilityId] = 0;
+  })
+  return 0;
 };
 
 // 样式映射方法

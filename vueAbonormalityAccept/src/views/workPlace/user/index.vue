@@ -124,25 +124,25 @@
                   style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
                   :active-value="1"
                   :inactive-value="0"
-                  @change="handleStatusChange(scope.row)"
+                  :before-change="handleStatusChange.bind(this,scope.row)"
               />
             </div>
           </template>
         </el-table-column>
 
-        <el-table-column prop="location" label="所在地" width="150">
+        <el-table-column prop="facilityName" label="所在设施" width="150">
           <template #header>
             <span><i class="iconfont icon-location"></i> 所在地</span>
           </template>
         </el-table-column>
 
-        <el-table-column prop="superior" label="上级" width="150">
+        <el-table-column prop="leaderName" label="上级" width="150">
           <template #header>
             <span><i class="iconfont icon-superior"></i> 上级</span>
           </template>
         </el-table-column>
 
-        <el-table-column prop="description" label="简介" min-width="200" show-overflow-tooltip>
+        <el-table-column prop="introduction" label="简介" min-width="200" show-overflow-tooltip>
           <template #header>
             <span><i class="iconfont icon-description"></i> 简介</span>
           </template>
@@ -442,7 +442,7 @@ const searchForm = ref<UserParamsRequest>({
   facilityId: null,
   facilityName: null,
   introduction: null,
-  isActive: 1,
+  isActive: null,
 
   // 等级范围
   minLevel: null,
@@ -765,12 +765,18 @@ const submitEdit = () => {
 }
 
 // 添加删除方法
-const handleStatusChange= (row: any) => {
+const handleStatusChange= (row: any) :Promise<boolean> => {
+  const isDelete = ref(true);
+  if(row.isActive === 0) isDelete.value = false
+  console.log(isDelete.value)
+  const content = ref('启用')
+  if(isDelete.value) content.value = '停用'
   ElMessageBox.confirm(
-      '是否确认停用id为' + row.id + '的用户' + row.username,
+      // '是否确认停用id为' + row.id + '的用户' + row.username,
+      `是否确认${content.value}id为${row.id}的用户${row.username}`,
       '警告',
       {
-        confirmButtonText: '停用',
+        confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning',
       }
@@ -778,20 +784,19 @@ const handleStatusChange= (row: any) => {
       .then(async () => {
         const index = tableData.value.findIndex(item => item.id === row.id);
         if (index !== -1) {
-          const result = await UserApi.deleteUser(row.id);
+          const result = await UserApi.userIsActive(row.id,isDelete.value?0:1);
           if (result.code === 200) {
-            ElMessage.warning(`已停用用户: ${row.name}`);
+            ElMessage.success(`操作成功`);
             catchData();
           } else {
-            ElMessage.error(`停用失败：${result.msg}`)
+            ElMessage.error(`操作失败：${result.msg}`)
           }
-
-
         }
       }).catch(() => {
-    ElMessage.info('已取消停用');
+    ElMessage.info('已取消操作');
   });
-  };
+  return Promise.reject(false)
+};
 
 
 //         }

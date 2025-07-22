@@ -85,6 +85,15 @@ export function deleteUser(id:number){
     return request.delete(`/user/${id}` )
 }
 
+// 启停用户
+export function userIsActive(id: number, isActive: number){
+    return request.post(`/user/isActive/${id}`, {},{
+        params:{
+            isActive: isActive,
+        }
+    })
+}
+
 // 用户登出
 export function logout(){
         return request.post('/user/logout')

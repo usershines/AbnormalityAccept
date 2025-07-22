@@ -127,7 +127,7 @@ public class EmailController {
     }
     // 根据发送者等级查询邮件
     @Operation(summary = "根据发送者等级查询邮件")
-    @GetMapping("/sender/level")
+    @GetMapping("/senderLevel")
     public Result<PageInfo<Email>> findEmailBySenderLevel(@RequestParam Integer level,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
         Long receiverId = userService.getUserIdByToken();
         PageInfo<Email> emailList = emailService.findEmailBySenderLevel(level,pageNum,pageSize,receiverId);

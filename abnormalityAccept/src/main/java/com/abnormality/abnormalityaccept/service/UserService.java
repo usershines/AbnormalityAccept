@@ -36,7 +36,7 @@ public interface UserService {
     /**
      * 删除数据
      */
-    boolean deleteUserById(Long id,Long editor);
+    boolean deleteUserById(Long id,Long editor,Integer isActive);
 
     /**
      * 新增数据

@@ -85,8 +85,8 @@ public class QuestController {
     }
 
     @Operation(summary = "条件分页查询任务")
-    @GetMapping("/conditions")
-    public Result<PageInfo<Quest>> findQuestByCondition  (QuestParam questParam) {
+    @PostMapping("/conditions")
+    public Result<PageInfo<Quest>> findQuestByCondition  (@RequestBody QuestParam questParam) {
         PageInfo<Quest> questList = questService.findQuestByConditions(questParam);
         if(questList.getList()== null || questList.getList().isEmpty()) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关任务信息");
         return Result.ok(questList);

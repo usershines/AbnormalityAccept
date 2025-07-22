@@ -83,7 +83,7 @@ pagehelper:
   support-methods-arguments: true  # 支持通过 Mapper 接口参数传递分页参数
 # MinIO 对象存储配置
 minio:
-  endpoint: http://poyuan.kmdns.net:19000 # MinIO 服务端点地址
+  endpoint: http://localhost:9000 # MinIO 服务端点地址
   username: minioadmin # MinIO 登录用户名
   password: minioadmin # MinIO 登录密码
   bucketName: abnormality # 默认使用的存储桶名称

@@ -119,7 +119,7 @@
                 </div>
               </div>
 
-              <!-- 卡片内容：编号、状态、截止日期、负责人 -->
+              <!-- 卡片内容：代号、状态、截止日期、负责人 -->
               <div class="card-content">
                 <div class="info-item">
                   <span class="label"><i class="iconfont icon-questName"></i> 任务名称：</span>
@@ -281,8 +281,8 @@
         label-width="120px"
         class="quest-form"
     >
-      <el-form-item label="任务编号" prop="questCode">
-        <el-input v-model="createForm.questCode" placeholder="请输入任务编号"></el-input>
+      <el-form-item label="任务代号" prop="questCode">
+        <el-input v-model="createForm.questCode" placeholder="请输入任务代号"></el-input>
       </el-form-item>
       <el-form-item label="任务名称" prop="questName">
         <el-input v-model="createForm.questName" placeholder="请输入任务名称"></el-input>
@@ -353,8 +353,8 @@
         label-width="120px"
         class="quest-form"
     >
-      <el-form-item label="任务编号" prop="questCode">
-        <el-input v-model="editForm.questCode" placeholder="请输入任务编号" disabled></el-input>
+      <el-form-item label="任务代号" prop="questCode">
+        <el-input v-model="editForm.questCode" placeholder="请输入任务代号" disabled></el-input>
       </el-form-item>
       <el-form-item label="任务名称" prop="questName">
         <el-input v-model="editForm.questName" placeholder="请输入任务名称"></el-input>

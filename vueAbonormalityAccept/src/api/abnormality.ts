@@ -60,9 +60,7 @@ export function deleteAbnormality(id: number) {
 export function findAbnormalityByConditions(params:any){
     // if(abnormality.minLevel === null) abnormality.minLevel = 1;
     // if(abnormality.maxLevel === null) abnormality.maxLevel = 5;
-    return request.get('/abnormality/conditions', {
-        params,
-    })
+    return request.post('/abnormality/conditions', params)
 }
 
 export const findByFacilityId  =async (id:number,pageNum: number, pageSize: number)=>{

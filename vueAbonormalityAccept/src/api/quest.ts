@@ -80,7 +80,5 @@ export function deleteQuest(id: number) {
 }
 
 export function searchQuests(questParam: any) {
-    return request.get('/quest/conditions', {
-        params: questParam
-    });
+    return request.post('/quest/conditions', questParam);
 }

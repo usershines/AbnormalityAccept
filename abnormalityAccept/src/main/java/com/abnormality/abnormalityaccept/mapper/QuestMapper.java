@@ -40,6 +40,9 @@ public interface QuestMapper extends BaseMapper<Quest> {
 
     // ============== 拓展方法 ==============
     List<Quest> findQuestByConditions(QuestParam questParam);
+
+    Quest findQuestByQuestCode(String code);
+
 //
 //    /**
 //     * 根据状态查询任务

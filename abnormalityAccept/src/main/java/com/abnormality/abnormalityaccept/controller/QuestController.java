@@ -4,10 +4,12 @@ import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.QuestRequest;
 import com.abnormality.abnormalityaccept.entity.Notice;
 import com.abnormality.abnormalityaccept.entity.Quest;
+import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.service.NoticeService;
 import com.abnormality.abnormalityaccept.service.QuestService;
+import com.abnormality.abnormalityaccept.service.TeamService;
 import com.abnormality.abnormalityaccept.service.UserService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +35,9 @@ public class QuestController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TeamService teamService;
 
     @Operation(summary = "分页查询所有任务")
     @Parameter(name = "pageNum", description = "页码", example = "1")
@@ -90,5 +95,12 @@ public class QuestController {
         PageInfo<Quest> questList = questService.findQuestByConditions(questParam);
         if(questList.getList()== null || questList.getList().isEmpty()) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关任务信息");
         return Result.ok(questList);
+    }
+
+    @Operation(summary = "查询空闲状态的小队")
+    @GetMapping("/teamLeisure")
+    public Result<PageInfo<Team>> findTeamLeisure(@RequestParam Integer pageNum, @RequestParam Integer pageSize) {
+        PageInfo<Team> teamList = teamService.findTeamLeisure(pageNum, pageSize);
+        return Result.ok(teamList);
     }
 }

@@ -1,282 +1,269 @@
 <template>
-  <el-card style="margin-top: -20px; height: 770px">
-    <el-container>
-      <el-aside>
-        <el-card style="height: 500px;margin-top: 40px">
-          <template #header >
-            <div style="height: 15px">
-              <h3 style="text-align: center;margin-top: -10px">欢迎回来</h3>
-            </div>
-          </template>
-          <template #default>
-            <div style="display: flex;flex-direction: column;align-items: center">
-              <h2>{{Me?.username}}</h2>
-              <h4>等级: {{Me?.level}}</h4>
-              <h3>{{Me?.introduction}}</h3>
-            </div>
-          </template>
-        </el-card>
-      </el-aside>
-      <el-main>
-        <div>
-          <h3>部分监控画面</h3>
-        </div>
-        <div class="scroll-container">
-          <div class="video-grid">
-            <el-card
-                v-for="(video, index) in videos"
-                :key="index"
-                @click="enlargeVideo(video)"
-                :class="`level-${video.level}`"
-            >
-              <template v-slot:header>
-                <div class="card-header">
-                  <div>
-                    <span>监控编号: {{ video.id }}</span>
-                    <span class="level-badge" :class="`level-${video.level}-badge`">
-                      {{ getLevelText(video.level) }}
-                    </span>
-                  </div>
-                  <span class="status-badge" :class="`status-${video.status}`">
-                    {{ video.status }}
-                  </span>
-                </div>
-              </template>
-              <div class="video-container">
-                <video
-                    :src="video.src"
-                    muted
-                    autoplay
-                    loop
-                    :width="videoWidth"
-                    :height="videoHeight"
-                ></video>
-              </div>
-            </el-card>
-          </div>
-        </div>
-      </el-main>
-    </el-container>
+  <div class="containment-home">
+    <!-- 顶部标题 -->
+    <div class="header-text">
+      <h1>异想体收容管理系统</h1>
+    </div>
 
-  </el-card>
-    <el-dialog
-        v-model="dialogVisible"
-        width="80%"
-        center
-        @close="handleDialogClose"
-        style="align-items: center;display: flex;flex-direction: column"
-    >
-      <template #title>
-        <div>
-          <span>监控编号: {{ selectedVideo.id }}</span>
-          <span class="level-badge ml-2" :class="`level-${selectedVideo.level}-badge`">
-            {{ getLevelText(selectedVideo.level) }}
-          </span>
-          <span class="status-badge ml-2" :class="`status-${selectedVideo.status}`">
-            {{ selectedVideo.status }}
-          </span>
-        </div>
-      </template>
-      <template #default>
-        <video
-            :src="selectedVideo.src || ''"
-            autoplay
-            loop
-            muted
-            :width="dialogVideoWidth"
-            :height="dialogVideoHeight"
-        ></video>
-      </template>
-    </el-dialog>
+    <!-- 异想体世界观描述 -->
+    <div class="worldview-description">
+      <p>在遥远的未来，世界被一种神秘而强大的存在——异想体所笼罩。这些异想体拥有着超乎想象的能力和特性，它们的出现打破了人类对现实的认知。</p>
+      <p>为了维护世界的秩序与安全，人类建立了异想体收容管理系统，致力于对这些危险的存在进行收容和研究。每一个异想体都被视为一个独立的谜题，等待着我们去解开。</p>
+      <p>在这个充满未知与挑战的世界里，每一秒的流逝都可能带来新的变化。而我们的使命，就是在这片混沌中寻找希望，守护人类的未来。</p>
+      <p class="subtitle">此系统自运行起已过去：</p>
+    </div>
+
+    <!-- 计时器显示 -->
+    <div class="timer-display">
+      <div class="time-unit">
+        <span class="time-value">{{ formatTime(timer.days) }}</span>
+        <span class="time-label">天</span>
+      </div>
+      <div class="time-separator">:</div>
+      <div class="time-unit">
+        <span class="time-value">{{ formatTime(timer.hours) }}</span>
+        <span class="time-label">小时</span>
+      </div>
+      <div class="time-separator">:</div>
+      <div class="time-unit">
+        <span class="time-value">{{ formatTime(timer.minutes) }}</span>
+        <span class="time-label">分钟</span>
+      </div>
+      <div class="time-separator">:</div>
+      <div class="time-unit">
+        <span class="time-value">{{ formatTime(timer.seconds) }}</span>
+        <span class="time-label">秒</span>
+      </div>
+    </div>
+
+    <!-- 状态指示器 -->
+    <div class="status-indicator">
+      <div class="status-light green"></div>
+      <span class="status-text">网站运行状态: 正常</span>
+    </div>
+  </div>
 </template>
 
-<script setup lang="ts">
-import {onMounted, ref} from 'vue';
-import {findByName} from "@/api/user.ts";
-import type {User} from "@/api/user.ts";
-import {ElMessage} from "element-plus";
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-const dialogVisible = ref(false);
-const selectedVideo = ref({ id: '', status: '', src: '', level: '' });
-const videos = ref([
-  { id: 1, status: '正常', src: '/src/assets/video/999.mp4', level: 'high' },
-  { id: 2, status: '警告', src: '/src/assets/video/999.mp4', level: 'medium' },
-  { id: 3, status: '正常', src: 'path/to/video3.mp4', level: 'low' },
-  { id: 4, status: '异常', src: 'path/to/video4.mp4', level: 'high' },
-  { id: 5, status: '正常', src: 'path/to/video5.mp5', level: 'medium' },
-  { id: 6, status: '正常', src: 'path/to/video6.mp6', level: 'low' },
-  { id: 1, status: '正常', src: '/src/assets/video/999.mp4', level: 'high' },
-  { id: 2, status: '警告', src: '/src/assets/video/999.mp4', level: 'medium' },
-  { id: 3, status: '正常', src: 'path/to/video3.mp4', level: 'low' },
-  { id: 4, status: '异常', src: 'path/to/video4.mp4', level: 'high' },
-  { id: 5, status: '正常', src: 'path/to/video5.mp5', level: 'medium' },
-  { id: 6, status: '正常', src: 'path/to/video6.mp6', level: 'low' },
-]);
+// 固定起始时间（示例：2025年1月1日 00:00:00）
+const startTime = ref(new Date(2025, 6, 14, 0, 0, 0))
 
-// 视频尺寸配置
-const videoWidth = ref(320);
-const videoHeight = ref(240);
-const dialogVideoWidth = ref(800);
-const dialogVideoHeight = ref(600);
+// 计时器状态
+const timer = ref({
+  days: 0,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+  running: false
+})
 
-const Me = ref<User>()
+// 计时器间隔
+let interval = null
 
-// 获取重要度文本
-const getLevelText = (level: string) => {
-  const levelMap = {
-    'high': '高',
-    'medium': '中',
-    'low': '低'
-  };
-  return levelMap[level] || '未知';
-};
+// 开始计时
+const startTimer = () => {
+  if (timer.value.running) return
 
-function enlargeVideo(video: any) {
-  selectedVideo.value = video;
-  dialogVisible.value = true;
+  timer.value.running = true
+  updateDuration() // 立即更新一次
+  interval = setInterval(updateDuration, 1000)
 }
 
-const handleDialogClose = () => {
-  dialogVisible.value = false;
-};
+// 停止计时
+const stopTimer = () => {
+  timer.value.running = false
+  clearInterval(interval)
+}
 
-onMounted(() =>{
-  const myName = localStorage.getItem('username');
-  if(!myName) {
-    ElMessage.error('请先登录！')
-  }else {
-    findByName(myName).then((res)=>{
-      if(res.code === 200){
-        Me.value = res.data;
-        ElMessage.success(`用户信息获取成功！欢迎回来 ${Me.value?.username}`)
-      }else{
-        ElMessage.error(res.msg);
-      }
-    }).catch((err)=>{
-      console.log(err);
-      ElMessage.error(`发送错误：${err.msg}`)
-    })
-  }
+// 重置计时器（重新计算从起始时间到现在的持续时间）
+const resetTimer = () => {
+  stopTimer()
+  updateDuration()
+}
+
+// 计算持续时间
+const updateDuration = () => {
+  const now = new Date()
+  const diff = now.getTime() - startTime.value.getTime()
+
+  // 计算天、小时、分钟、秒
+  timer.value.days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  timer.value.hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  timer.value.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  timer.value.seconds = Math.floor((diff % (1000 * 60)) / 1000)
+}
+
+// 格式化时间显示
+const formatTime = (value) => {
+  return value < 10 ? `0${value}` : value
+}
+
+// 格式化日期显示
+const formatDate = (date) => {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const hours = date.getHours()
+  const minutes = date.getMinutes()
+
+  return `${year}年${formatTime(month)}月${formatTime(day)}日 ${formatTime(hours)}:${formatTime(minutes)}`
+}
+
+// 组件挂载时自动开始计时
+onMounted(() => {
+  startTimer()
+})
+
+// 组件卸载时清除计时器
+onBeforeUnmount(() => {
+  clearInterval(interval)
 })
 </script>
 
 <style scoped>
-/* 调整滚动容器样式 */
-.scroll-container {
-  height: 700px;
-  overflow-y: auto;
-  padding: 0 4px 10px; /* 增加左右内边距 */
+/* 引入 Google Fonts 的字体 */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+.containment-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 75vh;
+  background: linear-gradient(to bottom, #000000, #1a4b8c);
+  font-family: 'Orbitron', sans-serif;
+  color: #e6f0ff;
+  animation: fadeIn 1s ease-in-out;
 }
 
-/* 自定义滚动条样式 */
-.scroll-container::-webkit-scrollbar {
-  width: 6px;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.scroll-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+.header-text {
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
-.scroll-container::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
+.header-text h1 {
+  font-size: 3rem;
+  color: #ffffff;
+  margin-bottom: 0.2rem;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+  animation: neonGlow 1.5s ease-in-out infinite alternate;
 }
 
-.scroll-container::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+@keyframes neonGlow {
+  from {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 1);
+  }
 }
 
-/* 调整视频网格样式 */
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 使用minmax确保网格项不溢出 */
-  gap: 1rem;
-  justify-items: center;
-  padding: 8px; /* 增加内边距 */
+.subtitle {
+  font-size: 2.2rem;
+  color: #aac6ff;
 }
 
-/* 确保卡片不会超出网格项 */
-.video-grid .el-card {
-  width: 100%; /* 让卡片宽度适应网格项 */
-  max-width: 360px; /* 设置最大宽度 */
-  box-sizing: border-box; /* 确保内边距和边框包含在宽度内 */
+.worldview-description {
+  text-align: center;
+  margin-bottom: 1rem;
+  max-width: 800px;
+  line-height: 1.6;
+  color: #aac6ff;
 }
 
-.video-container {
+.timer-display {
   display: flex;
   justify-content: center;
-  padding: 8px;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  margin-bottom: 1rem;
 }
 
-.level-badge, .status-badge {
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-left: 8px;
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 0.5rem;
+  transition: transform 0.3s ease-in-out;
 }
 
-/* 重要度样式 */
-.level-high-badge {
-  background-color: #f56c6c;
-  color: white;
+.time-unit:hover {
+  transform: scale(1.1);
 }
 
-.level-medium-badge {
-  background-color: #e6a23c;
-  color: white;
+.time-value {
+  font-size: 7rem;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: rgba(26, 75, 140, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  min-width: 100px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
 
-.level-low-badge {
-  background-color: #909399;
-  color: white;
+.time-label {
+  font-size: 1.2rem;
+  color: #aac6ff;
+  margin-top: 0.5rem;
 }
 
-/* 状态样式 */
-.status-正常 {
-  background-color: #67c23a;
-  color: white;
+.time-separator {
+  font-size: 4rem;
+  color: #ffffff;
+  margin: 0 0.5rem;
+  align-self: flex-end;
+  padding-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
 }
 
-.status-警告 {
-  background-color: #e6a23c;
-  color: white;
+.status-indicator {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
 }
 
-.status-异常 {
-  background-color: #f56c6c;
-  color: white;
+.status-light {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* 卡片边框样式 */
-.level-high {
-  border: 1px solid #f56c6c;
-}
-
-.level-medium {
-  border: 1px solid #e6a23c;
-}
-
-.level-low {
-  border: 1px solid #909399;
-}
-
-/* 响应式调整 */
-@media (max-width: 992px) {
-  .video-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
   }
 }
 
-@media (max-width: 576px) {
-  .video-grid {
-    grid-template-columns: 1fr;
-  }
+.status-light.green {
+  background-color: #4caf50;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+}
+
+.status-text {
+  color: #aac6ff;
+  font-size: 1rem;
 }
 </style>

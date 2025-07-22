@@ -79,7 +79,7 @@
 
   <!-- 卡片列表区域 - 收容单元风格 -->
   <div class="facility-cards" style="margin-bottom: 8px;">
-    <el-row :gutter="20">
+    <el-row :gutter="30">
       <el-col
         v-for="item in originTableData"
         :key="item.id"
@@ -984,7 +984,7 @@ const saveCreate = () => {
 }
 
 .containment-card {
-  width: 300px;
+  width: 280px;
   height: auto;
   margin-bottom: 8px;
 }
@@ -1005,4 +1005,9 @@ const saveCreate = () => {
   margin-bottom: 6px;  /* 减少每条信息之间的间距 */
 }
 
+.containment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #c8c8c8;
+}
 </style>

@@ -79,7 +79,7 @@
 
   <!-- 卡片列表区域 - 收容单元风格 -->
   <div class="facility-cards" style="margin-bottom: 8px;">
-    <el-row :gutter="20">
+    <el-row :gutter="30">
       <el-col
         v-for="item in originTableData"
         :key="item.id"
@@ -143,7 +143,7 @@
             </div>
             <div class="info-item">
               <span class="label"><i class="iconfont icon-staff"></i> 人员数量：</span>
-              <span class="value">{{ getStaffCount(item.id) }}人</span>
+              <span class="value">{{ getStaffCount(item.id) === -1 ? '加载中...' : getStaffCount(item.id) }}人</span>
             </div>
             <div class="info-item">
               <span class="label"><i class="iconfont icon-scp"></i> 异想体数量：</span>
@@ -517,45 +517,21 @@ const createForm = reactive({
 
 // 数据初始化
 const initData = async() => {
-  facilityApi.getFacilityList(currentPage.value, pageSize.value).then((response) => {
-    console.log(response)
+  try {
+    const response = await facilityApi.getFacilityList(currentPage.value, pageSize.value);
     if(response.code === 200) {
       originTableData.value = response.data.list;
       total.value = response.data.total;
-      ElMessage.success('数据更新成功')
-      console.log('获取数据',response)
-    }else{
-      ElMessage.error('发生错误：',response.message);
+      ElMessage.success('数据更新成功');
+      console.log('获取数据', response);
+      await fetchAllStaffCounts(); // 获取所有设施的人员数量
+    } else {
+      ElMessage.error('发生错误：' + response.msg);
     }
-  }).catch((e) => {
-        console.log('错误',e)
-        ElMessage.error(e.message);
-      }
-
-)
-  // getFacilitystaffList(currentPage.value, pageSize.value).then((response) => {
-  //   console.log(response)
-  //   if(response.code === 200) {
-  //     originTableData.value = response.data.list;
-  //     total.value = response.data.total;
-  //     ElMessage.success('数据更新成功')
-  //     console.log('获取数据',response)
-  //   }else{
-  //     ElMessage.error('发生错误：',response.message);
-  //   }
-  // }).catch((e) => {
-  //       console.log('错误',e)
-  //       ElMessage.error(e.message);
-  //     }
-  // )
-
-  // 工作人员数据
-
-
-  // 异想体数据
-
-
-
+  } catch (e) {
+    console.log('错误', e);
+    ElMessage.error(`获取数据错误${e.msg}`);
+  }
 };
 
 //获取设施人员
@@ -584,8 +560,8 @@ const getFacilityAbnormality=async(facilityId: number)=>{
 
 }
 // 初始化数据
-onMounted(() => {
-  initData();
+onMounted(async () => {
+  await initData();
   ElMessage.success('设施数据加载完成');
 });
 
@@ -629,31 +605,35 @@ const filteredStaff = ref<any[]>([
 const filteredScp = ref<any[]>([
 
 ])
+
 const staffCounts = ref<Record<number, number>>({}); // 存储设施ID对应的人员数量
+const isStaffCountLoaded = ref(false); // 人员数量是否加载完成的标志
 
-const getStaffCount = (facilityId: number): number => {
-  // 如果已有缓存数据，直接返回
-  if (staffCounts.value[facilityId] !== undefined) {
-    return staffCounts.value[facilityId];
+// 提前获取所有设施的人员数量
+const fetchAllStaffCounts = async () => {
+  const facilityIds = originTableData.value.map(facility => facility.id);
+  for (const facilityId of facilityIds) {
+    staffCounts.value[facilityId] = -1; // 初始化为加载中状态
+    try {
+      const response = await userApi.findByFacilityId(facilityId, 1, 1);
+      if (response.code === 200) {
+        staffCounts.value[facilityId] = response.data.total;
+      } else {
+        staffCounts.value[facilityId] = 0;
+      }
+    } catch (error) {
+      console.error('获取人员数量失败:', error);
+      staffCounts.value[facilityId] = 0;
+    }
   }
-
-  // 初始化为0并立即返回（避免首次渲染无数据）
-  staffCounts.value[facilityId] = 0;
-
-  // 异步获取数据
-  userApi.findByFacilityId(facilityId, 1, 1)
-      .then(response => {
-        if (response.code === 200) {
-          staffCounts.value[facilityId] = response.data.total;
-        }
-      })
-      .catch(error => {
-        console.error('获取人员数量失败:', error);
-        staffCounts.value[facilityId] = 0; // 出错时重置为0
-      });
-
-  return 0; // 首次调用返回0
+  isStaffCountLoaded.value = true; // 人员数量加载完成
 };
+
+// 工具方法：获取人员数量
+const getStaffCount = (facilityId: number) => {
+  return staffCounts.value[facilityId];
+};
+
 
 const abnormalityCounts = ref<Record<number, number>>({}); //存储设施ID对应的异想体数量
 // 工具方法：获取异想体数量
@@ -984,7 +964,7 @@ const saveCreate = () => {
 }
 
 .containment-card {
-  width: 300px;
+  width: 280px;
   height: auto;
   margin-bottom: 8px;
 }
@@ -1005,4 +985,9 @@ const saveCreate = () => {
   margin-bottom: 6px;  /* 减少每条信息之间的间距 */
 }
 
+.containment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #c8c8c8;
+}
 </style>

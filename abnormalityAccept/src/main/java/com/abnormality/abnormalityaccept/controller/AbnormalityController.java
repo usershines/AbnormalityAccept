@@ -71,8 +71,8 @@ public class AbnormalityController {
         }
     }
     @Operation(summary = "分页条件查询异想体信息")
-    @GetMapping("/conditions")
-    public Result<PageInfo<Abnormality>> findAbnormalityByConditions(AbnormalityParam abnormalityParam){
+    @PostMapping("/conditions")
+    public Result<PageInfo<Abnormality>> findAbnormalityByConditions(@RequestBody AbnormalityParam abnormalityParam){
 
         PageInfo<Abnormality> abnormalityList = abnormalityService.findAbnormalityByConditions(abnormalityParam);
         PageInfo<Abnormality> abnormalityList1 = fileService.completeImageUrl(abnormalityList);

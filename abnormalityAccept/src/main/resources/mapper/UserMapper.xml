@@ -114,7 +114,7 @@
     <!-- 删除用户 -->
     <update id="deleteUserById">
         update user
-        set is_active = 0
+        set is_active = #{isActive}
         where id = #{id}
     </update>
     <!-- 修改用户自己 -->

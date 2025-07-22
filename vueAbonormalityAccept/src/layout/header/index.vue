@@ -21,7 +21,10 @@
         >
           <el-menu-item index="/start" @click="goToHome" >首页</el-menu-item>
           <el-menu-item index="/workPlace">工作区</el-menu-item>
-          <el-menu-item index="/email/inbox">邮箱</el-menu-item>
+          <el-menu-item index="/email/inbox">
+            <span>邮件</span>
+            <span v-if="unreadCount > 0" class="unread-badge">{{ unreadCount > 99 ? "99+" : unreadCount }}</span>
+          </el-menu-item>
           <el-menu-item index="/personal">个人主页</el-menu-item>
         </el-menu>
         <el-avatar  :size="80" :src="userAvatar" @click="router.push('personal')" style="cursor: pointer"/>
@@ -35,7 +38,22 @@ import { ref, onMounted, onBeforeUnmount, watch} from 'vue'
 import router from "@/router";
 import {useRoute} from "vue-router";
 import {logout} from "@/api/user.ts";
+import { countUnreadEmail } from '@/api/email'
 
+const unreadCount = ref(0) // 未读邮件数量
+const fetchUnreadCount = () => {
+  countUnreadEmail().then(res => {
+    if (res.code === 200) {
+      unreadCount.value = res.data
+    }
+  }).catch(err => {
+    console.error('获取未读邮件数量失败', err)
+  })
+}
+onMounted(() => {
+  fetchUnreadCount()
+
+})
 // 获取当前路由
 const route = useRoute()
 const defaultActive = ref('')
@@ -125,5 +143,24 @@ const Logout = () => {
   width: 70px;
   height: 40px;
   font-size: 20px;
+}
+
+.unread-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;       /* 最小宽度保持圆形 */
+  height: 18px;          /* 固定高度 */
+  padding: 0 5px;        /* 水平内边距 */
+  background-color: #ff4d4f;  /* 红色背景 */
+  color: white;          /* 白色文字 */
+  border-radius: 10px;   /* 圆角值大于高度一半形成胶囊/圆形 */
+  font-size: 12px;       /* 适当字体大小 */
+  font-weight: bold;
+  line-height: 1;        /* 消除行高影响 */
+  margin-left: 6px;      /* 与文字间隔 */
+  box-shadow: 0 0 0 1px white; /* 可选：白色外边框增强对比度 */
+  vertical-align: middle;
+  transform: translateY(-1px); /* 微调垂直位置 */
 }
 </style>

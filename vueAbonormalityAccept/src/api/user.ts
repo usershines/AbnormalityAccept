@@ -81,7 +81,7 @@ export function addUser(user: any){
 }
 
 // 删除用户
-export function deleteUser(id:number){
+export function deleteUser(id:number,isActive:number){
     return request.delete(`/user/${id}` )
 }
 
@@ -103,9 +103,7 @@ export function logout(){
 export function findUser(user: UserParamsRequest){
     if(user.maxLevel === null) user.maxLevel = 5;
     if(user.minLevel === null) user.minLevel = 1;
-    return request.get('/user/conditions', {
-        params: user,
-    })
+    return request.post('/user/conditions', user)
 }
 
 // 名称查询

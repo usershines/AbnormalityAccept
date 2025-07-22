@@ -107,11 +107,11 @@ public class UserController {
     @Operation(summary = "删除用户")
     //@Parameter(name="id",description = "用户id",required = true,example = "1")
     @DeleteMapping("/{id}")
-    public Result<String> deleteUserById(@PathVariable Long id){
+    public Result<String> deleteUserById(@PathVariable Long id,@RequestParam Integer isActive){
         String token = AopUtil.getToken();
         String  username = JwtPayload.fromToken(token).getUsername();
         Long editorId = userService.findUserByName(username).getId();
-        if(userService.deleteUserById(id,editorId)){
+        if(userService.deleteUserById(id,editorId,isActive)){
             return Result.ok("删除成功");
         }
         else return Result.error(Code.ERROR.getCode(),"删除失败");
@@ -155,8 +155,8 @@ public class UserController {
 
 
     @Operation(summary = "多条件查询")
-    @GetMapping("/conditions")
-    public Result<PageInfo<User>> findUserByConditions(UserParamRequest userParamRequest) {
+    @PostMapping("/conditions")
+    public Result<PageInfo<User>> findUserByConditions(@RequestBody UserParamRequest userParamRequest) {
         PageInfo<User> userList = userService.findUserByConditions(userParamRequest);
         if(userList.getList().isEmpty() || userList.getList()==null) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关用户信息");
         return Result.ok(userList);

@@ -1,10 +1,12 @@
 <template>
   <!-- 搜索表单区域 - 暗色主题 -->
+  <div class="content-container">
+
   <el-form
     :model="searchForm"
     inline
     class="search-form"
-    style="margin-bottom: 16px;"
+    style="margin-bottom: 8px;"
   >
     <el-form-item label="设施名称" class="search-item">
       <el-input
@@ -21,7 +23,7 @@
         placeholder="请选择"
         clearable
         class="search-select"
-        style="width: 100px;"
+        style="width: 90px;"
       >
         <el-option label="1级" value="1"></el-option>
         <el-option label="2级" value="2"></el-option>
@@ -36,7 +38,7 @@
         placeholder="请输入所在地"
         clearable
         class="search-input"
-        style="width: 120px;"
+        style="width: 110px;"
       ></el-input>
     </el-form-item>
     <el-form-item label="负责人姓名" class="search-item">
@@ -45,7 +47,7 @@
         placeholder="请输入负责人姓名"
         clearable
         class="search-input"
-        style="width: 140px;"
+        style="width: 135px;"
       ></el-input>
     </el-form-item>
     <el-form-item>
@@ -76,7 +78,7 @@
   </el-form>
 
   <!-- 卡片列表区域 - 收容单元风格 -->
-  <div class="facility-cards">
+  <div class="facility-cards" style="margin-bottom: 8px;">
     <el-row :gutter="20">
       <el-col
         v-for="item in originTableData"
@@ -87,7 +89,7 @@
         <el-card
             :data="originTableData"
           class="containment-card"
-          :body-style="{ padding: '16px' }"
+          :body-style="{ padding: '8px' }"
           @click="handleDetail(item)"
         >
           <div class="card-header">
@@ -134,6 +136,7 @@
               <span class="label"><i class="iconfont icon-location"></i> 地址：</span>
               <span class="value address-text">{{ item.facilityAddress }}</span>
             </div>
+
             <div class="info-item">
               <span class="label"><i class="iconfont icon-manager"></i> 负责人姓名：</span>
               <span class="value">{{ item.managerName }}</span>
@@ -182,9 +185,10 @@
     :total="total"
     prev-text="上一页"
     next-text="下一页"
-    class="containment-pagination"
+    class="containment-pagination"  style="margin-top: 8px;"
   >
   </el-pagination>
+  </div>
 
   <!-- 设施详情弹窗 -->
   <el-dialog
@@ -399,14 +403,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import * as userApi from '@/api/user';
 import * as facilityApi from '@/api/facility'
 import * as abnormality from '@/api/abnormality'
-import router from '@/router';
-import type {User} from '@/api/user.ts';
-import {findUser} from "@/api/user";
+
 import {findFacility} from "@/api/facility";
 
 
@@ -444,17 +446,17 @@ const facility = ref<Facility>(
 interface Staff {
   id: number;
   facilityId: number;
-  name: string;
-  clearanceLevel: number;
-  status: string;
+  username: string;
+  level: number;
+  isActive: number;
 }
 
 interface SCP {
-  scpId: string;
+  id: number;
   facilityId: number;
   name: string;
   riskLevel: string;
-  containmentStatus: string;
+  description: string;
   lastCheck: string;
 }
 
@@ -548,20 +550,10 @@ const initData = async() => {
   // )
 
   // 工作人员数据
-  staffList.value = [
-    { id: 1001, facilityId: 1, name: 'Dr. Bright', clearanceLevel: 4, status: '在岗' },
-    { id: 1002, facilityId: 1, name: 'MTF-ε11队长',  clearanceLevel: 3, status: '任务中' },
-    { id: 1003, facilityId: 2, name: 'Dr. Clef', clearanceLevel: 4, status: '在岗' },
-    { id: 1004, facilityId: 3, name: 'O5-13',  clearanceLevel: 5, status: '在岗' }
-  ];
+
 
   // 异想体数据
-  scpList.value = [
-    { scpId: 'SCP-173', facilityId: 1, name: '雕塑', riskLevel: 'Euclid', containmentStatus: '稳定', lastCheck: '2023-10-01 08:30' },
-    { scpId: 'SCP-682', facilityId: 1, name: '不灭蜥蜴', riskLevel: 'Keter', containmentStatus: '监控中', lastCheck: '2023-10-01 12:15' },
-    { scpId: 'SCP-096', facilityId: 2, name: '羞涩的人', riskLevel: 'Euclid', containmentStatus: '稳定', lastCheck: '2023-09-29 16:45' },
-    { scpId: 'SCP-999', facilityId: 3, name: '痒痒怪', riskLevel: 'Safe', containmentStatus: '稳定', lastCheck: '2023-10-01 09:20' }
-  ];
+
 
 
 };
@@ -637,14 +629,50 @@ const filteredStaff = ref<any[]>([
 const filteredScp = ref<any[]>([
 
 ])
-// 工具方法：获取人员数量
-const getStaffCount = (facilityId: number) => {
-  return staffList.value.filter(item => item.facilityId === facilityId).length;
+const staffCounts = ref<Record<number, number>>({}); // 存储设施ID对应的人员数量
+
+const getStaffCount = (facilityId: number): number => {
+  // 如果已有缓存数据，直接返回
+  if (staffCounts.value[facilityId] !== undefined) {
+    return staffCounts.value[facilityId];
+  }
+
+  // 初始化为0并立即返回（避免首次渲染无数据）
+  staffCounts.value[facilityId] = 0;
+
+  // 异步获取数据
+  userApi.findByFacilityId(facilityId, 1, 1)
+      .then(response => {
+        if (response.code === 200) {
+          staffCounts.value[facilityId] = response.data.total;
+        }
+      })
+      .catch(error => {
+        console.error('获取人员数量失败:', error);
+        staffCounts.value[facilityId] = 0; // 出错时重置为0
+      });
+
+  return 0; // 首次调用返回0
 };
 
+const abnormalityCounts = ref<Record<number, number>>({}); //存储设施ID对应的异想体数量
 // 工具方法：获取异想体数量
 const getScpCount = (facilityId: number) => {
-  return scpList.value.filter(item => item.facilityId === facilityId).length;
+  if (abnormalityCounts.value[facilityId] !== undefined) {
+    return abnormalityCounts.value[facilityId];
+  }
+
+  staffCounts.value[facilityId] = 0;
+
+  abnormality.findByFacilityId(facilityId, 1, 1).then(response => {
+      if (response.code === 200) {
+        abnormalityCounts.value[facilityId] = response.data.total;
+      }
+    }).catch((error) => {
+      console.log('获取异想体数量失败', error);
+      abnormalityCounts.value[facilityId] = 0;
+  })
+  return 0;
 };
 
 // 样式映射方法
@@ -758,20 +786,41 @@ const saveCreate = () => {
 <style scoped>
 /* 基础样式复用TeamList风格 */
 .search-form {
-  background: #fff; /* 修改为白色背景 */
-  padding: 16px;
+  background: #fff;
+  padding: 4px 12px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 调整阴影 */
-  border: 1px solid #e0e0e0; /* 调整边框颜色 */
-  color: #333; /* 加深字体颜色 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  color: #333;
 }
 
-.search-input, .search-select {
-  background-color: #fff;
-  border: 1px solid #ccc; /* 调整边框颜色 */
-  color: #333; /* 加深字体颜色 */
-  border-radius: 4px;
-  width: 180px;
+.search-form .el-form-item {
+  margin-bottom: 6px !important;
+}
+
+.search-form .el-form-item__content {
+  line-height: 30px;
+}
+
+.search-form .el-input,
+.search-form .el-select {
+  height: 30px;
+  line-height: 30px;
+}
+
+.search-form .el-input__inner,
+.search-form .el-select .el-input__inner {
+  height: 30px !important;
+  line-height: 30px !important;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.search-form .el-button {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  line-height: 30px;
 }
 
 /* 卡片样式 */
@@ -899,6 +948,61 @@ const saveCreate = () => {
   font-weight: bold;
   border-radius: 12px;
   border: none;
+}
+
+.search-container {
+  background-color: #ffffff; /* 白色背景 */
+  border: 1px solid #ccc; /* 边框 */
+  border-radius: 8px; /* 圆角 */
+  padding: 16px; /* 内边距 */
+  margin-bottom: 16px; /* 下边距 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+}
+
+/* 原有样式保持不变 */
+.search-input, .search-select {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  color: #333;
+  border-radius: 4px;
+  width: 100px;
+}
+.content-container {
+  background-color: #ffffff; /* 白色背景 */
+  border: 1px solid #ccc; /* 边框 */
+  border-radius: 8px; /* 圆角 */
+  padding: 16px; /* 内边距 */
+  margin-bottom: 16px; /* 下边距 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+}
+.address-text {
+  display: block; /* 确保 span 占据一行 */
+  white-space: nowrap; /* 禁止换行 */
+  overflow: hidden; /* 超出隐藏 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
+  max-width: 200px; /* 根据实际需求调整最大宽度 */
+}
+
+.containment-card {
+  width: 300px;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;  /* 减少顶部间距 */
+  padding-bottom: 4px; /* 减少底部间距 */
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.card-content {
+  margin-bottom: 8px;  /* 减少内容区域底部间距 */
+}
+
+.info-item {
+  margin-bottom: 6px;  /* 减少每条信息之间的间距 */
 }
 
 </style>

@@ -47,6 +47,8 @@ public interface TeamService {
     //查询小队成员信息
     List< User> findTeamMember(Long teamId);
 
+    PageInfo<Team> findTeamLeisure(Integer pageNum, Integer pageSize );
+
 //    // 获取小队详情
 //    List<User> getTeamDetails(Long teamId);
 }

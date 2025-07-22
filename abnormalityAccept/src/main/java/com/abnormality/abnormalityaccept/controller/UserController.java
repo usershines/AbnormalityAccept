@@ -107,7 +107,7 @@ public class UserController {
     @Operation(summary = "删除用户")
     //@Parameter(name="id",description = "用户id",required = true,example = "1")
     @DeleteMapping("/{id}")
-    public Result<String> deleteUserById(@PathVariable Long id,@RequestParam Integer isActive){
+    public Result<String> deleteUserById(@PathVariable Long id,@RequestParam(required = false) Integer isActive){
         String token = AopUtil.getToken();
         String  username = JwtPayload.fromToken(token).getUsername();
         Long editorId = userService.findUserByName(username).getId();

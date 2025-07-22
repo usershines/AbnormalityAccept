@@ -118,4 +118,20 @@ public class EmailController {
         return result ? Result.ok("已读成功") : Result.error("已读失败");
     }
 
+    @Operation(summary = "根据状态查询邮件")
+    @GetMapping("/state")
+    public Result<PageInfo<Email>> findEmailByState(@RequestParam Integer state,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+        Long receiverId = userService.getUserIdByToken();
+        PageInfo<Email> emailList = emailService.findEmailByState(state,pageNum,pageSize,receiverId);
+        return Result.ok(emailList);
+    }
+
+    @Operation(summary = "根据发送者等级查询邮件")
+    @GetMapping("/sender/level")
+    public Result<PageInfo<Email>> findEmailBySenderLevel(@RequestParam Integer level,@RequestParam Integer pageNum, @RequestParam Integer pageSize){
+        Long receiverId = userService.getUserIdByToken();
+        PageInfo<Email> emailList = emailService.findEmailBySenderLevel(level,pageNum,pageSize,receiverId);
+        return Result.ok(emailList);
+    }
+
 }

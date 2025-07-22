@@ -519,7 +519,6 @@ public class UserServiceImpl implements UserService {
         if(ObjectUtil.isEmpty(pageSize)){
             pageSize = 10;
         }
-
         PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.selectList(new QueryWrapper<User>().eq("facility_id", facilityId));
         return PageInfo.of(userList);

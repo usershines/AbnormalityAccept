@@ -6,6 +6,7 @@ export interface Team {
     name: string;
     status: number;
     resolvingQuestId: number;
+    resolvingQuestCode: string;
     level:  number;
     description: string;
     leaderId: number;
@@ -28,7 +29,7 @@ export interface TeamParam {
     name: string | null;
     status: number | null;
     resolvingQuestId: number | null;
-    resolvingQuestName: string | null;
+    resolvingQuestCode: string | null;
     level:  number | null;
     description: string | null;
     leaderId: number | null;

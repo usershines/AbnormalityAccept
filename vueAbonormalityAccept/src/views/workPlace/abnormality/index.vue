@@ -157,11 +157,11 @@
         </el-form-item>
         <el-form-item label="危险等级" prop="level">
           <el-select v-model="newAbnormalityForm.level" placeholder="请选择危险等级">
-            <el-option label="灭世" value="3" />
-            <el-option label="未解明" value="2" />
-            <el-option label="安全" value="1" />
-            <el-option label="机密" value="4" />
-            <el-option label="无效化" value="5" />
+            <el-option label="灭世" value="4" />
+            <el-option label="未解明" value="3" />
+            <el-option label="安全" value="2" />
+            <el-option label="机密" value="5" />
+            <el-option label="无效化" value="1" />
           </el-select>
         </el-form-item>
         <el-form-item label="异想体图片">
@@ -493,7 +493,7 @@ const newAbnormalityForm  = ref({
   manageMethod: '',
   notes: '',
   facilityId: 0,
-  imgeName: "",
+  imgName: "",
 })
 
 // 异想体表单规则
@@ -566,7 +566,6 @@ const handleDeleteAbnormality = (item:any) => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
-    center: true,
     customClass: 'delete-confirm-box'
   }).then(() => {
     deleteAbnormality(item.id).then((res)=>{
@@ -576,14 +575,18 @@ const handleDeleteAbnormality = (item:any) => {
       }else{
         ElMessage.error('发生错误'+res.msg)
       }
-    }).catch(() => {
-      ElMessage.info('已取消删除')
+    }).catch((err) => {
+      ElMessage.info('删除失败：'+err.msg)
     })
-})}
+}).catch((err)=>{
+    ElMessage.info('已取消删除')
+
+  })
+}
 
 const submitAbnormality = async() => {
   if (!abnormalityFormRef.value) return;
-
+  console.log(newAbnormalityForm.value)
   // 先验证表单
   abnormalityFormRef.value.validate(async (valid: boolean) => {
     if (!valid) {
@@ -658,7 +661,7 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (
   imageUrl.value = URL.createObjectURL(uploadFile.raw!)
   console.log(response)
   if(response.code === 200) {
-    newAbnormalityForm.value.imgeName = response.data
+    newAbnormalityForm.value.imgName = response.data
     ElMessage.success("图片上传成功")
   }else{
     ElMessage.error(response.msg)
@@ -683,11 +686,11 @@ const headers = ref({
 // 级别tag
 const getLevelType = (value:number) => {
   switch (value) {
-    case 0: return 'primary'
-    case 1: return 'success'
-    case 2: return 'warning'
-    case 3: return 'error'
+    case 1: return 'primary'
+    case 2: return 'success'
+    case 3: return 'warning'
     case 4: return 'error'
+    case 5: return 'error'
   }
 }
 

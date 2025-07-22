@@ -3,6 +3,7 @@ package com.abnormality.abnormalityaccept.service;
 import com.abnormality.abnormalityaccept.dto.request.QuestRequest;
 import com.abnormality.abnormalityaccept.entity.Notice;
 import com.abnormality.abnormalityaccept.entity.Quest;
+import com.abnormality.abnormalityaccept.entity.Team;
 import com.abnormality.abnormalityaccept.entity.param.QuestParam;
 import com.github.pagehelper.PageInfo;
 import java.util.List;
@@ -20,4 +21,6 @@ import java.util.List;
      boolean deleteQuestById(Long id);
      boolean addQuest(QuestRequest questRequest, Long sendId);
      PageInfo<Quest> findQuestByConditions(QuestParam questParam);
+
+
 }

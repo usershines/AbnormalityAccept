@@ -35,6 +35,14 @@
         WHERE id = #{id}
     </select>
 
+    <select id="findQuestByQuestCode" resultMap="BaseQuestResultMap">
+        SELECT
+        <include refid="BaseQuestColumns"/>
+        FROM quest
+        WHERE quest_code = #{questCode}
+    </select>
+
+
     <!-- 添加任务 -->
     <insert id="addQuest">
         INSERT INTO quest (quest_code, quest_name, quest_level, resolving_by_team_id, resolving_by_team_name, quest_description, state)

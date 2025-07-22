@@ -97,6 +97,9 @@ public class TeamServiceImpl implements TeamService {
         UserAndTeam userAndTeam = new UserAndTeam();
         userAndTeam.setTeamId(team.getId());
         userAndTeam.setUserId(leader.getId());
+
+
+
         return userAndTeamMapper.insert(userAndTeam)>0;
     }
 
@@ -218,8 +221,8 @@ public class TeamServiceImpl implements TeamService {
         if(ObjectUtil.isNotEmpty(teamParam.getResolvingQuestId())){
             queryWrapper.eq("resolving_quest_id",teamParam.getResolvingQuestId());
         }
-        if(ObjectUtil.isNotEmpty(teamParam.getResolvingQuestName())){
-            queryWrapper.eq("resolving_quest_name",teamParam.getResolvingQuestName());
+        if(ObjectUtil.isNotEmpty(teamParam.getResolvingQuestCode())){
+            queryWrapper.eq("resolving_quest_code",teamParam.getResolvingQuestCode());
         }
         if(ObjectUtil.isNotEmpty(teamParam.getStatusList())){
             queryWrapper.in("status",teamParam.getStatusList());
@@ -235,6 +238,13 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamMapper.findTeamById(teamId);
         if (team == null) throw new ServiceException(Code.NOT_FOUND, "小队不存在");
         return userMapper.findUserByTeamId(teamId);
+    }
+
+    @Override
+    public PageInfo< Team> findTeamLeisure(Integer pageNum, Integer pageSize ){
+        PageHelper.startPage(pageNum,pageSize);
+        List<Team> teamList = teamMapper.findTeamLeisure();
+        return PageInfo.of(teamList);
     }
 
 }

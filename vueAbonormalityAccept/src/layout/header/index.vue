@@ -25,9 +25,9 @@
             <span>邮件</span>
             <span v-if="unreadCount > 0" class="unread-badge">{{ unreadCount > 99 ? "99+" : unreadCount }}</span>
           </el-menu-item>
-          <el-menu-item index="/personal">个人主页</el-menu-item>
+          <el-menu-item index="/workPlace/personal">个人主页</el-menu-item>
         </el-menu>
-        <el-avatar  :size="80" :src="userAvatar" @click="router.push('personal')" style="cursor: pointer"/>
+        <el-avatar  :size="80" :src="userAvatar" @click="router.push('/workPlace/personal')" style="cursor: pointer"/>
         <el-button @click="Logout" style="margin: 30px 0 10px 30px">登出</el-button>
       </div>
     </div>

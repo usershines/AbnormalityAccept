@@ -125,7 +125,7 @@ public class EmailController {
         PageInfo<Email> emailList = emailService.findEmailByState(state,pageNum,pageSize,receiverId);
         return Result.ok(emailList);
     }
-
+    // 根据发送者等级查询邮件
     @Operation(summary = "根据发送者等级查询邮件")
     @GetMapping("/sender/level")
     public Result<PageInfo<Email>> findEmailBySenderLevel(@RequestParam Integer level,@RequestParam Integer pageNum, @RequestParam Integer pageSize){

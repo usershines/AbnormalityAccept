@@ -269,7 +269,7 @@
 
       <div class="detail-section">
         <div style="display: flex;margin-top: -30px;align-items: center">
-          <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers?.length.toString() }}人)</h3>
+          <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers?.length || 0 }}人)</h3>
           <el-button style="margin-left: 50px" @click="handleAddMember">添加用户</el-button>
           <el-button style="margin-left: 50px" @click="handleDetail(selectedTeam)">刷新列表</el-button>
         </div>
@@ -423,59 +423,61 @@ interface TeamWithMemberCount extends Team {
 }
 
 const userAvatar = ref("/src/assets/pic/user.png");
+
 // 获取数据
-const catchTeamTableData = () => {
-  TeamApi.getTeamList(pageNum.value, pageSize.value).then((res) => {
+const catchTeamTableData = async () => {
+  try {
+    const res = await TeamApi.getTeamList(pageNum.value, pageSize.value);
     if (res.code === 200) {
       const teams = res.data.list;
       total.value = res.data.total;
-      const teamsWithQuestName = await Promise.all(
+
+      // 并行处理每个小队的额外数据
+      const enhancedTeams = await Promise.all(
           teams.map(async (team) => {
+            // 1. 获取任务名称
+            let resolvingQuestName = null;
             if (team.resolvingQuestId) {
               try {
                 const questRes = await QuestApi.getQuest(team.resolvingQuestId);
                 if (questRes.code === 200) {
-                  return {
-                    ...team,
-                    resolvingQuestName: questRes.data.questName
-                  };
+                  resolvingQuestName = questRes.data.questName;
                 }
               } catch (err) {
                 console.error('获取任务失败', err);
               }
             }
+
+            // 2. 获取成员数量
+            let memberCount = 0;
+            try {
+              const countRes = await TeamApi.countMembers(team.id);
+              if (countRes.code === 200) {
+                memberCount = countRes.data;
+              }
+            } catch (err) {
+              console.error(`获取小队 ${team.id} 成员数量异常:`, err);
+            }
+
+            // 返回增强后的小队对象
             return {
               ...team,
-              resolvingQuestName: null
+              resolvingQuestName,
+              memberCount
             };
           })
       );
 
-      // 使用 Promise.all 并行获取成员数量
-      const countPromises = teams.map(team =>
-          TeamApi.countMembers(team.id).then(countRes => {
-            if (countRes.code === 200) {
-              return { ...team, memberCount: countRes.data };
-            } else {
-              console.error(`获取小队 ${team.id} 成员数量失败:`, countRes.msg);
-              return { ...team, memberCount: 0 };
-            }
-          }).catch(err => {
-            console.error(`获取小队 ${team.id} 成员数量异常:`, err);
-            return { ...team, memberCount: 0 };
-          })
-      );
-      teamTableData.value = res.data.list;
-      total.value = res.data.total;
+      teamTableData.value = enhancedTeams;
     } else if (res.code === 501) {
       ElMessage.error('权限不足，无法获取小队信息');
     } else {
       ElMessage.error('小队信息获取失败：' + res.msg);
     }
-  }).catch((err) => {
-    console.log(err);
-    ElMessage.error('小队信息获取失败：' + err.msg);
-  });
+  } catch (err) {
+    console.error('小队信息获取失败:', err);
+    ElMessage.error('小队信息获取失败：' + err.message);
+  }
 };
 
 // 队伍表格数据

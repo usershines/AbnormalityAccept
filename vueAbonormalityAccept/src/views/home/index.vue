@@ -88,9 +88,9 @@
           <div class="cardHeader">
             <div class="color-legend">
               <span class="legend-item info">废弃</span>
-              <span class="legend-item safe">安全</span>
-              <span class="legend-item warning">危险</span>
-              <span class="legend-item danger">极度危险</span>
+              <span class="legend-item safe">常规</span>
+              <span class="legend-item warning">临时</span>
+              <span class="legend-item danger">重要</span>
             </div>
             <h3 style="text-align: center; margin-left: 130px; color: #333; font-size: 20px; font-weight: 600;">设施</h3>
             <div class="avatar">

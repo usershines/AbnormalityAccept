@@ -15,6 +15,7 @@
               placeholder="请输入小队名称"
               clearable
               class="search-input"
+              style="width: 130px;"
           ></el-input>
         </el-form-item>
 
@@ -24,6 +25,7 @@
               placeholder="请选择权限等级"
               clearable
               class="search-select"
+              style="width: 150px;"
           >
             <el-option label="O5议会" value=5></el-option>
             <el-option label="A级" value=4></el-option>
@@ -39,6 +41,7 @@
               placeholder="请选择状态"
               clearable
               class="search-select"
+              style="width: 140px;"
           >
             <el-option label="空闲" value=0></el-option>
             <el-option label="任务中" value=1></el-option>
@@ -59,9 +62,17 @@
               class="reset-button"
           >重置
           </el-button>
+          <el-button
+              @click="handleCreate"
+              class="reset-button"
+          >新建小队
+          </el-button>
         </el-form-item>
       </el-form>
     </template>
+
+
+
 
     <!-- 卡片列表区域 - 收容单元风格 -->
     <template #default>
@@ -343,6 +354,51 @@
       </el-button>
     </template>
   </el-dialog>
+
+
+<!--新建小队弹窗-->
+  <el-dialog
+      v-model="createTeamDialogVisible"
+      title="新建小队"
+      width="50%"
+      class="containment-dialog"
+  >
+    <el-form
+        :model="createForm"
+        ref="createFormRef"
+        label-width="100px"
+    >
+      <el-form-item label="小队名称">
+        <el-input v-model="createForm.name"></el-input>
+      </el-form-item>
+      <el-form-item label="小队等级">
+        <el-select v-model="createForm.level">
+          <el-option label="1级" value="1"></el-option>
+          <el-option label="2级" value="2"></el-option>
+          <el-option label="3级" value="3"></el-option>
+          <el-option label="4级" value="4"></el-option>
+          <el-option label="5级" value="5"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="队长ID">
+        <el-input v-model="createForm.leaderId"></el-input>
+      </el-form-item>
+      <el-form-item label="小队简介">
+        <el-input v-model="createForm.description"></el-input>
+      </el-form-item>
+
+    </el-form>
+    <template #footer>
+      <el-button @click="createTeamDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="saveCreate">保存</el-button>
+    </template>
+  </el-dialog>
+
+
+
+
+
+
 </template>
 
 <script setup lang="ts">
@@ -350,10 +406,11 @@ import { reactive, ref, computed, onMounted } from 'vue';
 import * as TeamApi from '@/api/team';
 import * as QuestApi from '@/api/quest';
 import * as UserApi from '@/api/user';
-import type { Team, TeamParam, TeamUpdateRequest } from '@/api/team';
+import type { Team, TeamRequest, TeamUpdateRequest } from '@/api/team';
 import type { Quest } from '@/api/quest';
 import type { User } from '@/api/user';
 import {ElMessage, type FormInstance} from 'element-plus';
+import * as facilityApi from "@/api/facility.ts";
 
 const userAvatar = ref("/src/assets/pic/user.png");
 // 获取数据
@@ -376,7 +433,7 @@ const catchTeamTableData = () => {
 // 队伍表格数据
 const teamTableData = ref<Team[]>([]);
 const teamAvatar = ref("/src/assets/pic/team.png");
-
+const createTeamDialogVisible = ref(false);
 // 分页相关数据
 const pageNum = ref(1);
 const pageSize = ref(8);
@@ -389,7 +446,17 @@ const selectedTeam = ref<Team | null>(null);
 const selectedTeamMembers = ref<User[]>();
 const selectedMember = ref<User | null>(null);
 const selectedQuest = ref<Quest | null>(null);
+const createFormRef = ref();
+const createForm = ref<TeamRequest>({
+  name: '',
 
+  level: 0,
+
+  leaderId: 0,
+
+  description:''
+
+});
 
 // 初始化页面
 onMounted(() => {
@@ -397,7 +464,7 @@ onMounted(() => {
 });
 
 // 搜索方法
-const searchForm = ref<TeamParam>({
+const searchForm = ref({
   id: null,
   name: '',
   status: null,
@@ -415,6 +482,7 @@ const searchForm = ref<TeamParam>({
 });
 
 const handleSearch = () => {
+  console.log('搜索表单',searchForm.value);
   // 确保分页参数正确
   searchForm.value.pageNum = pageNum.value;
   searchForm.value.pageSize = pageSize.value;
@@ -467,6 +535,31 @@ const getMemberStatusTagType = (status: string) => {
   };
   return types[status] || '';
 };
+
+//新建小队
+const handleCreate = () => {
+  createTeamDialogVisible.value = true;};
+// 重置表单
+const saveCreate = () => {
+  if (!createFormRef.value) return;
+  createFormRef.value.validate((valid) => {
+    if (valid) {
+      TeamApi.addTeam(createForm.value).then((response) => {
+        if (response.code === 200) {
+          console.log("新建小队成功:", createForm.value);
+          ElMessage.success('新建小队成功');
+          createTeamDialogVisible.value = false;
+          catchTeamTableData()
+          createFormRef.value.resetFields();
+        }
+      }).catch((error) => {
+        console.log('服务器错误',error);
+        ElMessage.error('服务器错误')
+      })
+    }
+  })
+}
+
 
 // 重置方法
 const handleReset = () => {
@@ -1066,4 +1159,14 @@ const handleDeleteMember = (userId: number) => {
   overflow: hidden; /* 内容溢出隐藏 */
   text-overflow: ellipsis; /* 使用省略号表示内容溢出 */
 }
+.create-button {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.create-button:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
 </style>

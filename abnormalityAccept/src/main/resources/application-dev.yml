@@ -84,8 +84,8 @@ pagehelper:
 # MinIO 对象存储配置
 minio:
   endpoint: http://localhost:9000 # MinIO 服务端点地址
-  username: minioadmin # MinIO 登录用户名
-  password: minioadmin # MinIO 登录密码
+  username: name # MinIO 登录用户名
+  password: password # MinIO 登录密码
   bucketName: abnormality # 默认使用的存储桶名称
 
 # 日志级别配置

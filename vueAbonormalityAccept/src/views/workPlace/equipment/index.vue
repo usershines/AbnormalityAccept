@@ -1,66 +1,69 @@
 <template>
+
+
+  <div class="content-container">
   <!-- 搜索表单区域 - 保持暗色主题一致性 -->
   <el-form
-    :model="searchForm"
-    inline
-    class="search-form"
-    style="margin-bottom: 16px;"
+      :model="searchForm"
+      inline
+      class="search-form"
+      style="margin-bottom: 16px; display: flex; flex-wrap: nowrap; overflow-x: auto;"
   >
-    <el-form-item label="装备名称" class="search-item">
+    <el-form-item label="装备名称" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
       <el-input
-        v-model="searchForm.name"
-        placeholder="请输入装备名称"
-        clearable
-        class="search-input"
-        style="width: 125px;"
+          v-model="searchForm.name"
+          placeholder="请输入装备名称"
+          clearable
+          class="search-input"
+          style="width: 125px;"
       ></el-input>
     </el-form-item>
-    <el-form-item label="装备类型" class="search-item">
+    <el-form-item label="装备类型" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
       <el-select
-        v-model="searchForm.type"
-        placeholder="请选择"
-        clearable
-        class="search-select"
-        style="width: 100px;"
+          v-model="searchForm.type"
+          placeholder="请选择"
+          clearable
+          class="search-select"
+          style="width: 90px;"
       >
         <el-option label="类型1" value=1></el-option>
         <el-option label="类型2" value=2></el-option>
         <el-option label="类型3" value=3></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="装备状态" class="search-item">
+    <el-form-item label="装备状态" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
       <el-select
-        v-model="searchForm.state"
-        placeholder="请选择"
-        clearable
-        class="search-select"
-        style="width: 120px;"
+          v-model="searchForm.state"
+          placeholder="请选择"
+          clearable
+          class="search-select"
+          style="width: 90px;"
       >
         <el-option label="状态1" value="1"></el-option>
         <el-option label="状态2" value="2"></el-option>
         <el-option label="状态3" value="3"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="ID" class="search-item">
+    <el-form-item label="ID" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
       <el-input
-        v-model="searchForm.id"
-        placeholder="请输入装备ID"
-        clearable
-        class="search-input"
-        style="width: 120px;"
+          v-model="searchForm.id"
+          placeholder="请输入装备ID"
+          clearable
+          class="search-input"
+          style="width: 110px;"
       ></el-input>
     </el-form-item>
     <!-- 新增持有者ID搜索框 -->
-    <el-form-item label="持有者ID" class="search-item">
+    <el-form-item label="持有者ID" class="search-item" style="margin-right: 10px; flex-shrink: 0;">
       <el-input
-        v-model="searchForm.masterId"
-        placeholder="请输入持有者ID"
-        clearable
-        class="search-input"
-        style="width: 125px;"
+          v-model="searchForm.masterId"
+          placeholder="请输入持有者ID"
+          clearable
+          class="search-input"
+          style="width: 125px;"
       ></el-input>
     </el-form-item>
-    <el-form-item>
+    <el-form-item style="margin-left: auto; flex-shrink: 0;">
       <el-button
           @click="handleSearch"
           class="reset-button"
@@ -68,15 +71,15 @@
         <i class="iconfont icon-reset"></i> 搜索
       </el-button>
       <el-button
-        @click="handleReset"
-        class="reset-button"
+          @click="handleReset"
+          class="reset-button"
       >
         <i class="iconfont icon-reset"></i> 重置
       </el-button>
       <el-button
-        type="success"
-        @click="handleCreate"
-        class="create-button"
+          type="success"
+          @click="handleCreate"
+          class="create-button"
       >
         <i class="iconfont icon-add"></i> 新增装备
       </el-button>
@@ -179,7 +182,7 @@
     class="containment-pagination"
   >
   </el-pagination>
-
+  </div>
   <!-- 新增装备弹窗 - 严格包含指定属性 -->
   <el-dialog
     v-model="createDialogVisible"
@@ -706,4 +709,32 @@ const submitEdit = async() => {
 .delete-btn {
   color: red;
 }
+
+/* 新增搜索容器样式 */
+.search-container {
+  background-color: #ffffff; /* 白色背景 */
+  border: 1px solid #ccc; /* 边框 */
+  border-radius: 8px; /* 圆角 */
+  padding: 16px; /* 内边距 */
+  margin-bottom: 16px; /* 下边距 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+}
+
+/* 原有样式保持不变 */
+.search-input, .search-select {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  color: #333;
+  border-radius: 4px;
+  width: 100px;
+}
+.content-container {
+  background-color: #ffffff; /* 白色背景 */
+  border: 1px solid #ccc; /* 边框 */
+  border-radius: 8px; /* 圆角 */
+  padding: 16px; /* 内边距 */
+  margin-bottom: 16px; /* 下边距 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影 */
+}
+
 </style>

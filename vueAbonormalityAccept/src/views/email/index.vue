@@ -23,7 +23,6 @@
           <el-menu-item index="/email/drafts">
             <el-icon><Edit /></el-icon>
             <span>写邮件</span>
-            <span class="unread-badge">3</span>
           </el-menu-item>
 
           <el-menu-item index="/email/inbox">
@@ -40,10 +39,7 @@
           <!-- 添加分隔线 -->
           <div class="menu-divider"></div>
 
-          <el-menu-item index="emergency" class="emergency-btn">
-            <el-icon><Warning /></el-icon>
-            <span>紧急通知</span>
-          </el-menu-item>
+
         </el-menu>
 
         <div class="system-status">

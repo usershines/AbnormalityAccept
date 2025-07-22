@@ -5,8 +5,10 @@ interface Email{
     state: number,
     senderId: number,
     senderName: string,
+    senderLevel: number,
     receiverId: number,
     receiverName: string,
+    receiverLevel: number,
     theme:  string,
     content: string,
     sendTime: Date,
@@ -44,6 +46,8 @@ export function findEmailBySender(senderName:string , pageNumber:number, pageSiz
     });
 }
 
+
+
 export function updateEmailState(emailId: number,state:number){
     return request.put(`/email/${emailId}/state?state=${state}`, )
 }
@@ -65,4 +69,31 @@ export function countUnreadEmail(){
 //一键已读邮件
 export function readAllEmail(){
     return request.get('/email/readAll')
+}
+
+//新增删除邮件
+export function deleteEmailById(id:number){
+    return request.delete(`/email/${id}`,)
+}
+
+//新增按照发送者等级查询邮件
+export function findEmailBySenderLevel(level:number, pageNumber:number, pageSize:number){
+    return request.get('/email/senderLevel',{
+        params:{
+            level: level,
+            pageNum: pageNumber,
+            pageSize: pageSize,
+        }
+    })
+}
+
+//按照已读未读查询邮件
+export function findEmailByState(state:number, pageNumber:number, pageSize:number){
+    return request.get(`/email/state`,{
+        params:{
+            state: state,
+            pageNum: pageNumber,
+            pageSize: pageSize,
+        }
+    })
 }

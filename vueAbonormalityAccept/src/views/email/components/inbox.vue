@@ -1,14 +1,28 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import {MessageBox, Message, Reading, StarFilled, Refresh, Delete} from "@element-plus/icons-vue"
-import {  readAllEmail, countUnreadEmail , deleteEmail, findEmailById, findEmailBySender, findAllEmail, updateEmailState, } from '@/api/email'
+import {
+  readAllEmail,
+  countUnreadEmail ,
+  findEmailBySenderLevel,
+  findEmailByState,
+  deleteEmailById ,
+  findEmailById,
+  findEmailBySender,
+  findAllEmail,
+  updateEmailState,
+  } from '@/api/email'
+import {ElMessage} from "element-plus";
 
 interface Email{
   id: number,
   state: number,
   senderId: number,
   senderName: string,
+  senderLevel: number,
   receiverId: number,
+  receiverName: string,
+  receiverLevel: number,
   theme:  string,
   content: string,
   sendTime: Date,
@@ -64,11 +78,21 @@ const catchEmails = () =>{
       console.log(response)
       emails.value = response.data.list;
       total.value = response.data.total;
-      ElMessage.success('邮件更新成功')
+      if(emails.value.length > 0){
+        countUnreadEmail().then(res => {
+          if (res.code === 200&&res.data>0){
+            ElMessage.success('邮件更新成功')
+            ElMessage.success('您有'+res.data+'封未读邮件')
+          } else {
+            ElMessage.success('邮件更新成功');
+            ElMessage.success('您没有未读邮件');
+          }
+        })
+      }
       fetchUnreadCount() // 更新未读数量
     }
   }).catch((error) => {
-    ElMessage.error(error.msg)
+    ElMessage.success(error.msg)
   })
 }
 
@@ -81,40 +105,98 @@ onMounted(() => {
 })
 
 // 邮件时间显示方法
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+// const formatDate = (dateString: string) => {
+//   const date = new Date(dateString)
+//   const now = new Date()
+//   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+//
+//   if (diffDays === 0) {
+//     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+//   } else if (diffDays === 1) {
+//     return '昨天'
+//   } else if (diffDays < 7) {
+//     return date.toLocaleDateString([], { weekday: 'short' })
+//   } else {
+//     return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+//   }
+// }
 
-  if (diffDays === 0) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  } else if (diffDays === 1) {
-    return '昨天'
-  } else if (diffDays < 7) {
-    return date.toLocaleDateString([], { weekday: 'short' })
-  } else {
-    return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
-  }
-}
-
-// 修改 filterEmails 方法
-const filterEmails = () => {
-  if (searchSender.value) {
-    // 使用发送者搜索
-    findEmailBySender(searchSender.value, currentPage.value, pageSize.value).then(response => {
+// 新增：根据状态筛选邮件
+const filterByState = () => {
+  if (filterstate.value === '未读邮件') {
+    findEmailByState(0, currentPage.value, pageSize.value).then(response => {
       if (response.code === 200) {
-        filteredEmails.value = response.data.list;
+        emails.value = response.data.list;
+        total.value = response.data.total;
+      }
+    }).catch(error => {
+      ElMessage.error(error.msg);
+    });
+  } else if (filterstate.value === '已读邮件') {
+    findEmailByState(1, currentPage.value, pageSize.value).then(response => {
+      if (response.code === 200) {
+        emails.value = response.data.list;
         total.value = response.data.total;
       }
     }).catch(error => {
       ElMessage.error(error.msg);
     });
   } else {
-    // 使用普通搜索
+    // 重置为所有邮件
     catchEmails();
   }
 }
 
+// 新增：根据发送者等级筛选邮件
+const filterBySenderLevel = () => {
+  if (filterPriority.value) {
+    // 将等级值转换为数字
+    const levelMap: Record<string, number> = {
+      '5': 5, // O5
+      '4': 4, // A
+      '3': 3, // B
+      '2': 2, // C
+      '1': 1  // D
+    };
+
+    const level = levelMap[filterPriority.value];
+
+    if (level) {
+      findEmailBySenderLevel(level, currentPage.value, pageSize.value).then(response => {
+        if (response.code === 200) {
+          emails.value = response.data.list;
+          total.value = response.data.total;
+        }
+      }).catch(error => {
+        ElMessage.error(error.msg);
+      });
+    }
+  } else {
+    // 重置为所有邮件
+    catchEmails();
+  }
+}
+// 修改现有的 filterEmails 方法
+const filterEmails = () => {
+  // 优先处理状态筛选
+  if (filterstate.value) {
+    filterByState();
+    return;
+  }
+
+  // 其次处理发送者等级筛选
+  if (filterPriority.value) {
+    filterBySenderLevel();
+    return;
+  }
+
+  // 最后处理发送者名称搜索
+  if (searchSender.value) {
+    // ...现有代码保持不变...
+  } else {
+    catchEmails();
+  }
+}
 // 修改 markAsRead 方法
 const markAsRead = (email: Email) => {
   const newState = email.state === 0 ? 1 : 0; // 切换状态
@@ -127,7 +209,8 @@ const markAsRead = (email: Email) => {
   });
 }
 
-const handleDeletEmail = (email: Email) => {
+// 修改现有的 handleDeletEmail 方法，使用 deleteEmailById
+const handleDeleteEmail = (email: Email) => {
   ElMessageBox.confirm(
       '删除邮件不可撤销，请仔细检查内容！是否确认删除这封邮件？',
       '警告',
@@ -138,13 +221,14 @@ const handleDeletEmail = (email: Email) => {
       }
   )
       .then(() => {
-        deleteEmail(email.id).then((response) => {
+        deleteEmailById(email.id).then((response) => {
           if (response.code === 200){
             ElMessage({
               type: 'success',
               message: '已删除邮件',
             })
             catchEmails()
+            location.reload()
           }
         }).catch((error) => {
           ElMessage.error(error.msg)
@@ -257,29 +341,26 @@ const viewEmailDetail = (email: Email) => {
           <div class="email-content">
             <div class="email-subject">
               {{ email.theme }}
-              <el-tag v-if="email.senderId === 1" size="small" type="warning">重要</el-tag>
+              <el-tag v-if="email.senderLevel === 5" size="small" type="warning">重要</el-tag>
             </div>
           </div>
 
           <div class="email-meta">
-            <div class="email-time">{{ formatDate(email.sendTime) }}</div>
+            <div class="email-time">{{ email.sendTime }}</div>
             <div class="email-actions">
               <el-button size="small" @click.stop="markAsRead(email)">
                 <el-icon><Reading /></el-icon>
               </el-button>
-              <el-button size="small" @click.stop="handleDeletEmail(email)">
+              <el-button size="small" @click.stop="handleDeleteEmail(email)">
                 <el-icon><Delete /></el-icon>
               </el-button>
             </div>
           </div>
         </div>
 
-        <div v-if="filteredEmails.length === 0" class="empty-emails">
-          <el-icon class="empty-icon"><MessageBox /></el-icon>
-          <p>没有找到符合条件的邮件</p>
-          <el-button type="primary" @click="filterstate = ''; filterPriority = ''; filterEmails()">
-            <el-icon><Refresh /></el-icon> 重置筛选
-          </el-button>
+        <div v-if="emails.length === 0" class="empty-emails">
+          <el-icon  class="empty-icon"><MessageBox /></el-icon>
+          <p >没有找到符合条件的邮件</p>
         </div>
       </div>
 
@@ -287,7 +368,7 @@ const viewEmailDetail = (email: Email) => {
         <el-pagination
           background
           layout="prev, pager, next, total"
-          :total="filteredEmails.length"
+          :total="filterEmails.length"
           :page-size="pageSize"
           v-model:current-page="currentPage"
         />
@@ -303,26 +384,24 @@ const viewEmailDetail = (email: Email) => {
     >
       <div v-if="selectedEmail" class="email-detail">
         <div class="detail-header">
-          <h2 class="email-subject">{{ selectedEmail.contact }}</h2>
+          <h2 class="email-subject">{{ selectedEmail.content }}</h2>
           <div class="priority-tag">
-            <el-tag v-if="selectedEmail.priority === 'high'" type="warning">重要</el-tag>
-            <el-tag v-if="selectedEmail.priority === 'urgent'" type="danger">紧急</el-tag>
+            <el-tag v-if="selectedEmail.senderLevel=== 5" type="warning">重要</el-tag>
           </div>
         </div>
 
         <div class="detail-info">
           <div class="info-row">
             <span class="info-item"><el-icon><User /></el-icon> 发件人：<strong>{{ selectedEmail.senderName }}</strong></span>
-            <span class="info-item"><el-icon><Time /></el-icon> 发送时间：<strong>{{ formatDate(selectedEmail.timestamp) }}</strong></span>
+            <span class="info-item"><el-icon><Time /></el-icon> 发送时间：<strong>{{ selectedEmail.sendTime }}</strong></span>
           </div>
           <div class="info-row">
-            <span class="info-item"><el-icon><Message /></el-icon> 状态：<strong>{{
-                selectedEmail.state === 'unread' ? '未读' :
-                  selectedEmail.state === 1 ? '已读' :
-                    selectedEmail.state === 'flagged' ? '已标记' : '已归档'
-              }}</strong></span>
             <span v-if="selectedEmail.hasAttachment" class="info-item"><el-icon><Paperclip /></el-icon> 包含附件</span>
           </div>
+          <div class="info-row">
+            <span class="info-item"><el-icon><Content /></el-icon> 内容：<strong>{{ selectedEmail.content }}</strong> </span>
+          </div>
+
         </div>
 
         <div class="email-content">

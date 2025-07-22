@@ -41,10 +41,10 @@
         <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
             <div class="color-legend">
+              <span class="legend-item info">无效化</span>
               <span class="legend-item safe">安全</span>
-              <span class="legend-item">正常</span>
-              <span class="legend-item warning">警告</span>
-              <span class="legend-item danger">危险</span>
+              <span class="legend-item warning">未解明</span>
+              <span class="legend-item danger">灭世/机密</span>
             </div>
             <h3 style="text-align: center; margin-left: 110px; color: #333; font-size: 20px; font-weight: 600;">异想体</h3>
             <div class="avatar">
@@ -87,10 +87,10 @@
         <el-card shadow="hover" class="tableCard" style="background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
           <div class="cardHeader">
             <div class="color-legend">
-              <span class="legend-item info">信息提示</span>
+              <span class="legend-item info">废弃</span>
               <span class="legend-item safe">安全</span>
-              <span class="legend-item warning">警告</span>
-              <span class="legend-item danger">危险</span>
+              <span class="legend-item warning">危险</span>
+              <span class="legend-item danger">极度危险</span>
             </div>
             <h3 style="text-align: center; margin-left: 130px; color: #333; font-size: 20px; font-weight: 600;">设施</h3>
             <div class="avatar">
@@ -157,10 +157,11 @@ const facilityAvatar = ref("/src/assets/pic/facility.png");
 
 const abnormalityColor = (row) => {
   switch (row.row.level) {
-    case 0 : return 'safe'
-    case 1 : return ''
-    case 2 : return 'warning'
-    case 3 : return 'danger'
+    case 1 : return 'info'
+    case 2 : return 'safe'
+    case 3 : return 'warning'
+    case 4 : return 'danger'
+    case 5 : return 'danger'
   }
 }
 
@@ -463,10 +464,11 @@ const teamColor = (row) =>{
 }
 const facilityColor = (row) =>{
   switch (row.row.level){
-    case 0: return 'info'
-    case 1: return 'safe'
-    case 2: return 'warning'
-    case 3: return 'danger'
+    case 1: return 'info'
+    case 2: return 'safe'
+    case 3: return 'warning'
+    case 4: return 'danger'
+    case 5: return 'danger'
   }
 }
 const userColor = (row) =>{

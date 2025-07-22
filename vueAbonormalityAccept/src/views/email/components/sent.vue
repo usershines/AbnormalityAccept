@@ -36,17 +36,17 @@
             <span>{{ email.theme }}</span>
           </div>
           <div class="email-preview">
-            <span class="recipient-label">收件人：</span>{{ email.receiverId }}
+            <span class="recipient-label">收件人：</span>{{ email.receiverName }}
           </div>
         </div>
         <div class="email-meta">
-          <div class="email-time">{{ formatDate(email.sendTime.toString()) }}</div>
+          <div class="email-time">{{ email.sendTime }}</div>
         </div>
       </div>
 
       <div v-if="total==0" class="empty-inbox">
         <el-icon class="empty-icon"></el-icon>
-        <p>没有找到符合条件的邮件</p>
+        <p v-if="formatDate==null">没有找到符合条件的邮件</p>
         <el-button type="primary" @click="resetFilters">重置筛选条件</el-button>
       </div>
     </div>
@@ -75,8 +75,10 @@ interface Email{
   state: number,
   senderId: number,
   senderName: string,
+  senderLevel: number,
   receiverId: number,
   receiverName: string,
+  receiverLevel: number,
   theme:  string,
   content: string,
   sendTime: Date,

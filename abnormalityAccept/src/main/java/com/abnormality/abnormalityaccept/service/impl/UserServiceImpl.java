@@ -237,10 +237,23 @@ public class UserServiceImpl implements UserService {
         User editor = userMapper.selectById(editorId);
         if(editedUser.getLevel()>=editor.getLevel()) throw new ServiceException(Code.BAD_REQUEST, "不能修改等级比自己高的用户信息");
 
-
         editedUser.setLevel(subordinateLevel);
         editedUser.setLeaderName(leaderName);
         editedUser.setLeaderId(newLeader.getId());
+
+        List<Email> emails1 = emailMapper.selectList(new QueryWrapper<Email>().eq("sender_id", editedUser.getId()));
+        for (Email email : emails1){
+            email.setSenderLevel(subordinateLevel);
+            emailMapper.updateById(email);
+        }
+
+        List <Email> emails2 = emailMapper.selectList(new QueryWrapper<Email>().eq("receiver_id", editedUser.getId()));
+        for (Email email : emails2){
+            email.setReceiverLevel(subordinateLevel);
+            emailMapper.updateById(email);
+        }
+
+
         return userMapper.editSubordinate(editedUser)>0;
     }
 
@@ -519,7 +532,6 @@ public class UserServiceImpl implements UserService {
         if(ObjectUtil.isEmpty(pageSize)){
             pageSize = 10;
         }
-
         PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.selectList(new QueryWrapper<User>().eq("facility_id", facilityId));
         return PageInfo.of(userList);

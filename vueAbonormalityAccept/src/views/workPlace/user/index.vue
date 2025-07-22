@@ -315,13 +315,13 @@
             <span class="info-item"><i class="iconfont icon-location"></i> 所在地：<strong>{{ selectedUser.facilityName }}</strong></span>
           </div>
           <div class="info-row">
-            <span class="info-item"><i class="iconfont icon-superior"></i> 上级：<strong>{{ selectedUser.superior }}</strong></span>
+            <span class="info-item"><i class="iconfont icon-superior"></i> 上级：<strong>{{ selectedUser.leaderName }}</strong></span>
           </div>
           <div class="info-row">
             <span class="info-item"><i class="iconfont icon-email"></i> 邮箱：<strong>{{ selectedUser.email }}</strong></span>
           </div>
           <div class="info-row description">
-            <span><i class="iconfont icon-description"></i> 简介：<span class="description-text">{{ selectedUser.description }}</span></span>
+            <span><i class="iconfont icon-description"></i> 简介：<span class="description-text">{{ selectedUser.introduction }}</span></span>
           </div>
         </div>
       </div>

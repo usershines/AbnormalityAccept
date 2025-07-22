@@ -24,7 +24,7 @@ public class UserParamRequest {
     private Long facilityId;
     private String facilityName;
     private String introduction ;
-    private Integer isActive=1;
+    private Integer isActive;
 
     //范围查询
     private  Integer minLevel;

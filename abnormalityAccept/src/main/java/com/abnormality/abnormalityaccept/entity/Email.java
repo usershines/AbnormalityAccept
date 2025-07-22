@@ -28,8 +28,10 @@ public class Email {
     private Integer state;
     private Long senderId;
     private String senderName;
+    private Integer senderLevel;
     private Long receiverId;
     private String receiverName;
+    private Integer receiverLevel;
     private String theme;
     private String content;
     private LocalDate sendTime;

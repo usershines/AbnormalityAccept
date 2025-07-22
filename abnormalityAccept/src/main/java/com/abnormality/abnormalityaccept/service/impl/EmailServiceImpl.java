@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,10 +50,15 @@ public class EmailServiceImpl implements EmailService {
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username",emailAddRequest.getReceiverName()));
         if(user == null) throw new ServiceException("接收者用户不存在");
         Long receiverId = user.getId();
+        //发送者信息
         email.setSenderId(userID);
         email.setSenderName(userMapper.selectById(userID).getUsername());
+        email.setSenderLevel(userMapper.selectById(userID).getLevel());
+        // 接收者信息
         email.setReceiverId(receiverId);
         email.setReceiverName(user.getUsername());
+        email.setReceiverLevel(user.getLevel());
+        // 其他信息
         email.setTheme(emailAddRequest.getTheme());
         email.setContent(emailAddRequest.getContent());
         email.setSendTime(LocalDate.now());
@@ -101,6 +107,24 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public boolean readAllEmail(Long receiverId) {
         return emailMapper.readAllEmail(receiverId) ;
+    }
+
+    @Override
+    public PageInfo<Email> findEmailByState(Integer state, Integer pageNum, Integer pageSize, Long receiverId) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<Email> emailList = emailMapper.selectList(new QueryWrapper<Email>().eq("receiver_id", receiverId).eq("state", state));
+        return PageInfo.of(emailList);
+    }
+
+    @Override
+    public PageInfo<Email> findEmailBySenderLevel(Integer level, Integer pageNum, Integer pageSize, Long receiverId) {
+        List<Email> emailList = new ArrayList<>();
+        List<User> users = userMapper.selectList(new QueryWrapper<User>().eq("level", level));
+        PageHelper.startPage(pageNum, pageSize);
+        for (User user : users) {
+            emailList.addAll(emailMapper.selectList(new QueryWrapper<Email>().eq("sender_id", user.getId()).eq("receiver_id", receiverId)));
+        }
+        return PageInfo.of(emailList);
     }
 
 }

@@ -133,7 +133,7 @@
 
                     </div>
                     <div class="info-item">
-                      <span class="label">成员：{{ selectedTeamMembers?.values.length }}人</span>
+                      <span class="label">成员：{{ item.memberCount }}人</span>
                     </div>
                   </div>
                 </el-card>
@@ -412,13 +412,36 @@ import type { User } from '@/api/user';
 import {ElMessage, type FormInstance} from 'element-plus';
 import * as facilityApi from "@/api/facility.ts";
 
+
+interface TeamWithMemberCount extends Team {
+  memberCount?: number;
+}
+
 const userAvatar = ref("/src/assets/pic/user.png");
-// 获取数据
+// 获取数据（修改后）
 const catchTeamTableData = () => {
-  TeamApi.getTeamList(pageNum.value, pageSize.value).then((res) => {
+  TeamApi.getTeamList(pageNum.value, pageSize.value).then(async (res) => {
     if (res.code === 200) {
-      teamTableData.value = res.data.list;
+      const teams = res.data.list;
       total.value = res.data.total;
+
+      // 使用 Promise.all 并行获取成员数量
+      const countPromises = teams.map(team =>
+          TeamApi.countMembers(team.id).then(countRes => {
+            if (countRes.code === 200) {
+              return { ...team, memberCount: countRes.data };
+            } else {
+              console.error(`获取小队 ${team.id} 成员数量失败:`, countRes.msg);
+              return { ...team, memberCount: 0 };
+            }
+          }).catch(err => {
+            console.error(`获取小队 ${team.id} 成员数量异常:`, err);
+            return { ...team, memberCount: 0 };
+          })
+      );
+
+      // 等待所有成员数量请求完成
+      teamTableData.value = await Promise.all(countPromises);
     } else if (res.code === 501) {
       ElMessage.error('权限不足，无法获取小队信息');
     } else {
@@ -431,7 +454,7 @@ const catchTeamTableData = () => {
 };
 
 // 队伍表格数据
-const teamTableData = ref<Team[]>([]);
+const teamTableData = ref<TeamWithMemberCount[]>([]);
 const teamAvatar = ref("/src/assets/pic/team.png");
 const createTeamDialogVisible = ref(false);
 // 分页相关数据
@@ -442,7 +465,7 @@ const total = ref(0);
 // 弹窗相关
 const detailDialogVisible = ref(false);
 const memberDialogVisible = ref(false);
-const selectedTeam = ref<Team | null>(null);
+const selectedTeam = ref<TeamWithMemberCount | null>(null);
 const selectedTeamMembers = ref<User[]>();
 const selectedMember = ref<User | null>(null);
 const selectedQuest = ref<Quest | null>(null);
@@ -604,15 +627,15 @@ const handleDetail = async (row: Team) => {
     try {
       const res = await TeamApi.getMemberList(teamId);
       console.log(res);
-      if (res.code === 200 && res.data != null) {
+      if (res.code === 200 ) {
         selectedTeamMembers.value = res.data;
       } else if (res.code === 501) {
         ElMessage.error(`权限不足，无法获取成员ID: ${teamId} 的信息`);
-      } else {
-        ElMessage.error(`获取成员ID: ${teamId} 的信息失败：${res.msg}`);
+      } else if (res.code === 404) {
+        ElMessage.error(`获取小队ID: ${teamId} 的信息失败：${res.msg}`);
       }
     } catch (err) {
-      ElMessage.error(`获取成员ID: ${teamId} 的信息失败：${(err as Error).message}`);
+      ElMessage.success(`获取小队ID: ${teamId} 的信息失败：${(err as Error).message}`);
     }
 
   // 获取小队正在执行的任务信息
@@ -730,8 +753,9 @@ const handleAddMember = () =>{
   catchMemberNoTeam()
 }
 
+// 添加成员成功后更新成员数量
 const handleAddMemberWith = (userId: number | null) => {
-  const teamId = selectedTeam.value?.id
+  const teamId = selectedTeam.value.id
   if( userId === null  ){
     ElMessage('用户id为空！')
     return;
@@ -741,19 +765,27 @@ const handleAddMemberWith = (userId: number | null) => {
     ElMessage.error('无法获取队伍id')
     return
   }else {
-    TeamApi.addMember(teamId, userId).then(res=>{
-      console.log(res)
+    TeamApi.addMember(teamId, userId).then(res => {
       if (res.code === 200) {
-        ElMessage.success('用户添加成功，请刷新页面')
+        ElMessage.success('用户添加成功');
+        // 更新当前小队的成员数量
+        TeamApi.countMembers(selectedTeam.value.id).then(countRes => {
+          if (countRes.code === 200 && selectedTeam.value) {
+            selectedTeam.value.memberCount = countRes.data;
+            // 更新列表中的成员数量
+            const teamInList = teamTableData.value.find(t => t.id === selectedTeam.value?.id);
+            if (teamInList) {
+              teamInList.memberCount = countRes.data;
+            }
+          }
+        });
       }
     }).catch((err) => {
       console.log(err)
       ElMessage.error('添加该用户失败:'+err.msg)
     })
   }
-
 }
-
 const handleDeleteMember = (userId: number) => {
   if (userId === null || selectedTeam.value?.id === null) {
     ElMessage.error('用户不存在')
@@ -769,12 +801,20 @@ const handleDeleteMember = (userId: number) => {
       }
   )
       .then(() => {
-        TeamApi.removeMember(selectedTeam.value.id,userId).then(res=>{
+        TeamApi.removeMember(selectedTeam.value.id, userId).then(res => {
           if (res.code === 200) {
-            ElMessage({
-              type: 'success',
-              message: '删除成功，请刷新页面',
-            })
+            ElMessage.success('删除成功');
+            // 更新当前小队的成员数量
+            TeamApi.countMembers(selectedTeam.value.id).then(countRes => {
+              if (countRes.code === 200 && selectedTeam.value) {
+                selectedTeam.value.memberCount = countRes.data;
+                // 更新列表中的成员数量
+                const teamInList = teamTableData.value.find(t => t.id === selectedTeam.value?.id);
+                if (teamInList) {
+                  teamInList.memberCount = countRes.data;
+                }
+              }
+            });
           }
         }).catch((err) => {
           console.log(err)

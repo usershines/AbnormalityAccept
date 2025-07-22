@@ -55,7 +55,11 @@
 import { reactive, ref, computed, onMounted } from 'vue';
 import {Edit, EditPen, Refresh} from "@element-plus/icons-vue";
 import {sendEmail} from "@/api/email.ts";
+import { useRoute ,useRouter} from 'vue-router';
+import { onBeforeUnmount } from 'vue';
 
+const router = useRouter(); // 添加 router 实例
+const route = useRoute();
 // 草稿类型定义
 interface Email{
   id: number,
@@ -90,9 +94,20 @@ const theme = ref('')
 const content = ref('')
 
 
-// 生命周期钩子
+// 生命周期钩子 - 处理路由参数
 onMounted(() => {
+  // 检查是否有回复邮件的参数
+  const replyTo = route.query.replyTo as string;
+  const replySubject = route.query.replySubject as string;
 
+  if (replyTo) {
+    // 填充收件人
+    name.value = replyTo;
+
+    // 填充主题（添加"回复："前缀）
+    theme.value = `回复@ ${replySubject }`;
+
+  }
 });
 
 const clearDraft = () => {
@@ -116,6 +131,8 @@ const sendDraft = () => {
     ElMessage.error('发送失败：'+err);
   })
 }
+
+
 
 </script>
 

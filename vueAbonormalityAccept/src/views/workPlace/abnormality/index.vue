@@ -157,11 +157,11 @@
         </el-form-item>
         <el-form-item label="危险等级" prop="level">
           <el-select v-model="newAbnormalityForm.level" placeholder="请选择危险等级">
-            <el-option label="灭世" value="3" />
-            <el-option label="未解明" value="2" />
+            <el-option label="无效化" value="0" />
             <el-option label="安全" value="1" />
+            <el-option label="未解明" value="2" />
+            <el-option label="灭世" value="3" />
             <el-option label="机密" value="4" />
-            <el-option label="无效化" value="5" />
           </el-select>
         </el-form-item>
         <el-form-item label="异想体图片">
@@ -447,7 +447,7 @@ const dialogTitle = ref('新建异想体')
 const currentAbnormality = ref({
   id: 0,
   name: '',
-  level: 0,
+  level: null ,
   description: '',
   manageMethod: '',
   notes: '',

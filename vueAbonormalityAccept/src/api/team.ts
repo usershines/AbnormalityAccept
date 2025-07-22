@@ -131,3 +131,8 @@ export function deleteTeam(teamId: number) {
 export function getMemberList(teamId: number) {
     return request.get(`/team/${teamId}/members`)
 }
+
+//统计成员数量
+export function countMembers(teamId: number) {
+    return request.get(`/team/${teamId}/countMembers`)
+}

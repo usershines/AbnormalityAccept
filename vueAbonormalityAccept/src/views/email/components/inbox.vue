@@ -13,6 +13,9 @@ import {
   updateEmailState,
   } from '@/api/email'
 import {ElMessage} from "element-plus";
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface Email{
   id: number,
@@ -254,6 +257,23 @@ const viewEmailDetail = (email: Email) => {
   selectedEmail.value = email;
   detailDialogVisible.value = true;
 }
+
+// 添加回复邮件方法
+const replyToEmail = (email: Email | null) => {
+  if (!email) return;
+
+  // 关闭详情弹窗
+  detailDialogVisible.value = false;
+
+  // 跳转到写邮件页面，并携带参数
+  router.push({
+    path: '/email/drafts', // 确保路由名称匹配
+    query: {
+      replyTo: email.senderName,
+      replySubject: email.theme
+    }
+  });
+}
 </script>
 
 <template>
@@ -425,7 +445,7 @@ const viewEmailDetail = (email: Email) => {
         <el-button @click="detailDialogVisible = false" class="dialog-button">
           <el-icon><Close /></el-icon> 关闭
         </el-button>
-        <el-button type="primary" @click="detailDialogVisible = false">
+        <el-button type="primary" @click="replyToEmail(selectedEmail)">
           <el-icon><Reply /></el-icon> 回复
         </el-button>
       </template>

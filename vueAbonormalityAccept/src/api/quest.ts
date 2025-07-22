@@ -82,3 +82,13 @@ export function deleteQuest(id: number) {
 export function searchQuests(questParam: any) {
     return request.post('/quest/conditions', questParam);
 }
+
+//查询空闲小队
+export function findTeamLeisure(pageNum:number,pageSize:number) {
+    return request.get('/quest/teamLeisure',{
+        params:{
+            pageNum: pageNum,
+            pageSize: pageSize,
+        }
+    })
+}

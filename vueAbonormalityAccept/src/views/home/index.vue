@@ -6,6 +6,9 @@
           motion-blur
           type="card"
           ref="carousel"
+          style="background-color: #add8e6;"
+          :width="600"
+
       >
         <el-carousel-item v-for="notice in notices" :key="notice" @click="clickCarousel(notice)">
           <h2 style="color: #333; font-size: 24px; font-weight: 600;">{{notice.theme}}</h2>

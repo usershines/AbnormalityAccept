@@ -821,11 +821,11 @@ const handleDeleteMember = (userId: number) => {
     return
   }
   ElMessageBox.confirm(
-      'proxy will permanently delete the file. Continue?',
-      'Warning',
+      `是否确认将id为${userId}的用户移出小队`,
+      '警告',
       {
-        confirmButtonText: 'OK',
-        cancelButtonText: 'Cancel',
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'warning',
       }
   )
@@ -853,7 +853,7 @@ const handleDeleteMember = (userId: number) => {
       .catch(() => {
         ElMessage({
           type: 'info',
-          message: 'Delete canceled',
+          message: '取消删除',
         })
       })
 }

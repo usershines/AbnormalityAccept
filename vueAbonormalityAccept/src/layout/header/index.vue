@@ -39,6 +39,7 @@ import router from "@/router";
 import {useRoute} from "vue-router";
 import {logout} from "@/api/user.ts";
 import { countUnreadEmail } from '@/api/email'
+import {ElMessage} from "element-plus";
 
 const unreadCount = ref(0) // 未读邮件数量
 const fetchUnreadCount = () => {
@@ -120,6 +121,7 @@ const Logout = () => {
   logout().then((res) => {
     if(res.code === 200){
       localStorage.clear()
+      ElMessage.success('已登出')
     }
   }).catch(e => {
     ElMessage.error(e.msg)

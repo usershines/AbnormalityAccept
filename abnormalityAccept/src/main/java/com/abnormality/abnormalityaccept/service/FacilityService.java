@@ -9,6 +9,7 @@ import com.github.pagehelper.PageInfo;
  * {@code @description:}
  * @since 2025-07-13
  */
+
 public interface FacilityService {
     PageInfo<Facility> findAllFacility(Integer pageNum, Integer pageSize);
     Facility findFacilityById(Long id);
@@ -17,5 +18,9 @@ public interface FacilityService {
     boolean deleteFacilityById(Long id);
 
     PageInfo<Facility> findFacilityByConditions(FacilityParam facilityParam);
+
+
+
+
 
 }

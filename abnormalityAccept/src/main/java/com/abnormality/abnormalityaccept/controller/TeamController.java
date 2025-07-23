@@ -121,8 +121,17 @@ public class TeamController {
     @Level(allowLevel = {5})
     public Result<List<User>> findTeamMember(@PathVariable Long id){
         List<User> userList = teamService.findTeamMember(id);
-        if(userList ==null || userList.isEmpty() ) return Result.error(Code.ERROR.getCode(),"未查询到相关小队成员");
+        if(userList ==null || userList.isEmpty() ) return Result.error(Code.NOT_FOUND.getCode(),"未查询到相关小队成员");
         return Result.ok(userList);
+    }
+
+    @Operation(summary = "统计成员")
+    @GetMapping("/{id}/countMembers")
+    @Level(allowLevel = {5})
+    public Result<Integer> countTeamMembers(@PathVariable Long id){
+        List< User> userList = teamService.findTeamMember(id);
+        int count = userList.size();
+        return Result.ok(count);
     }
 
 }

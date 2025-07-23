@@ -6,6 +6,7 @@ export interface Team {
     name: string;
     status: number;
     resolvingQuestId: number;
+    resolvingQuestCode: string;
     level:  number;
     description: string;
     leaderId: number;
@@ -28,7 +29,7 @@ export interface TeamParam {
     name: string | null;
     status: number | null;
     resolvingQuestId: number | null;
-    resolvingQuestName: string | null;
+    resolvingQuestCode: string | null;
     level:  number | null;
     description: string | null;
     leaderId: number | null;
@@ -130,4 +131,9 @@ export function deleteTeam(teamId: number) {
 // 获取小队成员
 export function getMemberList(teamId: number) {
     return request.get(`/team/${teamId}/members`)
+}
+
+//统计成员数量
+export function countMembers(teamId: number) {
+    return request.get(`/team/${teamId}/countMembers`)
 }

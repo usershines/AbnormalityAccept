@@ -91,6 +91,7 @@ const router = createRouter({
             },
             {
               path: 'drafts',
+              name: '/drafts',
               component:  EmailDrafts,
             },
             {

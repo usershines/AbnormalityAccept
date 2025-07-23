@@ -13,6 +13,9 @@ import {
   updateEmailState,
   } from '@/api/email'
 import {ElMessage} from "element-plus";
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface Email{
   id: number,
@@ -254,6 +257,23 @@ const viewEmailDetail = (email: Email) => {
   selectedEmail.value = email;
   detailDialogVisible.value = true;
 }
+
+// 添加回复邮件方法
+const replyToEmail = (email: Email | null) => {
+  if (!email) return;
+
+  // 关闭详情弹窗
+  detailDialogVisible.value = false;
+
+  // 跳转到写邮件页面，并携带参数
+  router.push({
+    path: '/email/drafts', // 确保路由名称匹配
+    query: {
+      replyTo: email.senderName,
+      replySubject: email.theme
+    }
+  });
+}
 </script>
 
 <template>
@@ -279,23 +299,22 @@ const viewEmailDetail = (email: Email) => {
           </el-button>
           <el-input
               v-model="searchSender"
-              placeholder="搜索发送者"
+              placeholder="搜索发送者..."
               clearable
               class="search-input"
               @input="filterEmails"
-              style="width: 150px;"
           >
             <template #prefix>
               <el-icon><User /></el-icon>
             </template>
           </el-input>
 
-          <el-select v-model="filterstate" placeholder="状态筛选" @change="filterEmails" style="width: 120px;">
+          <el-select v-model="filterstate" placeholder="状态筛选" @change="filterEmails">
             <el-option label="未读邮件" value="未读邮件" />
             <el-option label="已读邮件" value="已读邮件" />
           </el-select>
 
-          <el-select v-model="filterPriority" placeholder="发送者等级筛选" @change="filterEmails" style="width: 150px;">
+          <el-select v-model="filterPriority" placeholder="发送者等级筛选" @change="filterEmails">
             <el-option label="O5" value="5" />
             <el-option label="A" value="4" />
             <el-option label="B" value="3" />
@@ -305,7 +324,7 @@ const viewEmailDetail = (email: Email) => {
 
           <el-input
             v-model="searchQuery"
-            placeholder="搜索邮件"
+            placeholder="搜索邮件..."
             clearable
             class="search-input"
             @input="filterEmails"
@@ -385,7 +404,7 @@ const viewEmailDetail = (email: Email) => {
     >
       <div v-if="selectedEmail" class="email-detail">
         <div class="detail-header">
-          <h2 class="email-subject">{{ selectedEmail.theme }}</h2>
+          <h2 class="email-subject">{{ selectedEmail.content }}</h2>
           <div class="priority-tag">
             <el-tag v-if="selectedEmail.senderLevel=== 5" type="warning">重要</el-tag>
           </div>
@@ -405,6 +424,9 @@ const viewEmailDetail = (email: Email) => {
 
         </div>
 
+        <div class="email-content">
+          {{ selectedEmail.content }}
+        </div>
 
         <div v-if="selectedEmail.hasAttachment" class="email-attachments">
           <h3><el-icon><Folder /></el-icon> 附件</h3>
@@ -422,6 +444,9 @@ const viewEmailDetail = (email: Email) => {
       <template #footer>
         <el-button @click="detailDialogVisible = false" class="dialog-button">
           <el-icon><Close /></el-icon> 关闭
+        </el-button>
+        <el-button type="primary" @click="replyToEmail(selectedEmail)">
+          <el-icon><Reply /></el-icon> 回复
         </el-button>
       </template>
     </el-dialog>

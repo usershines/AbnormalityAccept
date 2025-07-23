@@ -103,7 +103,7 @@ const catchData = () => {
       ElMessage.success('获取邮件成功')
     }
   }).catch(e => {
-    ElMessage.error(e.msg)
+    // ElMessage.error(e.msg)
     console.log(e)
   })
 }

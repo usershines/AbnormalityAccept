@@ -133,8 +133,18 @@
 
                     </div>
                     <div class="info-item">
-                      <span class="label">成员：{{ selectedTeamMembers?.values.length }}人</span>
+                      <span class="label">成员：{{ item.memberCount }}人</span>
                     </div>
+                  </div>
+                  <div class="info-item" v-if="item.resolvingQuestName">
+    <span class="label">
+      <i class="iconfont icon-operation"></i> 正在执行的任务：{{item.resolvingQuestName }}
+    </span>
+                  </div>
+                  <div class="info-item" v-else>
+    <span class="label" style="color: #888;">
+      <i class="iconfont icon-operation"></i> 当前无任务
+    </span>
                   </div>
                 </el-card>
               </el-col>
@@ -259,7 +269,7 @@
 
       <div class="detail-section">
         <div style="display: flex;margin-top: -30px;align-items: center">
-          <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers?.length.toString() }}人)</h3>
+          <h3 class="section-title"><i class="iconfont icon-member"></i> 成员列表 ({{ selectedTeamMembers?.length || 0 }}人)</h3>
           <el-button style="margin-left: 50px" @click="handleAddMember">添加用户</el-button>
           <el-button style="margin-left: 50px" @click="handleDetail(selectedTeam)">刷新列表</el-button>
         </div>
@@ -274,11 +284,7 @@
               <span><i class="iconfont icon-name"></i> 姓名</span>
             </template>
           </el-table-column>
-          <el-table-column prop="role" label="职位">
-            <template #header>
-              <span><i class="iconfont icon-role"></i> 职位</span>
-            </template>
-          </el-table-column>
+
           <el-table-column prop="level" label="权限等级">
             <template #header>
               <span><i class="iconfont icon-security"></i> 权限等级</span>
@@ -289,13 +295,13 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="status" label="状态">
+          <el-table-column prop="introduction" label="简介">
             <template #header>
-              <span><i class="iconfont icon-status"></i> 状态</span>
+              <span><i class="iconfont icon-status"></i> 简介</span>
             </template>
             <template #default="scope">
-              <el-tag :type="getMemberStatusTagType(scope.row.status)" class="status-tag">
-                {{ scope.row.status }}
+              <el-tag :type="getMemberStatusTagType(scope.row.introduction)" class="introduction-tag">
+                {{ scope.row.introduction }}
               </el-tag>
             </template>
           </el-table-column>
@@ -412,26 +418,70 @@ import type { User } from '@/api/user';
 import {ElMessage, type FormInstance} from 'element-plus';
 import * as facilityApi from "@/api/facility.ts";
 
+interface TeamWithMemberCount extends Team {
+  memberCount?: number;
+}
+
 const userAvatar = ref("/src/assets/pic/user.png");
+
 // 获取数据
-const catchTeamTableData = () => {
-  TeamApi.getTeamList(pageNum.value, pageSize.value).then((res) => {
+const catchTeamTableData = async () => {
+  try {
+    const res = await TeamApi.getTeamList(pageNum.value, pageSize.value);
     if (res.code === 200) {
-      teamTableData.value = res.data.list;
+      const teams = res.data.list;
       total.value = res.data.total;
+
+      // 并行处理每个小队的额外数据
+      const enhancedTeams = await Promise.all(
+          teams.map(async (team) => {
+            // 1. 获取任务名称
+            let resolvingQuestName = null;
+            if (team.resolvingQuestId) {
+              try {
+                const questRes = await QuestApi.getQuest(team.resolvingQuestId);
+                if (questRes.code === 200) {
+                  resolvingQuestName = questRes.data.questName;
+                }
+              } catch (err) {
+                console.error('获取任务失败', err);
+              }
+            }
+
+            // 2. 获取成员数量
+            let memberCount = 0;
+            try {
+              const countRes = await TeamApi.countMembers(team.id);
+              if (countRes.code === 200) {
+                memberCount = countRes.data;
+              }
+            } catch (err) {
+              console.error(`获取小队 ${team.id} 成员数量异常:`, err);
+            }
+
+            // 返回增强后的小队对象
+            return {
+              ...team,
+              resolvingQuestName,
+              memberCount
+            };
+          })
+      );
+
+      teamTableData.value = enhancedTeams;
     } else if (res.code === 501) {
       ElMessage.error('权限不足，无法获取小队信息');
     } else {
       ElMessage.error('小队信息获取失败：' + res.msg);
     }
-  }).catch((err) => {
-    console.log(err);
-    ElMessage.error('小队信息获取失败：' + err.msg);
-  });
+  } catch (err) {
+    console.error('小队信息获取失败:', err);
+    ElMessage.error('小队信息获取失败：' + err.message);
+  }
 };
 
 // 队伍表格数据
-const teamTableData = ref<Team[]>([]);
+const teamTableData = ref<TeamWithMemberCount[]>([]);
 const teamAvatar = ref("/src/assets/pic/team.png");
 const createTeamDialogVisible = ref(false);
 // 分页相关数据
@@ -442,7 +492,7 @@ const total = ref(0);
 // 弹窗相关
 const detailDialogVisible = ref(false);
 const memberDialogVisible = ref(false);
-const selectedTeam = ref<Team | null>(null);
+const selectedTeam = ref<TeamWithMemberCount | null>(null);
 const selectedTeamMembers = ref<User[]>();
 const selectedMember = ref<User | null>(null);
 const selectedQuest = ref<Quest | null>(null);
@@ -604,15 +654,15 @@ const handleDetail = async (row: Team) => {
     try {
       const res = await TeamApi.getMemberList(teamId);
       console.log(res);
-      if (res.code === 200 && res.data != null) {
+      if (res.code === 200 ) {
         selectedTeamMembers.value = res.data;
       } else if (res.code === 501) {
         ElMessage.error(`权限不足，无法获取成员ID: ${teamId} 的信息`);
-      } else {
-        ElMessage.error(`获取成员ID: ${teamId} 的信息失败：${res.msg}`);
+      } else if (res.code === 404) {
+        ElMessage.error(`获取小队ID: ${teamId} 的信息失败：${res.msg}`);
       }
     } catch (err) {
-      ElMessage.error(`获取成员ID: ${teamId} 的信息失败：${(err as Error).message}`);
+      ElMessage.success(`获取小队ID: ${teamId} 的信息失败：${(err as Error).message}`);
     }
 
   // 获取小队正在执行的任务信息
@@ -744,7 +794,18 @@ const handleAddMemberWith = (userId: number | null) => {
     TeamApi.addMember(teamId, userId).then(res=>{
       console.log(res)
       if (res.code === 200) {
-        ElMessage.success('用户添加成功，请刷新页面')
+        ElMessage.success('用户添加成功');
+        // 更新当前小队的成员数量
+        TeamApi.countMembers(selectedTeam.value.id).then(countRes => {
+          if (countRes.code === 200 && selectedTeam.value) {
+            selectedTeam.value.memberCount = countRes.data;
+            // 更新列表中的成员数量
+            const teamInList = teamTableData.value.find(t => t.id === selectedTeam.value?.id);
+            if (teamInList) {
+              teamInList.memberCount = countRes.data;
+            }
+          }
+        });
       }
     }).catch((err) => {
       console.log(err)
@@ -769,12 +830,20 @@ const handleDeleteMember = (userId: number) => {
       }
   )
       .then(() => {
-        TeamApi.removeMember(selectedTeam.value.id,userId).then(res=>{
+        TeamApi.removeMember(selectedTeam.value.id, userId).then(res => {
           if (res.code === 200) {
-            ElMessage({
-              type: 'success',
-              message: '删除成功，请刷新页面',
-            })
+            ElMessage.success('删除成功');
+            // 更新当前小队的成员数量
+            TeamApi.countMembers(selectedTeam.value.id).then(countRes => {
+              if (countRes.code === 200 && selectedTeam.value) {
+                selectedTeam.value.memberCount = countRes.data;
+                // 更新列表中的成员数量
+                const teamInList = teamTableData.value.find(t => t.id === selectedTeam.value?.id);
+                if (teamInList) {
+                  teamInList.memberCount = countRes.data;
+                }
+              }
+            });
           }
         }).catch((err) => {
           console.log(err)

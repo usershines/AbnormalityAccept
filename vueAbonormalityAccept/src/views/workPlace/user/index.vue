@@ -10,18 +10,21 @@
         <el-form-item label="姓名" class="search-item">
           <el-input
               v-model="searchForm.username"
+              placeholder="请输入姓名"
               clearable
               class="search-input"
               prefix-icon="el-icon-user"
+              style="width: 130px;"
           ></el-input>
         </el-form-item>
 
         <el-form-item label="权限等级" class="search-item">
           <el-select
               v-model="searchForm.level"
+              placeholder="请选择"
               clearable
               class="search-select"
-              style="width: 80px"
+
           >
             <el-option label="O5议会" value="5"></el-option>
             <el-option label="A级" value="4"></el-option>
@@ -34,18 +37,22 @@
         <el-form-item label="所在设施ID" class="search-item">
           <el-input
               v-model="searchForm.facilityId"
+              placeholder="请输入所在设施ID"
               clearable
               class="search-input"
               prefix-icon="el-icon-location-outline"
+              style="width: 175px;"
           ></el-input>
         </el-form-item>
 
         <el-form-item label="ID" class="search-item">
           <el-input
               v-model="searchForm.id"
+              placeholder="请输入ID"
               clearable
               class="search-input"
               prefix-icon="el-icon-key"
+              style="width: 130px;"
           ></el-input>
         </el-form-item>
 
@@ -120,10 +127,13 @@
             <div class="switch-container">
               <el-switch
                   v-if="isDataReady"
+                  inline-prompt
                   v-model="scope.row.isActive"
                   style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
                   :active-value="1"
                   :inactive-value="0"
+                  active-text="启用"
+                  inactive-text="停用"
                   :before-change="handleStatusChange.bind(this,scope.row)"
               />
             </div>
@@ -132,7 +142,7 @@
 
         <el-table-column prop="facilityName" label="所在设施" width="150">
           <template #header>
-            <span><i class="iconfont icon-location"></i> 所在地</span>
+            <span><i class="iconfont icon-location"></i> 所在设施ID</span>
           </template>
         </el-table-column>
 
@@ -221,7 +231,7 @@
         <el-input v-model="createForm.email" placeholder="请输入邮箱"></el-input>
       </el-form-item>
 
-      <el-form-item label="所在地" prop="location">
+      <el-form-item label="所在设施ID" prop="location">
         <el-input v-model="createForm.facilityName" placeholder="请输入所在地"></el-input>
       </el-form-item>
 
@@ -312,7 +322,7 @@
                 {{ selectedUser.status ? '启用' : '停用' }}
               </el-tag>
             </span>
-            <span class="info-item"><i class="iconfont icon-location"></i> 所在地：<strong>{{ selectedUser.facilityName }}</strong></span>
+            <span class="info-item"><i class="iconfont icon-location"></i> 所在设施ID：<strong>{{ selectedUser.facilityName }}</strong></span>
           </div>
           <div class="info-row">
             <span class="info-item"><i class="iconfont icon-superior"></i> 上级：<strong>{{ selectedUser.leaderName }}</strong></span>
@@ -456,156 +466,7 @@ const searchForm = ref<UserParamsRequest>({
 
 // 原始表格数据（静态）
 const tableData = ref([
-  {
-    id: 1,
-    name: 'O5-13',
-    level: 'O5',
-    email: 'o5-13@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'O5议会',
-    status: 1,
-    description: '监督者议会成员'
-  },
-  {
-    id: 2,
-    name: 'Dr. Bright',
-    level: 'A',
-    email: 'bright@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'O5-13',
-    status: 1,
-    description: '高级研究员，SCP-963持有者'
-  },
-  {
-    id: 3,
-    name: 'Dr. Clef',
-    level: 'A',
-    email: 'clef@scp-foundation.org',
-    location: 'Site-17',
-    superior: 'O5-7',
-    status: 1,
-    description: '异常实体分析专家'
-  },
-  {
-    id: 4,
-    name: 'Dr. Gears',
-    level: 'A',
-    email: 'gears@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'O5-13',
-    status: 0,
-    description: '机械工程与异常收容专家'
-  },
-  {
-    id: 5,
-    name: 'MTF Epsilon-11',
-    level: 'B',
-    email: 'epsilon11@scp-foundation.org',
-    location: '机动部署',
-    superior: 'O5-13',
-    status: 1,
-    description: '九尾狐机动特遣队指挥官'
-  },
-  {
-    id: 6,
-    name: 'D-9341',
-    level: 'D',
-    email: 'd9341@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'Dr. Bright',
-    status: 1,
-    description: 'D级人员，特殊测试对象'
-  },
-  {
-    id: 7,
-    name: 'Dr. Kondraki',
-    level: 'A',
-    email: 'kondraki@scp-foundation.org',
-    location: 'Site-17',
-    superior: 'O5-7',
-    status: 1,
-    description: '摄影与异常实体研究专家'
-  },
-  {
-    id: 8,
-    name: 'Dr. Glass',
-    level: 'B',
-    email: 'glass@scp-foundation.org',
-    location: 'Site-64',
-    superior: 'Dr. Kondraki',
-    status: 1,
-    description: '收容措施优化专家'
-  },
-  {
-    id: 9,
-    name: 'O5-1',
-    level: 'O5',
-    email: 'o5-1@scp-foundation.org',
-    location: 'Area-01',
-    superior: '监督者议会',
-    status: 1,
-    description: '监督者议会首席'
-  },
-  {
-    id: 10,
-    name: 'MTF Alpha-1',
-    level: 'A',
-    email: 'alpha1@scp-foundation.org',
-    location: '机动部署',
-    superior: 'O5议会',
-    status: 1,
-    description: '红右手指挥官'
-  },
-  {
-    id: 11,
-    name: 'Dr. Shaw',
-    level: 'C',
-    email: 'shaw@scp-foundation.org',
-    location: 'Site-81',
-    superior: 'Dr. Glass',
-    status: 1,
-    description: '初级研究员'
-  },
-  {
-    id: 12,
-    name: 'D-9983',
-    level: 'D',
-    email: 'd9983@scp-foundation.org',
-    location: 'Site-19',
-    superior: 'Dr. Bright',
-    status: 0,
-    description: 'D级人员'
-  },
-  {
-    id: 13,
-    name: 'O5-7',
-    level: 'O5',
-    email: 'o5-7@scp-foundation.org',
-    location: 'Area-07',
-    superior: '监督者议会',
-    status: 1,
-    description: '监督者议会成员'
-  },
-  {
-    id: 14,
-    name: 'Dr. Rights',
-    level: 'B',
-    email: 'rights@scp-foundation.org',
-    location: 'Site-15',
-    superior: 'O5-7',
-    status: 1,
-    description: '伦理委员会成员'
-  },
-  {
-    id: 15,
-    username: 'MTF Gamma-5',
-    level: 'B',
-    email: 'gamma5@scp-foundation.org',
-    location: '机动部署',
-    superior: 'O5-13',
-    status: 1,
-    description: '红鲱鱼机动特遣队指挥官'
-  }
+
 ]);
 
 

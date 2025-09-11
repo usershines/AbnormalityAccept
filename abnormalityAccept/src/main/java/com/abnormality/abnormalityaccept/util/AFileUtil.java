@@ -1,10 +1,14 @@
 package com.abnormality.abnormalityaccept.util;
 
 import com.abnormality.abnormalityaccept.exception.ServiceException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
+@Slf4j
 public class AFileUtil {
 
     public static boolean writeFile(byte[] bytes, String path){
@@ -19,6 +23,7 @@ public class AFileUtil {
         } catch (Exception e) {
             throw new ServiceException("文件IO错误"+e.getMessage());
         }
+
     }
 
     public static boolean createDirByFile(String filepath){
@@ -41,5 +46,11 @@ public class AFileUtil {
             return path;
         }
         return "";
+    }
+
+    public static void main(String[] args) {
+        String characterName="abnormality";
+        String uuid= UUID.nameUUIDFromBytes(("OfflinePlayer:" + characterName).getBytes(StandardCharsets.UTF_8)).toString();
+        System.out.println(uuid);
     }
 }

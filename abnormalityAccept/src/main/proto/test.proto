@@ -1,0 +1,17 @@
+syntax="proto3";
+package proto;
+
+
+
+option java_package="com.abnormality.abnormalityaccept.dto.proto";
+option java_outer_classname="TestProto";
+
+
+service HelloService {
+  rpc Test(TestMessage) returns (TestMessage);
+}
+message TestMessage {
+  string name = 1;
+  optional int32 age = 2;
+}
+

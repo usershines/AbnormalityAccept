@@ -526,7 +526,6 @@ const searchForm = ref({
   minLevel: 1,
   maxLevel: 5,
   isActive: 1,
-  stateList: null,
   pageNum: pageNum.value,
   pageSize: pageSize.value,
 });
@@ -625,7 +624,7 @@ const handleReset = () => {
     minLevel: 1,
     maxLevel: 5,
     isActive: 1,
-    stateList: null,
+    statusList: null,
     pageNum: pageNum.value,
     pageSize: pageSize.value,
   };

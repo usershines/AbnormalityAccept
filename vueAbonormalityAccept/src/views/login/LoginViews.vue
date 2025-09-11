@@ -2,6 +2,7 @@
 import { reactive, onMounted, ref,toRaw} from 'vue'
 import { useRouter } from 'vue-router' // 引入路由
 import { login} from "@/api/user.ts";
+import { ElMessage } from 'element-plus';
 // 表单响应式数据
 const form = reactive({
   name: "",

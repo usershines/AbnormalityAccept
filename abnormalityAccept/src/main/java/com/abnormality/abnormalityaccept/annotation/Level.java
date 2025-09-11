@@ -13,6 +13,7 @@ import java.lang.annotation.*;
  * </ul>
  *
  * <p>这些规则可以单独使用，也可以组合使用，以实现灵活的权限控制策略。</p>
+ * @author s
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

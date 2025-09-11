@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.dto.Result;
+import com.abnormality.abnormalityaccept.dto.proto.TestProto;
 import com.abnormality.abnormalityaccept.dto.request.TestRequest;
 import com.abnormality.abnormalityaccept.dto.response.TestResponse;
 import com.abnormality.abnormalityaccept.service.FileService;
@@ -38,4 +39,6 @@ public class TestController {
     public Result<TestResponse> testPost(@RequestBody TestRequest req) {
         return Result.ok(testService.test(req));
     }
+
+
 }

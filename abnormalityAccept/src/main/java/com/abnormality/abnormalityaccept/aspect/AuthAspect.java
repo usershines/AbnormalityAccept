@@ -46,7 +46,9 @@ public class AuthAspect {
     /**
      * 定义切入点：匹配 controller 包下所有未被 @AuthIgnore 注解标注的方法。
      */
-    @Pointcut("!@annotation(com.abnormality.abnormalityaccept.annotation.AuthIgnore) && execution(* com.abnormality.abnormalityaccept.controller.*.*(..))")
+    @Pointcut("!@annotation(com.abnormality.abnormalityaccept.annotation.AuthIgnore) " +
+            "&& " +
+            "execution(* com.abnormality.abnormalityaccept.controller.*.*(..))")
     public void auth() {}
 
     /**

@@ -40,7 +40,7 @@ export interface TeamParam {
     maxLevel: number | null;
 
     //状态
-    stateList: number[] | null;
+    // statusList: number[] | null;
 
     //分页
     pageNum: number | null;
@@ -107,11 +107,11 @@ export function removeMember(teamId: number, memberId: number) {
 export function findTeamByCondition(team: TeamParam){
     console.log('try to find')
     console.log(team)
-    if((team.stateList === null) && (team.status != null)) {
+    if((team.statusList === null) && (team.status != null)) {
         console.log('find！！！！')
         team.status = Number(team.status)
-        team.stateList = []
-        team.stateList.push(team.status)
+        team.statusList = []
+        team.statusList.push(team.status)
         console.log(team)
     }
     if(team.minLevel === null) team.minLevel = 1;

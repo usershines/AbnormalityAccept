@@ -3,6 +3,10 @@ server:
   port: 8080 # 应用启动的端口号
 
 
+dashscope:
+  api-key: sk-3bc4427a2ad54af1b16806637d37bcd5
+  model: qwen-plus
+
 rmi:
   port: 1099
   remote-host: localhost

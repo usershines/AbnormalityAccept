@@ -33,6 +33,7 @@ import com.abnormality.abnormalityaccept.mapper.UserMapper;
 import com.abnormality.abnormalityaccept.mapper.QuestMapper;
 import com.abnormality.abnormalityaccept.service.TeamService;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -68,6 +69,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Level(allowLevel = {5})
+    @DS("slave")
     public PageInfo<User> findUserBelongNotTeam(Integer pageNum, Integer pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         List<User> userList = userMapper.findUserBelongNotTeam();
@@ -126,6 +128,7 @@ public class TeamServiceImpl implements TeamService {
     }
     @Override
     @Level(allowLevel = 5)
+    @DS("master")
     public boolean addMemberToTeam(Long teamId, Long userId) {
         Team team = teamMapper.findTeamById(teamId);
         User  user = userMapper.findUserById(userId);

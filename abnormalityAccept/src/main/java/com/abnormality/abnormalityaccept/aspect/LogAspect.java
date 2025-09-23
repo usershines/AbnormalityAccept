@@ -45,7 +45,7 @@ public class LogAspect {
     }
 
     @Around("log()")
-    public Result<?> controller(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object controller(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = (HttpServletRequest) Objects.requireNonNull(requestAttributes)
@@ -62,7 +62,7 @@ public class LogAspect {
 
         // 执行目标方法并记录响应结果
         try {
-            Result result = (Result) joinPoint.proceed();
+            Object result =  joinPoint.proceed();
             log.info("请求 URL: {}, 方法: {}, 参数：{}, 耗时: {}ms, 返回值: {}", url, methodName,
                     Arrays.toString(joinPoint.getArgs()), System.currentTimeMillis() - startTime, result);
 

@@ -6,6 +6,8 @@ import com.abnormality.abnormalityaccept.mapper.FacilityMapper;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -54,6 +56,7 @@ public class FacilityServiceImpl implements FacilityService {
      * 更新设施信息
      */
     @Override
+    @Cacheable(value = "facility",key = "#facility.id")
     public boolean updateFacility(Facility facility) {
         return facilityMapper.updateFacility(facility) > 0;
     }
@@ -62,6 +65,7 @@ public class FacilityServiceImpl implements FacilityService {
      * 根据ID删除设施
      */
     @Override
+    @CacheEvict(value = "facility",key = "#id")
     public boolean deleteFacilityById(Long id) {
         return facilityMapper.deleteFacilityById(id);
     }

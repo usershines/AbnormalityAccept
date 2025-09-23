@@ -1,6 +1,7 @@
 package com.abnormality.abnormalityaccept.util;
 
 import com.abnormality.abnormalityaccept.service.TestRMIService;
+import com.abnormality.abnormalityaccept.service.UserService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -21,5 +22,9 @@ public class RMIUtil {
     public static TestRMIService getRemoteService(String host, int port, String serviceName) throws Exception {
         Registry registry = LocateRegistry.getRegistry(host, port);
         return (TestRMIService) registry.lookup(serviceName);
+    }
+    public static UserService getUserService(String host, int port, String serviceName) throws Exception {
+        Registry registry = LocateRegistry.getRegistry(host, port);
+        return (UserService) registry.lookup(serviceName);
     }
 }

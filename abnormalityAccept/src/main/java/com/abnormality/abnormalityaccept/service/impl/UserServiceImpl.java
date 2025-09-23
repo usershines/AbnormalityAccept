@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.stereotype.Service;
 
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,7 +49,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl    implements UserService {
 
 
 

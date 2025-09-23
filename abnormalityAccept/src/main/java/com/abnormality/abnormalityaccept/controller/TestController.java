@@ -1,13 +1,10 @@
 package com.abnormality.abnormalityaccept.controller;
 
 import com.abnormality.abnormalityaccept.dto.Result;
-import com.abnormality.abnormalityaccept.dto.proto.TestProto;
 import com.abnormality.abnormalityaccept.dto.request.TestRequest;
 import com.abnormality.abnormalityaccept.dto.response.TestResponse;
 import com.abnormality.abnormalityaccept.service.FileService;
 import com.abnormality.abnormalityaccept.service.TestService;
-import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

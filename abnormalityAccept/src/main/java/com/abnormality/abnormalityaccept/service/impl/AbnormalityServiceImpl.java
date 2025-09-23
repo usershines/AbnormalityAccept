@@ -15,6 +15,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class AbnormalityServiceImpl implements AbnormalityService {
     }
 
     @Override
+    @Cacheable(value = "abnormality",key = "#id")
     public Abnormality findAbnormalityById(Long id) {
 
         Abnormality abnormality = abnormalityMapper.findAbnormalityById(id);

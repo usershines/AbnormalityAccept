@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,7 +31,14 @@ public class EmailServiceImpl implements EmailService {
     private final EmailMapper emailMapper;
 
     public  final UserMapper userMapper;
+    @Value("${rmi.port:1099}")
+    private int rmiPort;
 
+    @Value("${rmi.service.name:testService}")
+    private String serviceName;
+
+    @Value("${rmi.remote.host:localhost}")
+    private String remoteHost;
 
     @Override
     public PageInfo<Email> findAllEmail(Integer pageNum, Integer pageSize, Long receiverId) {
@@ -47,7 +55,10 @@ public class EmailServiceImpl implements EmailService {
         Email email = new Email();
         if(emailAddRequest.getTheme() == null) throw new ServiceException("邮件主题不能为空");
         if (emailAddRequest.getReceiverName() == null) throw new ServiceException("接收者用户名不能为空");
+
         User user = userMapper.selectOne(new QueryWrapper<User>().eq("username",emailAddRequest.getReceiverName()));
+
+
         if(user == null) throw new ServiceException("接收者用户不存在");
         Long receiverId = user.getId();
         //发送者信息

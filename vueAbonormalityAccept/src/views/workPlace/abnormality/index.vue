@@ -331,7 +331,7 @@ const newAbnormalityForm  = ref({
   manageMethod: '',
   notes: '',
   facilityId: 0,
-  imgName: "",
+  imgName: null,
 })
 
 // 异想体表单规则

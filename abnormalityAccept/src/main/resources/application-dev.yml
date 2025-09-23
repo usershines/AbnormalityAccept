@@ -9,7 +9,7 @@ dashscope:
 
 rmi:
   port: 1099
-  remote-host: localhost
+  remote-host: 192.168.211.158
   service:
     name: testService
 

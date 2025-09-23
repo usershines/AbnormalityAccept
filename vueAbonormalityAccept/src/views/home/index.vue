@@ -3,7 +3,6 @@
     <template #header>
       <el-carousel
           height="200px"
-          motion-blur
           type="card"
           ref="carousel"
           style="background-color: #add8e6;"

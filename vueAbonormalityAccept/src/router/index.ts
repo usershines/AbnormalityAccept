@@ -16,6 +16,7 @@ import EmailSent from "../views/email/components/sent.vue"
 import EmailDrafts from "../views/email/components/drafts.vue"
 import NotFound from "../views/notfound/index.vue"
 import PersonalPage from "@/views/personal-page/PersonalPage.vue"
+import AIChat from "@/views/aichat/chat.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -100,6 +101,10 @@ const router = createRouter({
             },
           ]
         },
+        {
+          path: 'AIChat',
+          component: AIChat,
+        },
 
       ]
     },
@@ -113,15 +118,8 @@ const router = createRouter({
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component:NotFound,
-    }
-    /*{
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
-    },*/
+    },
+
   ],
 })
 

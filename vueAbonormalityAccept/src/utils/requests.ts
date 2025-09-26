@@ -135,6 +135,8 @@ class Request {
     public delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
         return this.instance.delete(url, config)
     }
+
+
 }
 
 // 创建全局请求实例（单例模式）

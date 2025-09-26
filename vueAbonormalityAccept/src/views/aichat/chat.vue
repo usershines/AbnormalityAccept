@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick,} from 'vue';
-import {postRequestStream} from "@/api/AIChat.ts";
+import {chatStream, postRequestStream} from "@/api/AIChat.ts";
 import type { Ref } from 'vue';
 
 
@@ -477,7 +477,9 @@ const sendMessage = () => {
   activeContact.value.messages.push(message);
   activeContact.value.lastMessage = message.content;
   newMessage.value = '';
-  sendMessageToServer(message);
+  chatStream(trimmedMsg, (data) => { 
+    console.log(data);
+  });
   nextTick(scrollToBottom);
 };
 
@@ -598,7 +600,7 @@ const handleKeydown = (event: KeyboardEvent) => {
 // ========================== 生命周期钩子 ==========================
 onMounted(() => {
   // 初始化SSE连接
-  postRequestStream()
+  // postRequestStream()
 
   // 初始滚动到底部
   scrollToBottom();

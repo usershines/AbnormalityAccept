@@ -108,8 +108,6 @@ public class UserServiceImpl    implements UserService {
     public User findUserById(Long id , Long finderId) {
         User finder = userMapper.selectById(finderId);
         if(userMapper.selectById( id)== null) throw new ServiceException(Code.NOT_FOUND, "用户不存在");
-        int finderLevel = finder.getLevel();
-        if(finderLevel<userMapper.selectById(id).getLevel())throw new ServiceException(Code.FORBIDDEN,"无权查看当前用户");
         return userMapper.selectById(id);}
 
     @Override

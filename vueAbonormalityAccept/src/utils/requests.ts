@@ -5,6 +5,7 @@ import type {
     AxiosRequestConfig,
     AxiosResponse,
 } from 'axios'
+import router from "@/router";
 
 /**
  * 定义后端返回的通用响应结构
@@ -12,7 +13,7 @@ import type {
  */
 interface ResponseData<T = any> {
     code: number      // 业务状态码
-    message: string   // 业务提示信息
+    msg: string   // 业务提示信息
     data: T           // 实际业务数据
 }
 
@@ -51,8 +52,13 @@ class Request {
                 const res = response.data as ResponseData
                 // 业务状态码非200时视为业务错误
                 if (res.code !== 200) {
-                    console.error(`业务错误: ${res.message}`)
-                    return Promise.reject(res)
+                    console.error('业务错误: ',res.msg)
+                    if(res.code == 403) {
+                        console.log('登出')
+                        router.push("/")
+                    }else {
+                        return Promise.reject(res)
+                    }
                 }
                 // 返回响应数据体（包含code/message/data结构）
                 console.log('响应数据:')

@@ -25,6 +25,7 @@
             <span>邮件</span>
             <span v-if="unreadCount > 0" class="unread-badge">{{ unreadCount > 99 ? "99+" : unreadCount }}</span>
           </el-menu-item>
+          <el-menu-item index="/AIChat">AI助手</el-menu-item>
           <el-menu-item index="/workPlace/personal">个人主页</el-menu-item>
         </el-menu>
         <el-avatar  :size="80" :src="userAvatar" @click="router.push('/workPlace/personal')" style="cursor: pointer"/>
@@ -71,7 +72,7 @@ const updateDefaultActive = () => {
     }else {
       if(route.path.startsWith('/personal')) {
         defaultActive.value = '/personal';
-      }
+      }else
       defaultActive.value = route.name;
     }
   }

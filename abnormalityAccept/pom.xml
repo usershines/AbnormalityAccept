@@ -29,8 +29,8 @@
 
     <properties>
         <java.version>17</java.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <grpc.version>1.72.0</grpc.version>
         <protobuf-java.version>4.30.2</protobuf-java.version>
         <spring-grpc.version>0.10.0</spring-grpc.version>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
-            <version>1.34.1</version>
+            <version>${grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
@@ -356,20 +356,10 @@
                 </execution>
             </executions>
         </plugin>
-<!--            &lt;!&ndash;设置分页插件&ndash;&gt;-->
-<!--            <plugin>-->
-<!--                <interceptor>com.github.pagehelper.PageInterceptor</interceptor>-->
-<!--                <artifactId/>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
-                <configuration>
-                    <!-- 配置覆盖率报告的输出目录 -->
-                    <dataFile>target/jacoco.exec</dataFile>
-                    <outputDirectory>target/jacoco-reports</outputDirectory>
-                </configuration>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -385,6 +375,40 @@
                     </execution>
                 </executions>
             </plugin>
+<!--            &lt;!&ndash;设置分页插件&ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <interceptor>com.github.pagehelper.PageInterceptor</interceptor>-->
+<!--                <artifactId/>-->
+<!--            </plugin>-->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.3</version> <!-- 确保版本号与你的项目匹配 -->
+                <configuration>
+                    <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

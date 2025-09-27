@@ -78,7 +78,7 @@
             :class="message.sender === 'me' ? 'sent' : 'received'"
         >
           <div class="message-content">
-            <span>{{ message.content }}<span class="typing-cursor">|</span></span>
+            <span>{{ message.content }}</span>
           </div>
 <!--          <div class="message-time">-->
 <!--            {{ formatTime(message.time) }}-->
@@ -117,6 +117,7 @@
 import { ref, onMounted, onUnmounted, nextTick,} from 'vue';
 import {chatStream, postRequestStream} from "@/api/AIChat.ts";
 import type { Ref } from 'vue';
+import {ElMessage} from "element-plus";
 
 
 // ========================== 类型定义 ==========================
@@ -219,246 +220,13 @@ const newMessage: Ref<string> = ref('');
 const showChatArea: Ref<boolean> = ref(window.innerWidth > 768);
 const messagesContainer: Ref<HTMLElement | null> = ref(null);
 const isConnected: Ref<boolean> = ref(false);
-const eventSource: Ref<EventSource | null> = ref(null);
-let messageInterval: number | null = null; // 用于管理模拟消息定时器
 // 打字机相关
 const showTypingIndicator: Ref<boolean> = ref(false);
-let typingTimeout: number | null = null;
-
-// ========================== SSE相关方法 ==========================
-/**
- * 连接SSE服务
- */
-const connectToSSE = () => {
-  try {
-    console.log('正在连接到SSE服务器...');
-    isConnected.value = true;
-
-    // 实际项目中使用真实SSE连接
-    eventSource.value = new EventSource('/api/chat-events');
-    eventSource.value.addEventListener('message', handleSSEEvent);
-    eventSource.value.addEventListener('open', () => {
-      console.log('SSE连接已建立');
-      isConnected.value = true;
-    });
-    eventSource.value.addEventListener('error', (error) => {
-      console.error('SSE连接错误:', error);
-      isConnected.value = false;
-    });
-
-    // 保持模拟消息以便测试
-    simulateSSEMessages();
-  } catch (error) {
-    console.error('SSE连接失败:', error);
-    isConnected.value = false;
-  }
-};
-
-/**
- * 模拟SSE消息推送 - 改进版，支持打字事件
- */
-const simulateSSEMessages = () => {
-  if (messageInterval) clearInterval(messageInterval);
-
-  // 每15-25秒随机发送消息或打字事件
-  messageInterval = setInterval(() => {
-    if (isConnected.value) {
-      clearInterval(messageInterval!);
-      return;
-    }
-
-    //const randomIndex = Math.floor(Math.random() * contacts.value.length);
-    const randomIndex = 2;
-    const randomContact = contacts.value[randomIndex];
-    const isCurrentContact = randomContact.id === activeContact.value.id;
-
-    // 30%概率发送"正在输入"事件，70%概率直接发送消息
-    if (Math.random() < 0.3 && isCurrentContact) {
-      // 发送打字事件
-      handleSSEEvent({
-        data: JSON.stringify({
-          type: 'typing',
-          data: {
-            contactId: randomContact.id,
-            isTyping: true
-          }
-        })
-      } as MessageEvent);
-
-      // 2-5秒后发送实际消息
-      setTimeout(() => {
-        const newMsgContent = getRandomMessage();
-        handleSSEEvent({
-          data: JSON.stringify({
-            type: 'message',
-            data: {
-              contactId: randomContact.id,
-              content: newMsgContent,
-              time: new Date()
-            }
-          })
-        } as MessageEvent);
-      }, 2000 + Math.random() * 3000);
-    } else if (Math.random() < 0.7) {
-      // 直接发送消息
-      const newMsgContent = getRandomMessage();
-      handleSSEEvent({
-        data: JSON.stringify({
-          type: 'message',
-          data: {
-            contactId: randomContact.id,
-            content: newMsgContent,
-            time: new Date()
-          }
-        })
-      } as MessageEvent);
-    }
-  }, 15000);
-};
-
-/**
- * 断开SSE连接
- */
-const disconnectFromSSE = () => {
-  if (eventSource.value) {
-    eventSource.value.close();
-    eventSource.value.removeEventListener('message', handleSSEEvent);
-  }
-
-  isConnected.value = false;
-  if (messageInterval) clearInterval(messageInterval);
-  if (typingTimeout) clearTimeout(typingTimeout);
-  console.log('已断开SSE连接');
-};
-
-/**
- * 处理SSE事件
- */
-const handleSSEEvent = (event: MessageEvent) => {
-  try {
-    const sseEvent: SSEEvent = JSON.parse(event.data);
-
-    switch (sseEvent.type) {
-      case 'message':
-        handleIncomingMessage(sseEvent.data);
-        break;
-      case 'status_update':
-        handleStatusUpdate(sseEvent.data);
-        break;
-      case 'typing':
-        handleTypingIndicator(sseEvent.data);
-        break;
-      default:
-        console.log('未知的SSE事件类型:', sseEvent.type);
-    }
-  } catch (error) {
-    console.error('解析SSE事件失败:', error);
-  }
-};
-
-// ========================== 聊天核心方法 ==========================
-/**
- * 处理接收的消息 - 实现打字机效果
- */
-const handleIncomingMessage = (messageData: any) => {
-  console.log('收到新消息:', messageData);
-
-  // 找到对应的联系人
-  const contact = contacts.value.find(c => c.id === messageData.contactId);
-  if (!contact) return;
-
-  // 创建消息对象，初始化为正在输入状态
-  const newMsg: Message = {
-    id: Date.now(),
-    content: messageData.content,
-    sender: 'other',
-    // time: messageData.time ? new Date(messageData.time) : new Date(),
-  };
-
-  // 添加到消息列表
-  contact.messages.push(newMsg);
-  contact.lastMessage = messageData.content;
-
-  // 如果是当前聊天对象，更新到activeContact
-  if (contact.id === activeContact.value.id) {
-    activeContact.value.messages.push(newMsg);
-    activeContact.value.lastMessage = messageData.content;
-  } else {
-    // 非当前聊天对象，增加未读计数
-    contact.unreadCount += 1;
-    contacts.value = [...contacts.value];
-  }
-
-  // 滚动到底部
-  nextTick(scrollToBottom);
-
-  // 实现打字机效果
-  /*
-  let index = 0;
-  const typingSpeed = 50 + Math.random() * 30; // 每个字符50-80ms的随机延迟
-
-  const typeInterval = setInterval(() => {
-    if (index < newMsg.content.length) {
-      newMsg.displayContent += newMsg.content[index];
-      index++;
-      // 更新消息引用以触发UI更新
-      if (contact.id === activeContact.value.id) {
-        activeContact.value = { ...activeContact.value };
-      }
-      nextTick(scrollToBottom);
-    } else {
-      // 打字完成
-      clearInterval(typeInterval);
-      newMsg.isTyping = false;
-      newMsg.displayContent = newMsg.content;
-      if (contact.id === activeContact.value.id) {
-        activeContact.value = { ...activeContact.value };
-      }
-      // 清除正在输入提示
-      showTypingIndicator.value = false;
-    }
-  }, typingSpeed);
-   */
-
-};
-
-/**
- * 处理联系人状态更新
- */
-const handleStatusUpdate = (statusData: any) => {
-  console.log('状态更新:', statusData);
-  const contact = contacts.value.find(c => c.id === statusData.contactId);
-  if (contact) {
-    contact.status = statusData.status;
-    contacts.value = [...contacts.value];
-    if (contact.id === activeContact.value.id) {
-      activeContact.value = { ...activeContact.value };
-    }
-  }
-};
-
-/**
- * 处理输入指示器
- */
-const handleTypingIndicator = (typingData: any) => {
-  console.log('输入状态:', typingData);
-  if (typingData.contactId !== activeContact.value.id) return;
-
-  if (typingData.isTyping) {
-    showTypingIndicator.value = true;
-    // 5秒后自动隐藏
-    if (typingTimeout) clearTimeout(typingTimeout);
-    typingTimeout = window.setTimeout(() => {
-      showTypingIndicator.value = false;
-    }, 5000);
-  } else {
-    showTypingIndicator.value = false;
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-      typingTimeout = null;
-    }
-  }
-};
+const lastMsgIndex: Ref<number> = ref(0)
+// 定时器判断返回超时
+let timer: number | null = null;
+const timeoutTime = 10000;
+const lastMsgTime: Ref<Date> = ref(new Date());
 
 /**
  * 发送消息
@@ -477,27 +245,33 @@ const sendMessage = () => {
   activeContact.value.messages.push(message);
   activeContact.value.lastMessage = message.content;
   newMessage.value = '';
-  chatStream(trimmedMsg, (data) => { 
-    console.log(data);
-  });
+  const reMsg: Message = {
+    id:Date.now(),
+    content: '',
+    sender: 'other',
+  };
+  activeContact.value.messages.push(reMsg)
+  lastMsgIndex.value = activeContact.value.messages.length-1
+  // 超时检测
+  if(timer != null) clearInterval(timer)
+  timer = setInterval(()=>{
+    const currentTime = new Date()
+    if(currentTime.getTime() - lastMsgTime.value.getTime() > timeoutTime){
+      ElMessage.error('消息返回超时')
+      clearInterval(timer)
+    }
+  },timeoutTime)
+
+  chatStream(trimmedMsg, chatMsgHander);
   nextTick(scrollToBottom);
 };
 
 const chatMsgHander = (msg : string) =>{
-  console.log(msg)
-
+  if(msg == null && timer != null){
+    clearInterval(timer)
+  }
+  activeContact.value.messages[lastMsgIndex.value].content += msg;
 }
-
-/**
- * 发送消息到服务器（实际项目使用）
- */
-const sendMessageToServer = (message: Message) => {
-  console.log('发送消息到服务器:', message);
-  // 实际项目中替换为API请求（如fetch/axios）
-  setTimeout(() => {
-    console.log('消息已送达服务器');
-  }, 500);
-};
 
 /**
  * 选择聊天联系人
@@ -569,25 +343,6 @@ const formatTime = (time: Date) => {
 };
 
 /**
- * 生成随机消息（用于模拟）
- */
-const getRandomMessage = () => {
-  const messagePool = [
-    '你好！',
-    '在忙吗？',
-    '这个功能很有意思',
-    '我明白了，谢谢解释',
-    '我们什么时候开会？',
-    '项目进展如何？',
-    '周末有什么计划？',
-    '这个设计很棒！',
-    '我需要更多信息',
-    '好的，我会处理'
-  ];
-  return messagePool[Math.floor(Math.random() * messagePool.length)];
-};
-
-/**
  * 处理键盘事件（Enter发送消息，Shift+Enter换行）
  */
 const handleKeydown = (event: KeyboardEvent) => {
@@ -619,8 +374,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  // 断开SSE连接
-  disconnectFromSSE();
+
 });
 </script>
 

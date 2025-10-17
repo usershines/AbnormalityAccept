@@ -157,28 +157,33 @@ const handleUpload = async () => {
   try {
     isUploading.value = true;
 
-    // 1. 将dataURL转换为Blob对象（图片二进制数据）
+    // 将dataURL转换为Blob对象（图片二进制数据）
     const blob = dataURLToBlob(capturedImageUrl.value);
 
-    // 2. 创建FormData，仅包含图片数据
+    // 创建FormData
     const formData = new FormData();
     // 注意：这里的键名（如'image'）需要与后端接口要求的参数名一致
     formData.append('image', blob, 'captured-image.png');
 
-    // 3. 发送POST请求到后端接口
     const response = await faceRecognize(formData);
 
     // 4. 处理成功响应
     if (response.code === 200) {
       ElMessage.success('图片上传成功');
-      console.log('上传成功响应:', response.msg);
+      console.log('上传成功响应:', response.data);
       dialogVisible.value = false; // 上传成功后关闭弹窗
     } else {
       ElMessage.error(`上传失败: ${response.msg}`);
     }
   } catch (error) {
     console.error('上传出错:', error);
-
+    if (error.response) {
+      ElMessage.error(`上传失败: ${error.response.data?.message || '服务器错误'}`);
+    } else if (error.request) {
+      ElMessage.error('上传超时，请检查网络');
+    } else {
+      ElMessage.error('上传过程中发生错误');
+    }
   } finally {
     isUploading.value = false;
   }

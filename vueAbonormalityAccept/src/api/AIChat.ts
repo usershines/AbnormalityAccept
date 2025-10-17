@@ -19,7 +19,8 @@ export interface ChatRequest {
     message: string;
     userId: null | string;
     userName: string;
-    contentOnly:boolean
+    contentOnly:boolean;
+    enableGraphRag:boolean;
 }
 
 
@@ -36,7 +37,7 @@ export interface ChatRequest {
  */
 
 
-export const chatStream=async(msg:string,handleFunc:(data:any)=>void)=>{
+export const chatStream=async(msg:string,handleFunc:(data:any)=>void,enableGraphRag:boolean)=>{
     console.log("chatMsg触发")
     const token = localStorage.getItem('token')
     if(!token){
@@ -54,7 +55,8 @@ export const chatStream=async(msg:string,handleFunc:(data:any)=>void)=>{
         message:msg,
         userId:userId,
         userName:userName,
-        contentOnly:true
+        contentOnly:true,
+        enableGraphRag:enableGraphRag,
     }
 
     return postRequestStream(BASE_URL+SUB_URL,header,body,handleFunc)

@@ -9,6 +9,7 @@ import { marked } from 'marked'
 const userInput = ref('')
 const aiResponse = ref('')
 const isLoading = ref(false)
+const enableGraphRag = ref(false)
 const graphContainer = ref<HTMLDivElement | null>()
 let graph: Graph | null = null
 const renderedResponse = computed(() => {
@@ -34,6 +35,7 @@ const getAIResponse = async (input: string) => {
   chatStream(
       userInput.value,
       handleResponse,
+      enableGraphRag.value
   )
 }
 
@@ -179,7 +181,17 @@ const clearConversation = () => {
     <!-- 右侧知识图谱区域 -->
     <div class="right-panel">
       <div class="kg-section">
-        <h3>相关知识图谱</h3>
+        <div class="flex">
+          <h3>相关知识图谱</h3>
+          <el-switch
+              v-model="enableGraphRag"
+              class="ml-2"
+              inline-prompt
+              style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"
+              active-text="展示相关图"
+              inactive-text="不展示相关图"
+          />
+        </div>
         <div ref="graphContainer" class="graph-container"></div>
       </div>
     </div>

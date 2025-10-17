@@ -17,7 +17,7 @@ export interface Message {
 
 export interface ChatRequest {
     message: string;
-    userId: number | string;
+    userId: null | string;
     userName: string;
     contentOnly:boolean
 }
@@ -46,17 +46,18 @@ export const chatStream=async(msg:string,handleFunc:(data:any)=>void)=>{
         'Authorization': `Bearer ${token}`,
     }
     const userName=localStorage.getItem('username')
+    const userId = localStorage.getItem('userid')
     if(!userName){
         return
     }
     const body:ChatRequest={
         message:msg,
-        userId:"0",
+        userId:userId,
         userName:userName,
         contentOnly:true
     }
 
-    postRequestStream(BASE_URL+SUB_URL,header,body,handleFunc)
+    return postRequestStream(BASE_URL+SUB_URL,header,body,handleFunc)
 
 }
 

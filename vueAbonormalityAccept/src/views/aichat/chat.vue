@@ -1,720 +1,454 @@
-<template>
-  <el-container class="chat-container">
-    <!-- 左侧联系人列表 -->
-    <el-aside class="contacts-sidebar" :class="{ 'mobile-visible': !showChatArea }">
-      <div class="user-profile">
-        <div class="user-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <div>
-          <h3>{{ currentUser.name }}</h3>
-          <p>
-            在线
-            <span class="connection-status" :class="isConnected ? 'connected' : 'disconnected'">
-    {{ isConnected ? '已连接' : '未连接' }}
-    </span>
-          </p>
-        </div>
-      </div>
+<!-- 修改 ChatView.vue -->
+<script lang="ts" setup>
+import { chatStream } from '@/api/AIChat.ts'
+import { Graph } from '@antv/g6'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { marked } from 'marked'
 
-      <div class="search-box">
-        <input type="text" placeholder="搜索联系人...">
-      </div>
+// 原有响应式数据
+const userInput = ref('')
+const aiResponse = ref('')
+const isLoading = ref(false)
+const graphContainer = ref<HTMLDivElement | null>()
+let graph: Graph | null = null
+const renderedResponse = computed(() => {
+  if (aiResponse.value) {
+    return marked(aiResponse.value)
+  }
+  return ''
+})
 
-      <div class="contacts-list">
-        <div
-            v-for="contact in contacts"
-            :key="contact.id"
-            class="contact-item"
-            :class="{ active: activeContact.id === contact.id }"
-            @click="selectContact(contact)"
-        >
-          <div class="contact-avatar">
-            <i class="fas fa-user"></i>
-          </div>
-          <div class="contact-info">
-            <div class="contact-name">
-              {{ contact.name }}
-              <span v-if="contact.unreadCount > 0" class="unread-badge">
-    {{ contact.unreadCount }}
-  </span>
-            </div>
-            <div class="last-message">{{ contact.lastMessage }}</div>
-          </div>
-          <div class="contact-status">
-            <i class="fas fa-circle" :class="contact.status"></i>
-          </div>
-        </div>
-      </div>
-    </el-aside>
+// 知识图谱数据
+const kgData = ref({
+  nodes: [],
+  edges: [],
+})
 
-    <!-- 右侧聊天区域 -->
-    <el-main class="chat-area" :class="{ 'mobile-visible': showChatArea }">
-      <div class="chat-header">
-        <div class="chat-contact-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="chat-contact-info">
-          <div class="chat-contact-name">{{ activeContact.name }}</div>
-          <div class="chat-contact-status">
-            {{
-              activeContact.status === 'online' ? '在线' :
-                  activeContact.status === 'away' ? '离开' : '离线'
-            }}
-          </div>
-        </div>
-        <div class="chat-header-actions">
-          <i class="fas fa-phone-alt"></i>
-          <i class="fas fa-video"></i>
-          <i class="fas fa-ellipsis-v"></i>
-        </div>
-      </div>
+// 原有函数保持不变
+const getAIResponse = async (input: string) => {
+  isLoading.value = true
+  aiResponse.value = ''
 
-      <div class="messages-container" ref="messagesContainer">
-        <div
-            v-for="message in activeContact.messages"
-            :key="message.id"
-            class="message"
-            :class="message.sender === 'me' ? 'sent' : 'received'"
-        >
-          <div class="message-content">
-            <span>{{ message.content }}</span>
-          </div>
-<!--          <div class="message-time">-->
-<!--            {{ formatTime(message.time) }}-->
-<!--          </div>-->
-        </div>
-        <!-- 正在输入提示 -->
-        <div class="typing-indicator" v-if="showTypingIndicator">
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-        </div>
-      </div>
+  initGraph()
 
-      <div class="message-input-area">
-        <div class="message-input-tools">
-          <i class="fas fa-smile"></i>
-          <i class="fas fa-paperclip"></i>
-          <i class="fas fa-image"></i>
-        </div>
-        <textarea
-            class="message-input"
-            placeholder="输入消息..."
-            v-model="newMessage"
-            @keydown="handleKeydown"
-            rows="1"
-        ></textarea>
-        <button class="send-button" @click="sendMessage" :disabled="!newMessage.trim()">
-          <i class="fas fa-paper-plane"></i>
-        </button>
-      </div>
-    </el-main>
-  </el-container>
-</template>
-
-<script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick,} from 'vue';
-import {chatStream, postRequestStream} from "@/api/AIChat.ts";
-import type { Ref } from 'vue';
-import {ElMessage} from "element-plus";
-
-
-// ========================== 类型定义 ==========================
-interface User {
-  id: number;
-  name: string;
-  avatar?: string;
+  chatStream(
+      userInput.value,
+      handleResponse,
+  )
 }
 
-interface Message {
-  id: number | string;
-  content: string; // 完整内容
-  // time: Date;
-  sender: "me" | "other";
+const handleResponse = async (data: any) => {
+  isLoading.value = false
+  console.log(data)
+  if (data.type == 'text') {
+    aiResponse.value += data.data
+  }
+  if (data.type == 'graph') {
+    updateKGData(data.data)
+  }
+
+  // 如果响应包含图数据，则更新图
 }
 
-interface Contact {
-  id: number;
-  name: string;
-  avatar?: string;
-  lastMessage: string;
-  unreadCount: number;
-  status: 'online' | 'offline' | 'away';
-  messages: Message[];
-}
+// 初始化图
+const initGraph = () => {
+  // 先销毁可能存在的旧实例
+  if (graph) {
+    graph.destroy()
+    graph = null
+  }
 
-interface SSEEvent {
-  type: 'message' | 'status_update' | 'typing' | 'user_joined' | 'user_left';
-  data: any;
-}
-
-// ========================== 响应式数据 ==========================
-const currentUser: Ref<User> = ref({
-  id: 1,
-  name: '张三'
-});
-
-const contacts: Ref<Contact[]> = ref([
-  {
-    id: 2,
-    name: '李四',
-    lastMessage: '你好，最近怎么样？',
-    unreadCount: 0,
-    status: 'online',
-    messages: [
-      {
-        id: 1,
-        content: '你好，最近怎么样？',
-        displayContent: '你好，最近怎么样？',
-        sender: 'other',
-        time: new Date(Date.now() - 3600000),
-        type: 'text'
+  if (graphContainer.value) {
+    console.log('创建新的图实例')
+    graph = new Graph({
+      container: graphContainer.value,
+      autoResize: true,
+      data: { nodes: [], edges: [] }, // 初始为空数据
+      layout: {
+        type: 'd3-force',
+        preventOverlap: true,
+        collide: {
+          radius: 35,
+          strength: 0.8,
+        },
+        link: {
+          distance: 200,
+          strength: 0.1,
+        },
       },
-      {
-        id: 2,
-        content: '我很好，谢谢关心！',
-        displayContent: '我很好，谢谢关心！',
-        sender: 'me',
-        time: new Date(Date.now() - 3500000),
-        type: 'text'
+      node: {
+        style: {
+          fill: '#409eff',
+          labelText: (datum): string => {
+            return datum.label ? String(datum.label) : ''
+          },
+        },
       },
-      {
-        id: 3,
-        content: '我们什么时候见面？',
-        displayContent: '我们什么时候见面？',
-        sender: 'other',
-        time: new Date(Date.now() - 3400000),
-        type: 'text'
-      }
-    ]
-  },
-  // 其他联系人保持不变
-  {
-    id: 3,
-    name: '王五',
-    lastMessage: '项目进展如何？',
-    unreadCount: 2,
-    status: 'online',
-    messages: [
-      { id: 1, content: '项目进展如何？', displayContent: '项目进展如何？', sender: 'other', time: new Date(Date.now() - 7200000), type: 'text' },
-      { id: 2, content: '进展顺利，下周可以完成。', displayContent: '进展顺利，下周可以完成。', sender: 'me', time: new Date(Date.now() - 7000000), type: 'text' }
-    ]
-  },
-  {
-    id: 4,
-    name: '赵六',
-    lastMessage: '周末有空吗？',
-    unreadCount: 0,
-    status: 'away',
-    messages: [
-      { id: 1, content: '周末有空吗？', displayContent: '周末有空吗？', sender: 'other', time: new Date(Date.now() - 86400000), type: 'text' },
-      { id: 2, content: '有空，你有什么计划？', displayContent: '有空，你有什么计划？', sender: 'me', time: new Date(Date.now() - 86000000), type: 'text' }
-    ]
+      edge: {
+        style: {
+          stroke: '#ccc',
+          labelText: (datum): string => {
+            return datum.label ? String(datum.label) : ''
+          },
+        },
+      },
+      behaviors: ['drag-canvas', 'zoom-canvas', 'drag-element-force'],
+    })
   }
-]);
-
-
-const activeContact: Ref<Contact> = ref(contacts.value[0]);
-const newMessage: Ref<string> = ref('');
-const showChatArea: Ref<boolean> = ref(window.innerWidth > 768);
-const messagesContainer: Ref<HTMLElement | null> = ref(null);
-const isConnected: Ref<boolean> = ref(false);
-// 打字机相关
-const showTypingIndicator: Ref<boolean> = ref(false);
-const lastMsgIndex: Ref<number> = ref(0)
-// 定时器判断返回超时
-let timer: number | null = null;
-const timeoutTime = 10000;
-const lastMsgTime: Ref<Date> = ref(new Date());
-
-/**
- * 发送消息
- */
-const sendMessage = () => {
-  const trimmedMsg = newMessage.value.trim();
-  if (!trimmedMsg) return;
-
-  const message: Message = {
-    id: Date.now(),
-    content: trimmedMsg,
-    sender: 'me',
-    // time: new Date(),
-  };
-
-  activeContact.value.messages.push(message);
-  activeContact.value.lastMessage = message.content;
-  newMessage.value = '';
-  const reMsg: Message = {
-    id:Date.now(),
-    content: '',
-    sender: 'other',
-  };
-  activeContact.value.messages.push(reMsg)
-  lastMsgIndex.value = activeContact.value.messages.length-1
-  // 超时检测
-  if(timer != null) clearInterval(timer)
-  timer = setInterval(()=>{
-    const currentTime = new Date()
-    if(currentTime.getTime() - lastMsgTime.value.getTime() > timeoutTime){
-      ElMessage.error('消息返回超时')
-      clearInterval(timer)
-    }
-  },timeoutTime)
-
-  chatStream(trimmedMsg, chatMsgHander);
-  nextTick(scrollToBottom);
-};
-
-const chatMsgHander = (msg : string) =>{
-  if(msg == null && timer != null){
-    clearInterval(timer)
-  }
-  activeContact.value.messages[lastMsgIndex.value].content += msg;
 }
 
-/**
- * 选择聊天联系人
- */
-const selectContact = (contact: Contact) => {
-  activeContact.value = contact;
-  // 重置未读计数
-  contact.unreadCount = 0;
-  // 更新响应式数组
-  contacts.value = contacts.value.map(item =>
-      item.id === contact.id ? { ...item, unreadCount: 0 } : item
-  );
-
-  // 移动端适配：切换到聊天界面
-  if (window.innerWidth <= 768) {
-    showChatArea.value = true;
-  }
-
-  // 滚动到底部
-  nextTick(scrollToBottom);
-};
-
-/**
- * 滚动聊天区域到底部
- */
-const scrollToBottom = () => {
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-  }
-};
-
-/**
- * 格式化消息时间
- */
-const formatTime = (time: Date) => {
-  const date = new Date(time);
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-
-  // 1分钟内
-  if (diff < 60 * 1000) {
-    return '刚刚';
-  }
-  // 1小时内
-  else if (diff < 60 * 60 * 1000) {
-    return `${Math.floor(diff / (60 * 1000))}分钟前`;
-  }
-  // 今天
-  else if (date.toDateString() === now.toDateString()) {
-    return date.toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-  // 昨天
-  else if (diff < 24 * 60 * 60 * 1000) {
-    return `昨天 ${date.toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`;
-  }
-  // 更早时间
-  else {
-    return `${date.toLocaleDateString('zh-CN')} ${date.toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`;
-  }
-};
-
-/**
- * 处理键盘事件（Enter发送消息，Shift+Enter换行）
- */
-const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
-    sendMessage();
-  }
-};
-
-// ========================== 生命周期钩子 ==========================
 onMounted(() => {
-  // 初始化SSE连接
-  // postRequestStream()
+  console.log('初始化图容器')
+  initGraph();
+})
 
-  // 初始滚动到底部
-  scrollToBottom();
+onBeforeUnmount(() => {
+  if (graph) {
+    graph.destroy()
+  }
+})
 
-  // 窗口大小变化监听
-  const handleResize = () => {
-    showChatArea.value = window.innerWidth > 768;
-  };
+// 更新知识图谱
+const updateKGData = (data: any) => {
+  console.log('更新图数据')
+  if (graph) {
+    console.log('添加图数据')
+    graph.addData(data)
+    graph.render()
+    console.log('渲染图数据')
+  }
+}
 
-  window.addEventListener('resize', handleResize);
+const handleSubmit = () => {
+  if (userInput.value.trim() && !isLoading.value) {
+    getAIResponse(userInput.value)
+  }
+}
 
-  // 清理函数
-  onUnmounted(() => {
-    window.removeEventListener('resize', handleResize);
-  });
-});
-
-onUnmounted(() => {
-
-});
+const clearConversation = () => {
+  userInput.value = ''
+  aiResponse.value = ''
+  isLoading.value = false
+  if (graph) {
+    graph.clear().then(() => {
+      if (graph) graph.render()
+    })
+  }
+}
 </script>
 
+<template>
+  <div class="main-container">
+    <!-- 左侧聊天区域 -->
+    <div class="left-panel">
+      <div class="chat-container">
+        <!-- 原有聊天界面保持不变 -->
+        <div class="header">
+          <h1>AI 助手</h1>
+          <button @click="clearConversation" class="clear-btn">清除</button>
+        </div>
+
+        <div class="response-section" v-if="aiResponse || isLoading">
+          <div class="ai-response">
+            <div v-if="isLoading" class="loading">
+              <span>AI正在思考中...</span>
+            </div>
+            <div v-else class="response-content" v-html="renderedResponse"></div>
+          </div>
+        </div>
+
+        <div class="input-section">
+          <textarea
+              v-model="userInput"
+              placeholder="请输入您的问题..."
+              rows="3"
+              class="user-input"
+              @keydown.enter.exact.prevent="handleSubmit"
+          ></textarea>
+          <button
+              @click="handleSubmit"
+              :disabled="!userInput.trim() || isLoading"
+              class="submit-btn"
+          >
+            {{ isLoading ? '处理中...' : '发送' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧知识图谱区域 -->
+    <div class="right-panel">
+      <div class="kg-section">
+        <h3>相关知识图谱</h3>
+        <div ref="graphContainer" class="graph-container"></div>
+      </div>
+    </div>
+  </div>
+</template>
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-  background-color: #f0f2f5;
-  height: 100vh;
+/* 主容器布局 - 亮色简约风格 */
+.main-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.chat-container {
-  width: 90%;
-  max-width: 1200px;
-  height: 90vh;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  display: flex;
-  overflow: hidden;
-}
-
-/* 左侧联系人列表 */
-.contacts-sidebar {
-  width: 30%;
-  min-width: 250px;
-  border-right: 1px solid #e0e0e0;
-  display: flex;
-  flex-direction: column;
-}
-
-.user-profile {
-  padding: 20px;
-  background-color: #0084ff;
-  color: white;
-  display: flex;
-  align-items: center;
-}
-
-.user-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #005bb5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  margin-right: 15px;
-}
-
-.search-box {
-  padding: 15px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.search-box input {
+  height: 740px;
+  gap: 24px;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   width: 100%;
-  padding: 10px 15px;
-  border-radius: 20px;
-  border: 1px solid #e0e0e0;
-  outline: none;
-}
-
-.contacts-list {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.contact-item {
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.contact-item:hover {
-  background-color: #f5f5f5;
-}
-
-.contact-item.active {
-  background-color: #e9f3ff;
-}
-
-.contact-avatar {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background-color: #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  font-size: 18px;
-}
-
-.contact-info {
-  flex: 1;
-}
-
-.contact-name {
-  font-weight: 600;
-  margin-bottom: 5px;
-}
-
-.last-message {
-  color: #757575;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 右侧聊天区域 */
-.chat-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-header {
-  padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex;
-  align-items: center;
-}
-
-.chat-contact-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-}
-
-.chat-contact-info {
-  flex: 1;
-}
-
-.chat-contact-name {
-  font-weight: 600;
-}
-
-.chat-contact-status {
-  color: #757575;
-  font-size: 14px;
-}
-
-.chat-header-actions {
-  display: flex;
-  gap: 15px;
-}
-
-.chat-header-actions i {
-  font-size: 18px;
-  color: #757575;
-  cursor: pointer;
-}
-
-.messages-container {
-  flex: 1;
   padding: 20px;
-  overflow-y: auto;
-  background-color: #f5f7fa;
+  box-sizing: border-box;
+  background-color: #ffffff; /* 纯白背景 */
+}
+
+.left-panel {
+  flex: 1;
+  min-width: 300px;
+  max-width: 600px;
+}
+
+.right-panel {
+  flex: 1;
+  min-width: 400px;
+}
+
+/* 聊天容器样式调整 */
+.chat-container {
   display: flex;
   flex-direction: column;
+  height: 95%;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  padding: 20px;
 }
 
-.message {
-  max-width: 70%;
-  padding: 12px 15px;
-  margin-bottom: 15px;
-  border-radius: 18px;
-  position: relative;
-  word-wrap: break-word;
-}
-
-.message.received {
-  align-self: flex-start;
-  background-color: #fff;
-  border-top-left-radius: 5px;
-}
-
-.message.sent {
-  align-self: flex-end;
-  background-color: #0084ff;
-  color: white;
-  border-top-right-radius: 5px;
-}
-
-.message-time {
-  font-size: 12px;
-  margin-top: 5px;
-  text-align: right;
-  opacity: 0.7;
-}
-
-.message-input-area {
-  padding: 15px 20px;
-  border-top: 1px solid #e0e0e0;
+.header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  background-color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.message-input-tools {
-  display: flex;
-  gap: 15px;
-  margin-right: 15px;
+.header h1 {
+  color: #333333;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
 }
 
-.message-input-tools i {
-  font-size: 20px;
-  color: #757575;
+.clear-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 6px 12px;
+  border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: #495057;
 }
 
-.message-input {
+.clear-btn:hover {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+}
+
+/* 响应区域样式 */
+.response-section {
   flex: 1;
-  padding: 12px 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 24px;
-  outline: none;
-  resize: none;
-  max-height: 120px;
-  overflow-y: auto;
+  min-height: 0;
+  margin-bottom: 20px;
+  overflow: hidden;
 }
 
-.send-button {
-  margin-left: 15px;
-  background-color: #0084ff;
+.ai-response {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fafafa;
+  border-radius: 8px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.response-content {
+  flex: 1;
+  overflow-y: auto;
+  line-height: 1.7;
+  color: #333;
+  font-size: 0.95rem;
+  padding-right: 8px;
+}
+
+/* 输入区域样式 */
+.input-section {
+  margin-top: auto;
+}
+
+.user-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  resize: vertical;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #ffffff;
+}
+
+.user-input:focus {
+  outline: none;
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+}
+
+.submit-btn {
+  background-color: #409eff;
   color: white;
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  font-weight: 500;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #337ecc;
+}
+
+.submit-btn:disabled {
+  background-color: #a0cfff;
+  cursor: not-allowed;
+}
+
+/* 加载状态样式 */
+.loading {
   display: flex;
   align-items: center;
+  color: #666;
+  padding: 16px;
   justify-content: center;
-  cursor: pointer;
+  height: 100%;
 }
 
-.connection-status {
-  padding: 5px 10px;
-  font-size: 12px;
-  border-radius: 10px;
-  margin-left: 10px;
-}
-
-.connected {
-  background-color: #e7f7ef;
-  color: #0caf60;
-}
-
-.disconnected {
-  background-color: #fde8e8;
-  color: #f14e4e;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .chat-container {
-    width: 100%;
-    height: 100vh;
-    border-radius: 0;
-  }
-
-  .contacts-sidebar {
-    width: 100%;
-    display: none;
-  }
-
-  .contacts-sidebar.mobile-visible {
-    display: flex;
-  }
-
-  .chat-area {
-    display: none;
-  }
-
-  .chat-area.mobile-visible {
-    display: flex;
-  }
-}
-
-.typing-indicator {
-  align-self: flex-start;
-  display: flex;
-  gap: 5px;
-  padding: 10px 15px;
-  background-color: #fff;
-  border-radius: 18px;
-  margin-bottom: 15px;
-}
-
-.typing-indicator .dot {
-  width: 8px;
-  height: 8px;
+.loading::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #409eff;
   border-radius: 50%;
-  background-color: #999;
-  animation: typing 1.4s infinite ease-in-out both;
+  margin-right: 10px;
+  animation: spin 1s linear infinite;
 }
 
-.typing-indicator .dot:nth-child(1) {
-  animation-delay: -0.32s;
-}
-
-.typing-indicator .dot:nth-child(2) {
-  animation-delay: -0.16s;
-}
-
-@keyframes typing {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-.typing-cursor {
-  animation: blink 1s step-end infinite;
+/* 知识图谱区域样式 */
+.kg-section {
+  height: 95%;
+  width: 95%;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
 }
 
-@keyframes blink {
-  from, to { opacity: 1; }
-  50% { opacity: 0; }
+.kg-section h3 {
+  margin: 0 0 16px 0;
+  padding: 0;
+  flex: 0 0 auto;
+  color: #333333;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
+.graph-container {
+  flex: 1 1 auto;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: #fafafa;
+}
+
+/* Markdown 内容样式优化 */
+.response-content :deep(h1),
+.response-content :deep(h2),
+.response-content :deep(h3) {
+  margin: 1em 0 0.5em 0;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.response-content :deep(p) {
+  margin: 0.8em 0;
+}
+
+.response-content :deep(ul),
+.response-content :deep(ol) {
+  margin: 0.8em 0;
+  padding-left: 1.8em;
+}
+
+.response-content :deep(li) {
+  margin: 0.3em 0;
+}
+
+.response-content :deep(code) {
+  background-color: #f1f1f1;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.response-content :deep(pre) {
+  background-color: #f1f1f1;
+  padding: 1em;
+  border-radius: 5px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.response-content :deep(blockquote) {
+  border-left: 3px solid #e2e8f0;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #64748b;
+}
+
+/* 滚动条美化 */
+.response-content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.response-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.response-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.response-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 </style>

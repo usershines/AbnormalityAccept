@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,7 +47,11 @@ import java.io.IOException;
 public class UserController {
 
     private final UserService userService;
-    private final FaceRecogService faceRecogService;
+
+    @Qualifier("faceRecogServiceImplLocal")
+    @Autowired
+    private FaceRecogService faceRecogService;
+
     private final RedisService redisService;
 
     @PostMapping("/face/reg")

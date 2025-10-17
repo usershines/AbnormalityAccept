@@ -6,6 +6,19 @@ server:
 dashscope:
   api-key: sk-3bc4427a2ad54af1b16806637d37bcd5
   model: qwen-plus
+  endpoint: https://dashscope.aliyuncs.com/compatible-mode/v1
+
+rag-flow:
+  endpoint: http://ragflow.server.poyuan233.cn:8088/api/v1/chats_openai
+  api-key: ragflow-I2NDMwOGIyYWIxNjExZjA5NmMwOWFkM2
+  model: deepseek-v3.1
+  chat-id: 607ab8c8ab1511f081eb9ad3a954ee2e
+
+neo4j:
+  uri: neo4j://poyuan.kmdns.net:7687
+  user: neo4j
+  password: poyuan666
+
 
 rmi:
   port: 1099

@@ -16,12 +16,14 @@ public class AiChatConfig {
 
     @Value("${rag-flow.endpoint}")
     private String endpoint;
+    @Value("${rag-flow.chat-id}")
+    private String chatId;
 
     @Bean
     public OpenAIClient openAIClient() {
         return OpenAIOkHttpClient.builder()
                 .apiKey(apiKey)
-                .baseUrl(endpoint)
+                .baseUrl(endpoint+"/"+chatId)
                 .build();
     }
 }

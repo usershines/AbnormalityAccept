@@ -20,7 +20,7 @@ import java.io.InputStream;
 
 @Slf4j
 @Service
-public class FacerRecogServiceImpl implements FaceRecogService {
+public class FaceRecogServiceImpl implements FaceRecogService {
 
 
     private String targetUrl="http://127.0.0.1:5678";
@@ -98,7 +98,7 @@ public class FacerRecogServiceImpl implements FaceRecogService {
                 .setDbName(dbName).setEntityId(userId);
         RuntimeOptions runtime = new RuntimeOptions();
         com.aliyun.facebody20191230.models.GetFaceEntityResponse getFaceEntityResponse = client.getFaceEntity(getFaceEntityRequest);
-        FacerRecogServiceImpl.log.info(JSONUtil.toJsonStr(getFaceEntityResponse.getBody()));
+        FaceRecogServiceImpl.log.info(JSONUtil.toJsonStr(getFaceEntityResponse.getBody()));
         return getFaceEntityResponse.getBody().getData() != null;
     }
 

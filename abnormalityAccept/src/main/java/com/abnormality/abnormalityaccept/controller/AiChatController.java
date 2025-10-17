@@ -4,6 +4,7 @@ import com.abnormality.abnormalityaccept.dto.Result;
 import com.abnormality.abnormalityaccept.dto.request.AiChatRequest;
 import com.abnormality.abnormalityaccept.service.AiChatService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Flux;
 @RequestMapping("aichat")
 public class AiChatController {
 
+    @Qualifier("aiChatServiceImplLocal")
     @Autowired
     private AiChatService aiChatService;
 
@@ -29,7 +31,7 @@ public class AiChatController {
 
     @PostMapping("/chatStream")
     public Flux<ServerSentEvent<String>> chatStream(@RequestBody AiChatRequest request) {
-        return aiChatService.chatStream(request.getMessage(),request.getUserId(), request.isContentOnly());
+        return aiChatService.chatStream(request.getMessage(),request.getUserId(), request.isContentOnly(),request.isEnableGraphRag());
     }
 
 }

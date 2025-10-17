@@ -9,5 +9,6 @@ public class AiChatRequest {
     private String userId;
     private String userName;
     private boolean contentOnly;
+    private boolean enableGraphRag;
 
 }

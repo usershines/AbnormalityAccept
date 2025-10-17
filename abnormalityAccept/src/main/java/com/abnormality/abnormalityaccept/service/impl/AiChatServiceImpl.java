@@ -52,7 +52,7 @@ public class AiChatServiceImpl implements AiChatService {
     }
 
     @Override
-    public Flux<ServerSentEvent<String>> chatStream(String message, String userId,boolean contentOnly) {
+    public Flux<ServerSentEvent<String>> chatStream(String message, String userId,boolean contentOnly,boolean enableGraphRag) {
         // 使用 Sinks.Many 创建一个可发射多个元素的发布者
         Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().multicast().onBackpressureBuffer();
 

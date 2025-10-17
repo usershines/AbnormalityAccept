@@ -179,15 +179,16 @@ const handleUpload = async () => {
     } else {
       ElMessage.error(`上传失败: ${res.msg}`);
     }
-  } catch (error) {
+  } catch (error:any) {
     console.error('上传出错:', error);
-    if (error.response) {
-      ElMessage.error(`上传失败: ${error.response.data?.message || '服务器错误'}`);
-    } else if (error.request) {
-      ElMessage.error('上传超时，请检查网络');
-    } else {
-      ElMessage.error('上传过程中发生错误');
-    }
+    // if (error.response) {
+    //   ElMessage.error(`上传失败: ${error.response.data?.message || '服务器错误'}`);
+    // } else if (error.request) {
+    //   ElMessage.error('上传超时，请检查网络');
+    // } else {
+    //   ElMessage.error('上传过程中发生错误');
+    // }
+    ElMessage.error('上传出错'+error.msg);
   } finally {
     isUploading.value = false;
   }

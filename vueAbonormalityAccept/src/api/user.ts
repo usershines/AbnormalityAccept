@@ -58,7 +58,7 @@ export function login(form:any) {
 
 // 人脸登录
 export function faceRecognize(faceImg:any){
-    return request.post('/user/face', faceImg)
+    return request.post('/user/face', faceImg,{headers:{'Content-Type': 'multipart/form-data'}})
 }
 
 // 注册人脸

@@ -52,8 +52,9 @@ public class N4jClient {
             String predicate=record.get(1).asString();
             String object=record.get(2).asString();
             String relation=subject+"-"+predicate+"->"+object;
-            if(edgeSeen.getOrDefault(relation,0)!=1&&curNum<maxNum){
-                edgeSeen.put(relation,1);
+            String nRelation=subject+"-"+object;
+            if(edgeSeen.getOrDefault(nRelation,0)!=1&&curNum<maxNum){
+                edgeSeen.put(nRelation,1);
                 kgData.getEdges().add(KgEdge.newRelation(subject,predicate,object));
             }
             if(nodeSeen.getOrDefault(subject,0)!=1&&curNum<maxNum){

@@ -116,9 +116,17 @@ export async function postRequestStream(url:string, headers = {}, body = {}, hun
         }
 
         // 将清理后的数据块解析为JSON对象
-        // var jsonChunk = JSON.parse(cleanedChunk);
+        try {
+          var jsonChunk = JSON.parse(cleanedChunk);
+          hundleFunc(jsonChunk);
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+          console.error('Offending data:', cleanedChunk);
+          continue; // 忽略解析错误，继续处理下一个数据块
+        }
+        
         // 调用回调函数处理每个JSON数据块
-        hundleFunc(cleanedChunk);
+        
       }
     }
 

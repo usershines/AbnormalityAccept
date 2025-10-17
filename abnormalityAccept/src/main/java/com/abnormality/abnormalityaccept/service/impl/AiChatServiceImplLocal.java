@@ -121,7 +121,7 @@ public class AiChatServiceImplLocal implements AiChatService {
                 if (text != null && !text.isEmpty()) {
                     // 发送文本内容到前端
                     ServerSentEvent<String> event = ServerSentEvent.<String>builder()
-                            .data(text)
+                            .data(JSONUtil.toJsonStr(AiChatStreamResponse.newText(text)))
                             .build();
                     sink.tryEmitNext(event);
                 }

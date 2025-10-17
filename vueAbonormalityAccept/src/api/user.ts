@@ -56,6 +56,11 @@ export function login(form:any) {
     return request.post("/user/login", form)
 }
 
+// 人脸登录
+export function faceRecognize(faceImg:any){
+    return request.post('/user/face', faceImg)
+}
+
 // 分页获取用户信息
 export function getUserList(pageNum: number, pageSize: number){
     return request.get('/user/list', {

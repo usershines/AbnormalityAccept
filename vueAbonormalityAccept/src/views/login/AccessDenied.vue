@@ -10,7 +10,7 @@
       <p>系统检测到无效的身份凭证，您的访问请求已被拒绝</p>
       <div class="error-details">
         <p>错误代码: <span>SCP-ACCESS-DENIED-401</span></p>
-        <p>安全等级: <span>LEVEL 4</span></p>
+        <p>安全等级: <span>UNKNOWN</span></p>
       </div>
       <button @click="redirectToLogin" class="retry-btn">返回登录页面</button>
     </div>

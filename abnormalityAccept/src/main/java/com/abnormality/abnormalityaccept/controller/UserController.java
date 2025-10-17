@@ -9,6 +9,8 @@ import com.abnormality.abnormalityaccept.entity.User;
 import com.abnormality.abnormalityaccept.enums.Code;
 import com.abnormality.abnormalityaccept.exception.ServiceException;
 import com.abnormality.abnormalityaccept.mapper.EmailMapper;
+import com.abnormality.abnormalityaccept.service.FaceRecogService;
+import com.abnormality.abnormalityaccept.service.RedisService;
 import com.abnormality.abnormalityaccept.service.UserService;
 import com.abnormality.abnormalityaccept.util.AopUtil;
 import com.github.pagehelper.PageInfo;
@@ -24,7 +26,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 
 
 /**
@@ -42,7 +46,29 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final FaceRecogService faceRecogService;
+    private final RedisService redisService;
 
+    @PostMapping("/face/reg")
+    @AuthIgnore
+    public Result<String> faceReg(@RequestParam MultipartFile image,
+                                        @RequestParam String id) throws Exception {
+        return Result.ok(faceRecogService.faceRegister(image.getBytes(), id));
+    }
+
+    @PostMapping("/face")
+    @AuthIgnore
+    public Result<AuthResponse> faceRecognize(@RequestParam MultipartFile image) throws Exception {
+
+        Long userId = Long.valueOf(faceRecogService.faceRecognize(image.getBytes()));
+        AuthResponse authResponse = new AuthResponse();
+        User user = userService.findUserById(userId, 0L);
+        authResponse.setName(user.getUsername());
+        String token = userService.generateJwt(user);
+        redisService.setEx(userService.getTokenKey(token), token, 12 * 60 * 60);
+        authResponse.setToken(token);
+        return Result.ok(authResponse);
+    }
 
     @Operation(summary = "用户注册")
     @PostMapping("/register")

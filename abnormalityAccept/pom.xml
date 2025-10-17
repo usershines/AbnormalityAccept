@@ -184,7 +184,11 @@
             <artifactId>elasticsearch</artifactId>
             <version>8.15.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
+        </dependency>
 
         <!--引入PageHelper分页插件 → PageHelper-->
 <!--        <dependency>-->
@@ -214,11 +218,21 @@
             <version>3.0.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>tea-openapi</artifactId>
+            <version>0.3.10</version>
+        </dependency>
         <!---动态数据源-->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
             <version>4.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>4.4.0</version>
         </dependency>
 
         <dependency>
@@ -260,6 +274,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>facebody20191230</artifactId>
+            <version>5.1.2</version>
         </dependency>
 
 

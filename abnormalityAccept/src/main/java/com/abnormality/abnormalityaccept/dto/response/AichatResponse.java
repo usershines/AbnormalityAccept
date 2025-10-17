@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class AichatResponse {
 
-    private String message;
-    private String status;
+    private String type;
+    private Object data;
 
 }

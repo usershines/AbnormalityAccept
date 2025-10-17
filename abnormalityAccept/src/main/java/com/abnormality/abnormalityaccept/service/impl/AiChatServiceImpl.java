@@ -12,6 +12,7 @@ import com.alibaba.dashscope.exception.ApiException;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.utils.JsonUtils;
+import com.openai.client.OpenAIClient;
 import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,8 @@ public class AiChatServiceImpl implements AiChatService {
 
     @Value("${dashscope.api-key}")
     private String apiKey;
+
+//    private OpenAIClient openAIClient;
     @Override
     public String chat(String message) {
         return "";

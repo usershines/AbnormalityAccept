@@ -413,7 +413,7 @@ public class UserServiceImpl    implements UserService {
      * @param user 用户对象，用于提取用户名和权限等级
      * @return 生成的 JWT Token 字符串
      */
-    private String generateJwt(User user) {
+    public String generateJwt(User user) {
         String key = SecureUtil.md5(keyBase + user.getUsername());
         byte[] keytBytes = key.getBytes();
         log.info("生成JWT参数");
@@ -496,7 +496,7 @@ public class UserServiceImpl    implements UserService {
      * @param token 登录 Token
      * @return Redis 中存储的键名
      */
-    private String getTokenKey(String token) {
+    public String getTokenKey(String token) {
         JWT jwt = JWT.of(token);
         return jwt.getPayload("username").toString();
     }

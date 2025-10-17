@@ -1,5 +1,72 @@
 <template>
   <el-main class="page-container personal-page">
+    <!-- 摄像头弹窗 -->
+    <el-dialog
+        title="摄像头截图"
+        v-model="dialogVisible"
+        :width="dialogWidth"
+        :before-close="handleDialogClose"
+        destroy-on-close
+    >
+      <div class="camera-content">
+        <!-- 摄像头视频流 -->
+        <video
+            ref="videoRef"
+            class="camera-video"
+            autoplay
+            playsinline
+            v-if="!showCapturedImage"
+        ></video>
+
+        <!-- 截取的图片 -->
+        <div class="captured-image-container" v-else>
+          <img
+              :src="capturedImageUrl"
+              alt="截取的图片"
+              class="captured-image"
+          >
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="handleDialogClose">取消</el-button>
+
+          <!-- 截图按钮 -->
+          <el-button
+              type="primary"
+              @click="captureImage"
+              :disabled="!isCameraActive || showCapturedImage"
+              v-if="!showCapturedImage"
+          >
+            <el-icon><camera /></el-icon>
+            截取画面
+          </el-button>
+
+          <!-- 重新拍摄按钮 -->
+          <el-button
+              type="warning"
+              @click="resetCapture"
+              v-if="showCapturedImage"
+          >
+            <el-icon><refresh-left /></el-icon>
+            重新拍摄
+          </el-button>
+
+          <!-- 上传按钮 -->
+          <el-button
+              type="success"
+              @click="handleUpload"
+              v-if="showCapturedImage && !isUploading"
+          >
+            <el-icon v-if="!isUploading"><upload /></el-icon>
+            <el-icon v-if="isUploading"><loading /></el-icon>
+            {{ isUploading ? '上传中...' : '上传图片' }}
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+
     <div class="personal-header">
       <!-- 个人头像 -->
       <div class="personal-avatar">
@@ -24,6 +91,11 @@
               @click="dialogPasswordVisible = true"
             >
               修改密码
+            </el-button>
+            <!--- 打开摄像头 -->
+            <el-button type="primary" @click="dialogVisible = true" class="access-btn" >
+              <el-icon><camera-filled /></el-icon>
+              注册人脸登录
             </el-button>
           </h1>
         </div>
@@ -145,10 +217,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive,  shallowRef, onMounted } from 'vue';
+import {ref, reactive, shallowRef, onMounted, onUnmounted, watch} from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import * as userApi from '@/api/user.ts';
-import {Edit, Key} from "@element-plus/icons-vue";
+import {Camera, CameraFilled, Edit, Key, RefreshLeft, Upload} from "@element-plus/icons-vue";
 import router from '@/router';
 
 
@@ -241,12 +313,6 @@ const initData=async()=>{
   editUser.value = {...user.value};
 }
 
-onMounted(()=>{
-  initData()
-})
-
-
-
 // 取消编辑
 const handleCancel = () => {
   dialogFormVisible.value = false;
@@ -301,6 +367,181 @@ const handleSavePassword = async () => {
     ElMessage.error(res.msg);
   }
 };
+
+// 弹窗状态
+const dialogVisible = ref(false);
+const dialogWidth = ref('800px');
+
+// 摄像头相关
+const videoRef = ref(null);
+const stream = ref(null);
+const isCameraActive = ref(false);
+const canvas = ref(document.createElement('canvas'));
+
+// 截图相关
+const capturedImageUrl = ref('');
+const showCapturedImage = ref(false);
+
+// 上传相关
+const isUploading = ref(false);
+
+// 打开摄像头
+const startCamera = async () => {
+  try {
+    // 请求摄像头权限
+    stream.value = await navigator.mediaDevices.getUserMedia({
+      video: {
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        facingMode: 'user' // 使用前置摄像头
+      }
+    });
+
+    // 将视频流绑定到video元素
+    if (videoRef.value) {
+      videoRef.value.srcObject = stream.value;
+      isCameraActive.value = true;
+
+      // 等待视频加载完成后设置canvas尺寸
+      videoRef.value.onloadedmetadata = () => {
+        canvas.value.width = videoRef.value.videoWidth;
+        canvas.value.height = videoRef.value.videoHeight;
+      };
+    }
+  } catch (error) {
+    console.error('摄像头访问失败:', error);
+    ElMessage.error('无法访问摄像头，请检查权限设置');
+    dialogVisible.value = false;
+  }
+};
+
+// 关闭摄像头
+const stopCamera = () => {
+  if (stream.value) {
+    stream.value.getTracks().forEach(track => {
+      track.stop();
+    });
+    stream.value = null;
+    isCameraActive.value = false;
+  }
+};
+
+// 截取当前画面
+const captureImage = () => {
+  if (!videoRef.value || !stream.value) return;
+
+  // 将视频当前帧绘制到canvas
+  const ctx = canvas.value.getContext('2d');
+  ctx.drawImage(
+      videoRef.value,
+      0, 0,
+      canvas.value.width,
+      canvas.value.height
+  );
+
+  // 将canvas内容转换为图片URL
+  capturedImageUrl.value = canvas.value.toDataURL('image/png');
+  showCapturedImage.value = true;
+
+  ElMessage.success('已成功截取画面');
+};
+
+// 重置截图，重新拍摄
+const resetCapture = () => {
+  capturedImageUrl.value = '';
+  showCapturedImage.value = false;
+  startCamera(); // 重新启动摄像头
+};
+
+// 处理图片上传（适配仅接受图片数据的POST接口）
+const handleUpload = async () => {
+  if (!capturedImageUrl.value) {
+    ElMessage.warning('请先截取图片');
+    return;
+  }
+
+  try {
+    isUploading.value = true;
+
+    // 将dataURL转换为Blob对象（图片二进制数据）
+    const blob = dataURLToBlob(capturedImageUrl.value);
+
+    // 创建FormData
+    const formData = new FormData();
+    // 注意：这里的键名（如'image'）需要与后端接口要求的参数名一致
+    formData.append('image', blob, 'captured-image.png');
+
+    let userID;
+    userID = localStorage.getItem('userid')
+    if(!userID) {
+      ElMessage.error('请先登录');
+      return
+    }
+
+    const res = await userApi.faceReg(userID,formData);
+
+    // 4. 处理成功响应
+    if (res.code === 200) {
+      ElMessage.success('图片上传成功');
+      console.log('上传成功响应:', res.data);
+      dialogVisible.value = false; // 上传成功后关闭弹窗
+    } else {
+      ElMessage.error(`上传失败: ${res.msg}`);
+    }
+  } catch (error) {
+    console.error('上传出错:', error);
+    if (error.response) {
+      ElMessage.error(`上传失败: ${error.response.data?.message || '服务器错误'}`);
+    } else if (error.request) {
+      ElMessage.error('上传超时，请检查网络');
+    } else {
+      ElMessage.error('上传过程中发生错误');
+    }
+  } finally {
+    isUploading.value = false;
+  }
+};
+
+// 辅助函数：将dataURL转换为Blob对象
+const dataURLToBlob = (dataUrl:string) => {
+  const arr = dataUrl.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new Blob([u8arr], { type: mime });
+};
+
+// 处理弹窗关闭
+const handleDialogClose = () => {
+  stopCamera();
+  capturedImageUrl.value = '';
+  showCapturedImage.value = false;
+  dialogVisible.value = false;
+};
+
+// 监听弹窗显示状态，控制摄像头开关
+watch(dialogVisible, (newVal) => {
+  if (newVal) {
+    startCamera();
+  } else {
+    stopCamera();
+  }
+});
+
+onMounted(()=>{
+  initData()
+})
+
+
+onUnmounted(()=>{
+  stopCamera();
+});
 </script>
 
 <style scoped>
@@ -424,5 +665,36 @@ const handleSavePassword = async () => {
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
+}
+
+.camera-content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.camera-video {
+  max-width: 100%;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.captured-image-container {
+  width: 100%;
+  text-align: center;
+}
+
+.captured-image {
+  max-width: 100%;
+  max-height: 500px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dialog-footer {
+  display: flex;
+  gap: 8px;
 }
 </style>

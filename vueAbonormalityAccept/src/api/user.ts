@@ -61,6 +61,15 @@ export function faceRecognize(faceImg:any){
     return request.post('/user/face', faceImg)
 }
 
+// 注册人脸
+export function faceReg(userID:any, faceImg:any){
+    return request.post('/user/face/reg', faceImg, {
+        params:{
+            id: userID,
+        }
+    })
+}
+
 // 分页获取用户信息
 export function getUserList(pageNum: number, pageSize: number){
     return request.get('/user/list', {

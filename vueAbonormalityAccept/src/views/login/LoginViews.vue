@@ -30,6 +30,7 @@ const onSubmit = () => {
     if(res.code === 200){
       localStorage.setItem('token',res.data.token);
       localStorage.setItem('username',res.data.name);
+      localStorage.setItem('userid',res.data.id);
       ElMessage.success("认证成功! 正在进入系统...")
       router.push("/start")
     }
@@ -76,8 +77,6 @@ const showCapturedImage = ref(false);
 
 // 上传相关
 const isUploading = ref(false);
-// 后端接口地址，请替换为实际接口
-const uploadApiUrl = ref('/api/upload-image');
 
 // 打开摄像头
 const startCamera = async () => {
@@ -165,15 +164,20 @@ const handleUpload = async () => {
     // 注意：这里的键名（如'image'）需要与后端接口要求的参数名一致
     formData.append('image', blob, 'captured-image.png');
 
-    const response = await faceRecognize(formData);
+    const res = await faceRecognize(formData);
 
     // 4. 处理成功响应
-    if (response.code === 200) {
+    if (res.code === 200) {
       ElMessage.success('图片上传成功');
-      console.log('上传成功响应:', response.data);
+      console.log('上传成功响应:', res.data);
+      localStorage.setItem('token',res.data.token);
+      localStorage.setItem('username',res.data.name);
+      localStorage.setItem('userid',res.data.id);
+      ElMessage.success("认证成功! 正在进入系统...")
       dialogVisible.value = false; // 上传成功后关闭弹窗
+      router.push("/start")
     } else {
-      ElMessage.error(`上传失败: ${response.msg}`);
+      ElMessage.error(`上传失败: ${res.msg}`);
     }
   } catch (error) {
     console.error('上传出错:', error);
